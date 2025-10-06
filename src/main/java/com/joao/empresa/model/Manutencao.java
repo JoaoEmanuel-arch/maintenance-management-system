@@ -1,6 +1,7 @@
 package main.java.com.joao.empresa.model;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 public class Manutencao extends Entidade {
 
@@ -125,6 +126,20 @@ public class Manutencao extends Entidade {
 
     public void setStatus(Status status) {
         this.status = status;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Manutencao that)) return false;
+        return Double.compare(custo, that.custo) == 0 && Objects.equals(dataInicio, that.dataInicio)
+                && Objects.equals(dataFim, that.dataFim) && tipoManutencao == that.tipoManutencao
+                && Objects.equals(descricao, that.descricao) && Objects.equals(tecnicoResponsavel, that.tecnicoResponsavel)
+                && Objects.equals(equipamento, that.equipamento) && status == that.status;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(dataInicio, dataFim, tipoManutencao, descricao, custo, tecnicoResponsavel, equipamento, status);
     }
 
     @Override
