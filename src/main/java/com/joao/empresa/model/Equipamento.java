@@ -1,9 +1,11 @@
 package main.java.com.joao.empresa.model;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
+
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 public class Equipamento extends Entidade {
 
@@ -11,7 +13,7 @@ public class Equipamento extends Entidade {
     private String codigoPatrimonio;
     private LocalDate dataAquisicao; // tipo específico para datas
 
-    private List<Manutencao> historicoManutencoes = new ArrayList<>();
+    private Set<Manutencao> historicoManutencoes = new LinkedHashSet<>();
 
     public Equipamento(int id, String nome, String codigoPatrimonio, LocalDate dataAquisicao) {
         super(id);
@@ -44,8 +46,8 @@ public class Equipamento extends Entidade {
         this.dataAquisicao = dataAquisicao;
     }
 
-    public List<Manutencao> getHistorico() {
-        return new ArrayList<>(historicoManutencoes); // retorna uma cópia do histórico, evitando alterações
+    public Set<Manutencao> getHistoricoManutencoes() {
+        return historicoManutencoes;
     }
 
     public void adicionarManutencao(Manutencao manutencao) {
