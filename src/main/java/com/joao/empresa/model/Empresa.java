@@ -1,7 +1,7 @@
 package main.java.com.joao.empresa.model;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 public class Empresa extends Entidade {
 
@@ -28,7 +28,7 @@ public class Empresa extends Entidade {
     private String nome, cnpj, endereco, segmento;
     private Status status;
 
-    private List<Equipamento> equipamentos = new ArrayList<>();
+    private Set<Equipamento> equipamentos = new HashSet<>();
 
     public Empresa(int id, String nome, String cnpj, String endereco, String segmento){
         super(id);
@@ -78,8 +78,8 @@ public class Empresa extends Entidade {
         this.status = status;
     }
 
-    public List<Equipamento> getEquipamentos() {
-        return new ArrayList<>(equipamentos); // retorna uma cópia do array
+    public Set<Equipamento> getEquipamentos() {
+        return equipamentos;
     }
 
     public void adicionarEquipamento(Equipamento equipamento){

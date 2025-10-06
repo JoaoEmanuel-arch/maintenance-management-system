@@ -20,7 +20,7 @@ public class GestaoUsuario {
     }
 
     public boolean cadastrarUsuario(Usuario usr){
-        if(buscarPorId(usr.getId()) != null){
+        if(buscarPorId(usr.getId()) != null){ // se já existe, não deixa cadastrar
             return false;
         }
         return usuarios.add(usr);
@@ -34,7 +34,7 @@ public class GestaoUsuario {
         Usuario existente = buscarPorId(alterado.getId());
 
         if(existente != null){
-            existente.atualizarDados(alterado);
+            existente.atualizarDados(alterado); //eu já altero o objeto e não a classe
             existente.atualizarEspecifico(alterado);
         }
     }

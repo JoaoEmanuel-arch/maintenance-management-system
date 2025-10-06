@@ -8,11 +8,10 @@ public class Tecnico extends Usuario {
     private String especialidade;
     private String certificacoes;
 
-    private List<Manutencao> manutencoesResponsaveis = new ArrayList<>(); // List é uma interface(contrato), por baixo pode ser implementado o arraylist
+    private List<Manutencao> manutencoesResponsaveis = new ArrayList<>();
 
     public Tecnico(int id, String nome, String email, String senha, TipoUsuario tipoUsuario, String especialidade, String certificacoes) {
-        super(id, nome, email, senha, TipoUsuario.TECNICO); // com o enum já fica facilmente definido para escolher
-        this.especialidade = especialidade;
+        super(id, nome, email, senha, TipoUsuario.TECNICO);
         this.certificacoes = certificacoes;
     }
 

@@ -14,7 +14,7 @@ public abstract class Usuario extends Entidade{
         }
 
         public String getDescricao() { // retorna somente a descrição
-            return descricao; // quando eu for pedir a descrição
+            return descricao;
         }
 
         @Override

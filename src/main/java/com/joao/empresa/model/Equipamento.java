@@ -3,6 +3,7 @@ package main.java.com.joao.empresa.model;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class Equipamento extends Entidade {
 
@@ -49,6 +50,18 @@ public class Equipamento extends Entidade {
 
     public void adicionarManutencao(Manutencao manutencao) {
         historicoManutencoes.add(manutencao);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Equipamento that)) return false;
+        return Objects.equals(nome, that.nome) && Objects.equals(codigoPatrimonio, that.codigoPatrimonio)
+                && Objects.equals(dataAquisicao, that.dataAquisicao);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(nome, codigoPatrimonio, dataAquisicao);
     }
 
     @Override
