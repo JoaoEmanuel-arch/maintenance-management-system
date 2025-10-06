@@ -1,14 +1,16 @@
 package main.java.com.joao.empresa.model;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Objects;
+import java.util.Set;
 
 public class Tecnico extends Usuario {
 
     private String especialidade;
     private String certificacoes;
 
-    private List<Manutencao> manutencoesResponsaveis = new ArrayList<>();
+    private Set<Manutencao> manutencoesResponsaveis = new LinkedHashSet<>();
 
     public Tecnico(int id, String nome, String email, String senha, TipoUsuario tipoUsuario, String especialidade, String certificacoes) {
         super(id, nome, email, senha, TipoUsuario.TECNICO);
@@ -31,7 +33,7 @@ public class Tecnico extends Usuario {
         this.certificacoes = certificacoes;
     }
 
-    public List<Manutencao> getChamadosAtivos() {
+    public Set<Manutencao> getManutencoesResponsaveis() {
         return manutencoesResponsaveis;
     }
 
@@ -49,6 +51,17 @@ public class Tecnico extends Usuario {
         if(tec.getEspecialidade() != null){
             setEspecialidade(tec.getEspecialidade());
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Tecnico tecnico)) return false;
+        return Objects.equals(especialidade, tecnico.especialidade) && Objects.equals(certificacoes, tecnico.certificacoes);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(especialidade, certificacoes);
     }
 
     @Override
