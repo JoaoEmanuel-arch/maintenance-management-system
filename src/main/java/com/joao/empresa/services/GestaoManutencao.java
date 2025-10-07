@@ -2,15 +2,15 @@ package main.java.com.joao.empresa.services;
 
 import main.java.com.joao.empresa.model.Manutencao;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 public class GestaoManutencao {
 
-    private List<Manutencao> manutencoesAtivas = new ArrayList<>();
+    private Set<Manutencao> manutencoesAtivas = new LinkedHashSet<>();
 
-    private List<Manutencao> manutencoesFinalizadas = new ArrayList<>();
+    private Set<Manutencao> manutencoesFinalizadas = new LinkedHashSet<>();
 
     public Manutencao buscarPorId(int id) {
         for (Manutencao mnt : manutencoesAtivas) {
@@ -28,8 +28,8 @@ public class GestaoManutencao {
         return manutencoesAtivas.add(mnt);
     }
 
-    public List<Manutencao> listarManutencoes() {
-        return Collections.unmodifiableList(manutencoesAtivas);
+    public Set<Manutencao> listarManutencoes() {
+        return Collections.unmodifiableSet(manutencoesAtivas);
     }
 
     public boolean excluirManutencao(int id) {
@@ -48,5 +48,4 @@ public class GestaoManutencao {
         }
         return false;
     }
-    // AQUI TÁ COM MUITAS RESPONSABILIDADES -> CRIAR O HISTORICO SERVICE
 }
