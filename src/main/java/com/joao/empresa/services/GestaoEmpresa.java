@@ -3,12 +3,12 @@ package main.java.com.joao.empresa.services;
 import main.java.com.joao.empresa.model.Empresa;
 
 import java.util.Collections;
-import java.util.List;
-import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 public class GestaoEmpresa {
 
-    private List<Empresa> empresas = new ArrayList<>();
+    private Set<Empresa> empresas = new HashSet<>();
 
     public Empresa buscarPorId(int id){
         for(Empresa emp : empresas){
@@ -26,8 +26,8 @@ public class GestaoEmpresa {
         return empresas.add(emp); //true
     }
 
-    public List<Empresa> listarEmpresas(){
-        return Collections.unmodifiableList(empresas); // retorna uma cópia da lista e não deixa ninguém alterar
+    public Set<Empresa> listarEmpresas(){
+        return Collections.unmodifiableSet(empresas); // retorna uma cópia da lista e não deixa ninguém alterar
     }
 
     public void atualizarEmpresa(Empresa alterada){
