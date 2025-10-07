@@ -1,5 +1,7 @@
 package main.java.com.joao.empresa.model;
 
+import java.util.Objects;
+
 public abstract class Usuario extends Entidade{
 
     public enum TipoUsuario { // uma variável que só pode assumir esses valores:
@@ -78,6 +80,18 @@ public abstract class Usuario extends Entidade{
     }
 
     public abstract void atualizarEspecifico(Usuario alterado); // cada usuário implementa suas atualizações específicas
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Usuario usuario)) return false;
+        return Objects.equals(nome, usuario.nome) && Objects.equals(email, usuario.email)
+                && Objects.equals(senha, usuario.senha) && tipoUsuario == usuario.tipoUsuario;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(nome, email, senha, tipoUsuario);
+    }
 
     @Override
     public String toString() {
