@@ -2,13 +2,11 @@ package main.java.com.joao.empresa.services;
 
 import main.java.com.joao.empresa.model.Usuario;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class GestaoUsuario {
 
-    private List<Usuario> usuarios = new ArrayList<>();
+    private Set<Usuario> usuarios = new HashSet<>();
 
     public Usuario buscarPorId(int id){
         for(Usuario usr : usuarios){
@@ -26,17 +24,26 @@ public class GestaoUsuario {
         return usuarios.add(usr);
     }
 
-    public List<Usuario> listarUsuarios(){
-        return Collections.unmodifiableList(usuarios);
+    public Set<Usuario> listarUsuarios() {
+        return Collections.unmodifiableSet(usuarios);
     }
 
-    public void atualizarUsuario(Usuario alterado){ //aqui já recebe o objeto usuário específico que navega na superclasse
+    public boolean atualizarUsuario(Usuario alterado){ //aqui já recebe o objeto usuário específico que navega na superclasse
         Usuario existente = buscarPorId(alterado.getId());
-
         if(existente != null){
             existente.atualizarDados(alterado); //eu já altero o objeto e não a classe
             existente.atualizarEspecifico(alterado);
+            return true;
         }
+        return false;
+    }
+
+    public boolean removerUsuario(int id){
+        Usuario usr = buscarPorId(id);
+        if(usr != null){
+            return usuarios.remove(usr);
+        }
+        return false;
     }
 
 }
