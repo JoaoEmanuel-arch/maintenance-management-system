@@ -2,13 +2,13 @@ package main.java.com.joao.empresa.services;
 
 import main.java.com.joao.empresa.model.Equipamento;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 public class GestaoEquipamento {
 
-    private List<Equipamento> equipamentos = new ArrayList<>();
+    private Set<Equipamento> equipamentos = new HashSet<>();
 
     public Equipamento buscarPorId(int id){
         for(Equipamento eqp : equipamentos){
@@ -26,8 +26,8 @@ public class GestaoEquipamento {
         return equipamentos.add(eqp);
     }
 
-    public List<Equipamento> listarEquipamentos(){
-        return Collections.unmodifiableList(equipamentos);
+    public Set<Equipamento> listarEquipamentos(){
+        return Collections.unmodifiableSet(equipamentos);
     }
 
     public void atualizarEquipamento(Equipamento alterado){
@@ -53,7 +53,5 @@ public class GestaoEquipamento {
     public boolean excluirEquipamento(int id){
         return equipamentos.removeIf(eqp -> eqp.getId() == id);
     }
-
-
 
 }
