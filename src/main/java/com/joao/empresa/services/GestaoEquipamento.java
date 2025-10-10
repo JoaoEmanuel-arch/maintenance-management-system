@@ -8,7 +8,14 @@ import java.util.Set;
 
 public class GestaoEquipamento {
 
+    private GestaoManutencao gestaoManutencao;
     private Set<Equipamento> equipamentos = new HashSet<>();
+
+    // Injeção de dependência: construtor recebe a referência para eu acessar
+    // os métodos da manutenção
+    public GestaoEquipamento(GestaoManutencao gestaoManutencao) {
+        this.gestaoManutencao = gestaoManutencao;
+    }
 
     public Equipamento buscarPorId(int id){
         for(Equipamento eqp : equipamentos){
@@ -50,7 +57,10 @@ public class GestaoEquipamento {
         }
     }
 
-    public boolean excluirEquipamento(int id){
+    public boolean excluirEquipamento(int id) { //só exclui se não tiver manutenção aberta com ele
+        if (gestaoManutencao.existeManutencaoDoEquipamento(id)) {
+            return false;
+        }
         return equipamentos.removeIf(eqp -> eqp.getId() == id);
     }
 

@@ -28,6 +28,13 @@ public class GestaoManutencao {
         return manutencoesAtivas.add(mnt);
     }
 
+    public boolean existeManutencaoDoEquipamento(int idEquipamento) { // entender esse stream
+        return manutencoesAtivas.stream()
+                .anyMatch(m -> m.getEquipamento().getId() == idEquipamento)
+                || manutencoesFinalizadas.stream()
+                .anyMatch(m -> m.getEquipamento().getId() == idEquipamento);
+    }
+
     public Set<Manutencao> listarManutencoes() {
         return Collections.unmodifiableSet(manutencoesAtivas);
     }
