@@ -18,12 +18,10 @@ public class GestaoEquipamento {
     }
 
     public Equipamento buscarPorId(int id){
-        for(Equipamento eqp : equipamentos){
-            if(eqp.getId() == id){
-                return eqp;
-            }
-        }
-        return null;
+        return (Equipamento) equipamentos.stream().
+                filter(eqp -> eqp.getId() == id).
+                findFirst().
+                orElse(null);
     }
 
     public boolean cadastrarEquipamento(Equipamento eqp){

@@ -12,13 +12,11 @@ public class GestaoManutencao {
 
     private Set<Manutencao> manutencoesFinalizadas = new LinkedHashSet<>();
 
-    public Manutencao buscarPorId(int id) {
-        for (Manutencao mnt : manutencoesAtivas) {
-            if (mnt.getId() == id) {
-                return mnt;
-            }
-        }
-        return null;
+    public Manutencao buscarPorId(int id){
+        return (Manutencao) manutencoesAtivas.stream().
+                filter(mnt -> mnt.getId() == id). //só passa os que forem true
+                findFirst(). //retorna o primeiro
+                orElse(null); // "return null"
     }
 
     public boolean cadastrarManutencao(Manutencao mnt) {

@@ -1,7 +1,6 @@
 package main.java.com.joao.empresa.services;
 
 import main.java.com.joao.empresa.model.Usuario;
-
 import java.util.*;
 
 public class GestaoUsuario {
@@ -9,12 +8,10 @@ public class GestaoUsuario {
     private Set<Usuario> usuarios = new HashSet<>();
 
     public Usuario buscarPorId(int id){
-        for(Usuario usr : usuarios){
-            if(usr.getId() == id){
-                return usr;
-            }
-        }
-        return null;
+        return (Usuario) usuarios.stream().
+                filter(usr -> usr.getId() == id).
+                        findFirst().
+                        orElse(null);
     }
 
     public boolean cadastrarUsuario(Usuario usr){

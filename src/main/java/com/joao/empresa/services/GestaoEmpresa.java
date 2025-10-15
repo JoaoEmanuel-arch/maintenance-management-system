@@ -11,12 +11,10 @@ public class GestaoEmpresa {
     private Set<Empresa> empresas = new HashSet<>();
 
     public Empresa buscarPorId(int id){
-        for(Empresa emp : empresas){
-            if(emp.getId() == id){
-                return emp;
-            }
-        }
-        return null;
+        return empresas.stream().
+                filter(emp -> emp.getId() == id).
+                findFirst().
+                orElse(null);
     }
 
     public boolean cadastrarEmpresa(Empresa emp){
