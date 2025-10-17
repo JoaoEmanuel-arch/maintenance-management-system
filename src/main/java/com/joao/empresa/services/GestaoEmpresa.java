@@ -57,6 +57,10 @@ public class GestaoEmpresa {
         return empresas.removeIf(emp -> emp.getId() == id);
     }
 
+    public boolean existeCnpj(String cnpj){
+        return empresas.stream().
+                anyMatch(emp -> emp.getCnpj().equals(cnpj));
+    }
 }
 
 // COLOCAR OPTIONAL (quando eu aprender generics, depois de try catch)

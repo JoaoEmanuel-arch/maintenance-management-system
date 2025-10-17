@@ -1,6 +1,7 @@
 package main.java.com.joao.empresa.model;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 public class Empresa extends Entidade {
