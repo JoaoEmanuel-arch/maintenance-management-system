@@ -26,8 +26,8 @@ public class GestaoManutencao {
         return manutencoesAtivas.add(mnt);
     }
 
-    public boolean existeManutencaoDoEquipamento(int idEquipamento) { // entender esse stream
-        return manutencoesAtivas.stream()
+    public boolean existeManutencaoDoEquipamento(int idEquipamento) {
+        return manutencoesAtivas.stream() // cada manutenção da lista entra no parâmetro da função anônima
                 .anyMatch(m -> m.getEquipamento().getId() == idEquipamento)
                 || manutencoesFinalizadas.stream()
                 .anyMatch(m -> m.getEquipamento().getId() == idEquipamento);

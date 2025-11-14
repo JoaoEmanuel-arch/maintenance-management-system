@@ -29,16 +29,21 @@ public class GestaoEmpresa {
                 .orElse(null);
     }
 
+    //método interno
+    private boolean existeCnpj(String cnpj){
+        return empresas.stream().
+                anyMatch(emp -> emp.getCnpj().equals(cnpj));
+        // retorna true ou false se pelo menos um satisfaz a condição
+    }
+
     public boolean cadastrarEmpresa(Empresa emp){
         // se o throw for executado, o método para imediatamente
         if(buscarPorIdSemExcecao(emp.getId()) != null){
             throw new EmpresaJaCadastradaException("Já existe uma empresa cadastrada com o ID: " + emp.getId());
         }
-
         if(existeCnpj(emp.getCnpj())){
             throw new EmpresaJaCadastradaException("CNPJ já cadastrado: " + emp.getCnpj());
         }
-
         return empresas.add(emp);
     }
 
@@ -56,15 +61,12 @@ public class GestaoEmpresa {
         if(alterada.getNome() != null){
             existente.setNome(alterada.getNome());
         }
-
         if(alterada.getCnpj() != null){
             existente.setCnpj(alterada.getCnpj());
         }
-
         if(alterada.getEndereco() != null){
             existente.setEndereco(alterada.getEndereco());
         }
-
         if(alterada.getSegmento() != null){
             existente.setSegmento(alterada.getSegmento());
         }
@@ -77,16 +79,9 @@ public class GestaoEmpresa {
         if(!removida){
             throw new EmpresaNaoEncontradaException("Não foi possível excluir: empresa com ID " + id + " não encontrada.");
         }
-
         return true;
     }
 
-    //método interno
-    private boolean existeCnpj(String cnpj){
-        return empresas.stream().
-                anyMatch(emp -> emp.getCnpj().equals(cnpj));
-                // retorna true ou false se pelo menos um satisfaz a condição
-    }
 }
 
 
