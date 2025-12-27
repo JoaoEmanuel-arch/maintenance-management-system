@@ -13,6 +13,7 @@ public class GestaoManutencao {
 
     private Set<Manutencao> manutencoesFinalizadas = new LinkedHashSet<>();
 
+    // pensar que pode querer buscar nas finalizadas também
     public Manutencao buscarPorId(int id){
         return manutencoesAtivas.stream().
                 filter(mnt -> mnt.getId() == id). //só passa os que forem true
@@ -40,20 +41,17 @@ public class GestaoManutencao {
         return Collections.unmodifiableSet(manutencoesAtivas);
     }
 
-    public boolean excluirManutencao(int id) {
+    public boolean excluirManutencao(int id){
         return manutencoesAtivas.removeIf(mnt -> mnt.getId() == id);
     }
 
-    public boolean finalizarManutencao(int id) {
-        Manutencao mnt = buscarPorId(id);
-        if (mnt != null) {
-            mnt.setStatus(Manutencao.Status.CONCLUIDA);
-            manutencoesFinalizadas.add(mnt);
-            mnt.getEquipamento().adicionarManutencao(mnt); // joga pro histórico do equipamento
-            mnt.getTecnicoResponsavel().adicionarManutencao(mnt); // joga pro histórico do técnico
-            excluirManutencao(id);
-            return true;
-        }
-        return false;
+    public void finalizarManutencao(int id) {
+        Manutencao mnt = buscarPorId(id); // aqui já lança a exceção
+
+        mnt.setStatus(Manutencao.Status.CONCLUIDA);
+        manutencoesFinalizadas.add(mnt);
+        mnt.getEquipamento().adicionarManutencao(mnt); // joga pro histórico do equipamento
+        mnt.getTecnicoResponsavel().adicionarManutencao(mnt); // joga pro histórico do técnico
+        excluirManutencao(id);
     }
 }
