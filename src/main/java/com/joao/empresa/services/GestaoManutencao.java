@@ -14,8 +14,7 @@ public class GestaoManutencao {
 
     private Set<Manutencao> manutencoesFinalizadas = new LinkedHashSet<>();
 
-    // pensar que pode querer buscar nas finalizadas também
-    public Manutencao buscarPorId(int id){
+    public Manutencao buscarAtivasPorId(int id){
         return manutencoesAtivas.stream().
                 filter(mnt -> mnt.getId() == id). //só passa os que forem true
                 findFirst(). //retorna o primeiro
@@ -24,7 +23,23 @@ public class GestaoManutencao {
                 );
     }
 
-    private Manutencao buscarPorIdSemExcecao(int id){
+    private Manutencao buscarAtivasPorIdSemExcecao(int id){
+        return manutencoesAtivas.stream().
+                filter(mnt -> mnt.getId() == id).
+                findFirst().
+                orElse(null);
+    }
+
+    public Manutencao buscarFinalizadasPorId(int id){
+        return manutencoesAtivas.stream().
+                filter(mnt -> mnt.getId() == id). //só passa os que forem true
+                        findFirst(). //retorna o primeiro
+                        orElseThrow(() ->
+                        new ManutencaoNaoEncontradaException("Manutenção com ID " + id + " não encontrada.")
+                );
+    }
+
+    private Manutencao buscarFinalizadasPorIdSemExcecao(int id){
         return manutencoesAtivas.stream().
                 filter(mnt -> mnt.getId() == id).
                 findFirst().
