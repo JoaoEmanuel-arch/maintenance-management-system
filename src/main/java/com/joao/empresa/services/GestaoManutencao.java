@@ -23,6 +23,13 @@ public class GestaoManutencao {
                 );
     }
 
+    private Manutencao buscarPorIdSemExcecao(int id){
+        return manutencoesAtivas.stream().
+                filter(mnt -> mnt.getId() == id).
+                findFirst().
+                orElse(null);
+    }
+
     public boolean cadastrarManutencao(Manutencao mnt) {
         if (buscarPorId(mnt.getId()) != null) {
             return false;
