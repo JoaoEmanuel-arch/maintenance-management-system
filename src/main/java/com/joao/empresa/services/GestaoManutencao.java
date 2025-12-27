@@ -1,5 +1,6 @@
 package main.java.com.joao.empresa.services;
 
+import main.java.com.joao.empresa.exceptions.ManutencaoNaoEncontradaException;
 import main.java.com.joao.empresa.model.Manutencao;
 
 import java.util.Collections;
@@ -13,10 +14,12 @@ public class GestaoManutencao {
     private Set<Manutencao> manutencoesFinalizadas = new LinkedHashSet<>();
 
     public Manutencao buscarPorId(int id){
-        return (Manutencao) manutencoesAtivas.stream().
+        return manutencoesAtivas.stream().
                 filter(mnt -> mnt.getId() == id). //só passa os que forem true
                 findFirst(). //retorna o primeiro
-                orElse(null); // "return null"
+                orElseThrow(() ->
+                        new ManutencaoNaoEncontradaException("Manutenção com ID " + id + " não encontrada.")
+                );
     }
 
     public boolean cadastrarManutencao(Manutencao mnt) {
