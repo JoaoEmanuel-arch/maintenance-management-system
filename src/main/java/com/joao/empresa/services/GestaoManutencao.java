@@ -1,5 +1,6 @@
 package main.java.com.joao.empresa.services;
 
+import main.java.com.joao.empresa.exceptions.ManutencaoJaCadastradaException;
 import main.java.com.joao.empresa.exceptions.ManutencaoNaoEncontradaException;
 import main.java.com.joao.empresa.model.Manutencao;
 
@@ -31,8 +32,8 @@ public class GestaoManutencao {
     }
 
     public boolean cadastrarManutencao(Manutencao mnt) {
-        if (buscarPorId(mnt.getId()) != null) {
-            return false;
+        if(buscarPorIdSemExcecao(mnt.getId())){
+            throw new ManutencaoJaCadastradaException("Já existe uma manutenção cadastrada com o ID " + mnt.getId());
         }
         return manutencoesAtivas.add(mnt);
     }
