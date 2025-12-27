@@ -32,7 +32,7 @@ public class GestaoManutencao {
     }
 
     public boolean cadastrarManutencao(Manutencao mnt) {
-        if(buscarPorIdSemExcecao(mnt.getId())){
+        if(buscarPorIdSemExcecao(mnt.getId()) != null){
             throw new ManutencaoJaCadastradaException("Já existe uma manutenção cadastrada com o ID " + mnt.getId());
         }
         return manutencoesAtivas.add(mnt);
