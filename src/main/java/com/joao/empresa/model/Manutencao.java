@@ -28,7 +28,8 @@ public class Manutencao extends Entidade {
     public enum Status{
 
         ANDAMENTO("Manutencao em andamento"),
-        CONCLUIDA("Manutencao concluida");
+        CONCLUIDA("Manutencao concluida"),
+        CANCELADA("Manutencao cancelada");
 
         private String descricao;
 
