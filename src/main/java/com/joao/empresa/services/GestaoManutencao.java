@@ -74,13 +74,13 @@ public class GestaoManutencao {
     public void finalizarManutencao(int id) {
         Manutencao mnt = buscarAtivasPorId(id); // aqui já lança a exceção
         mnt.setStatus(Manutencao.Status.CONCLUIDA);
+        manutencoesAtivas.remove(mnt);
         manutencoesFinalizadas.add(mnt);
         mnt.getEquipamento().adicionarManutencao(mnt); // joga pro histórico do equipamento
         mnt.getTecnicoResponsavel().adicionarManutencao(mnt); // joga pro histórico do técnico
-        excluirManutencao(id);
     }
 
-    private boolean excluirManutencao(int id){
+    public boolean excluirManutencao(int id){
         return manutencoesFinalizadas.removeIf(mnt -> mnt.getId() == id);
     }
 
