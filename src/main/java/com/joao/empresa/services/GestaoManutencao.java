@@ -64,11 +64,11 @@ public class GestaoManutencao {
         return Collections.unmodifiableSet(manutencoesAtivas);
     }
 
-    public boolean cancelarManutencao(int id){ // remove das manutenções ativas
+    public void cancelarManutencao(int id){ // remove das manutenções ativas
         Manutencao mnt = buscarAtivasPorId(id);
         mnt.setStatus(Manutencao.Status.CANCELADA);
+        manutencoesAtivas.remove(mnt);
         manutencoesFinalizadas.add(mnt);
-        return manutencoesAtivas.removeIf(m -> m.getId() == id);
     }
 
     public void finalizarManutencao(int id) {
@@ -80,7 +80,7 @@ public class GestaoManutencao {
         excluirManutencao(id);
     }
 
-    public boolean excluirManutencao(int id){
+    private boolean excluirManutencao(int id){
         return manutencoesFinalizadas.removeIf(mnt -> mnt.getId() == id);
     }
 
