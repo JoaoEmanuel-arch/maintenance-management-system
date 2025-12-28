@@ -47,7 +47,7 @@ public class GestaoManutencao {
     }
 
     public boolean cadastrarManutencao(Manutencao mnt) {
-        if(buscarPorIdSemExcecao(mnt.getId()) != null){
+        if(buscarAtivasPorIdSemExcecao(mnt.getId()) != null){
             throw new ManutencaoJaCadastradaException("Já existe uma manutenção cadastrada com o ID " + mnt.getId());
         }
         return manutencoesAtivas.add(mnt);
@@ -64,17 +64,24 @@ public class GestaoManutencao {
         return Collections.unmodifiableSet(manutencoesAtivas);
     }
 
-    public boolean excluirManutencao(int id){
-        return manutencoesAtivas.removeIf(mnt -> mnt.getId() == id);
+    public boolean cancelarManutencao(int id){ // remove das manutenções ativas
+        Manutencao mnt = buscarAtivasPorId(id);
+        mnt.setStatus(Manutencao.Status.CANCELADA);
+        manutencoesFinalizadas.add(mnt);
+        return manutencoesAtivas.removeIf(m -> m.getId() == id);
     }
 
     public void finalizarManutencao(int id) {
-        Manutencao mnt = buscarPorId(id); // aqui já lança a exceção
-
+        Manutencao mnt = buscarAtivasPorId(id); // aqui já lança a exceção
         mnt.setStatus(Manutencao.Status.CONCLUIDA);
         manutencoesFinalizadas.add(mnt);
         mnt.getEquipamento().adicionarManutencao(mnt); // joga pro histórico do equipamento
         mnt.getTecnicoResponsavel().adicionarManutencao(mnt); // joga pro histórico do técnico
         excluirManutencao(id);
     }
+
+    public boolean excluirManutencao(int id){
+        return manutencoesFinalizadas.removeIf(mnt -> mnt.getId() == id);
+    }
+
 }
