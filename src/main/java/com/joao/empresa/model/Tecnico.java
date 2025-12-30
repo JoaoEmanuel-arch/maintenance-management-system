@@ -12,7 +12,7 @@ public class Tecnico extends Usuario {
 
     private Set<Manutencao> manutencoesResponsaveis = new LinkedHashSet<>();
 
-    public Tecnico(int id, String nome, String email, String senha, TipoUsuario tipoUsuario, String especialidade, String certificacoes) {
+    public Tecnico(int id, String nome, String email, String senha, String especialidade, String certificacoes) {
         super(id, nome, email, senha, TipoUsuario.TECNICO);
         this.especialidade = especialidade;
         this.certificacoes = certificacoes;
