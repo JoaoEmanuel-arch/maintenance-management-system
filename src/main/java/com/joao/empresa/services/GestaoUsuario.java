@@ -1,5 +1,6 @@
 package main.java.com.joao.empresa.services;
 
+import main.java.com.joao.empresa.exceptions.ManutencaoNaoEncontradaException;
 import main.java.com.joao.empresa.model.Usuario;
 import java.util.*;
 
@@ -8,10 +9,12 @@ public class GestaoUsuario {
     private Set<Usuario> usuarios = new HashSet<>();
 
     public Usuario buscarPorId(int id){
-        return (Usuario) usuarios.stream().
-                filter(usr -> usr.getId() == id).
-                        findFirst().
-                        orElse(null);
+        return usuarios.stream()
+                .filter(usr -> usr.getId() == id)
+                .findFirst()
+                .orElseThrow(() ->
+                        new ManutencaoNaoEncontradaException("Usuario com ID " + id + " não encontrado.")
+                );
     }
 
     public boolean cadastrarUsuario(Usuario usr){
