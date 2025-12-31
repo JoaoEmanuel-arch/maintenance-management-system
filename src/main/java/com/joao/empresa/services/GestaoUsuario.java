@@ -1,6 +1,6 @@
 package main.java.com.joao.empresa.services;
 
-import main.java.com.joao.empresa.exceptions.ManutencaoNaoEncontradaException;
+import main.java.com.joao.empresa.exceptions.UsuarioNaoEncontradoException;
 import main.java.com.joao.empresa.model.Usuario;
 import java.util.*;
 
@@ -13,7 +13,7 @@ public class GestaoUsuario {
                 .filter(usr -> usr.getId() == id)
                 .findFirst()
                 .orElseThrow(() ->
-                        new ManutencaoNaoEncontradaException("Usuario com ID " + id + " não encontrado.")
+                        new UsuarioNaoEncontradoException("Usuario com ID " + id + " não encontrado.")
                 );
     }
 
