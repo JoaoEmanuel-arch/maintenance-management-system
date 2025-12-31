@@ -43,12 +43,9 @@ public class GestaoUsuario {
         existente.atualizarEspecifico(alterado);
     }
 
-    public boolean removerUsuario(int id){
-        Usuario usr = buscarPorId(id);
-        if(usr != null){
-            return usuarios.remove(usr);
-        }
-        return false;
+    public void removerUsuario(int id){
+        Usuario usr = buscarPorId(id); // aqui lança exceção
+        usuarios.remove(usr);
     }
 
 }
