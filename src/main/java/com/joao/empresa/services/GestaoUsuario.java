@@ -25,11 +25,11 @@ public class GestaoUsuario {
                 .orElse(null);
     }
 
-    public boolean cadastrarUsuario(Usuario usr){
+    public void cadastrarUsuario(Usuario usr){
         if(buscarPorIdSemExcecao(usr.getId()) != null){
             throw new UsuarioJaCadastradoException("Já existe um usuário cadastrado com o ID: " + usr.getId());
         }
-        return usuarios.add(usr);
+        usuarios.add(usr);
     }
 
     public Set<Usuario> listarUsuarios() {
