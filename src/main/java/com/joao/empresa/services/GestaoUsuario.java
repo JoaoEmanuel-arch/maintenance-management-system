@@ -1,6 +1,7 @@
 package main.java.com.joao.empresa.services;
 
 import main.java.com.joao.empresa.exceptions.UsuarioNaoEncontradoException;
+import main.java.com.joao.empresa.model.Empresa;
 import main.java.com.joao.empresa.model.Usuario;
 import java.util.*;
 
@@ -17,8 +18,15 @@ public class GestaoUsuario {
                 );
     }
 
+    private Usuario buscarPorIdSemExcecao(int id) {
+        return usuarios.stream()
+                .filter(usr -> usr.getId() == id)
+                .findFirst()
+                .orElse(null);
+    }
+
     public boolean cadastrarUsuario(Usuario usr){
-        if(buscarPorId(usr.getId()) != null){ // se já existe, não deixa cadastrar
+        if(buscarPorId(usr.getId()) != null){
             return false;
         }
         return usuarios.add(usr);
