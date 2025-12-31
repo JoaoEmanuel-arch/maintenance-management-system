@@ -2,7 +2,6 @@ package main.java.com.joao.empresa.services;
 
 import main.java.com.joao.empresa.exceptions.UsuarioJaCadastradoException;
 import main.java.com.joao.empresa.exceptions.UsuarioNaoEncontradoException;
-import main.java.com.joao.empresa.model.Empresa;
 import main.java.com.joao.empresa.model.Usuario;
 import java.util.*;
 
@@ -37,14 +36,11 @@ public class GestaoUsuario {
         return Collections.unmodifiableSet(usuarios);
     }
 
-    public boolean atualizarUsuario(Usuario alterado){ //aqui já recebe o objeto usuário específico que navega na superclasse
-        Usuario existente = buscarPorId(alterado.getId());
-        if(existente != null){
-            existente.atualizarDados(alterado); //eu já altero o objeto e não a classe
-            existente.atualizarEspecifico(alterado);
-            return true;
-        }
-        return false;
+    public void atualizarUsuario(Usuario alterado){
+        Usuario existente = buscarPorId(alterado.getId()); // aqui já lança exceção
+
+        existente.atualizarDados(alterado);
+        existente.atualizarEspecifico(alterado);
     }
 
     public boolean removerUsuario(int id){
