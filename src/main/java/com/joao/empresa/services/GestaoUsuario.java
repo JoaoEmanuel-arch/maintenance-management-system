@@ -1,5 +1,6 @@
 package main.java.com.joao.empresa.services;
 
+import main.java.com.joao.empresa.exceptions.UsuarioJaCadastradoException;
 import main.java.com.joao.empresa.exceptions.UsuarioNaoEncontradoException;
 import main.java.com.joao.empresa.model.Empresa;
 import main.java.com.joao.empresa.model.Usuario;
@@ -26,8 +27,8 @@ public class GestaoUsuario {
     }
 
     public boolean cadastrarUsuario(Usuario usr){
-        if(buscarPorId(usr.getId()) != null){
-            return false;
+        if(buscarPorIdSemExcecao(usr.getId()) != null){
+            throw new UsuarioJaCadastradoException("Já existe um usuário cadastrado com o ID: " + usr.getId());
         }
         return usuarios.add(usr);
     }
