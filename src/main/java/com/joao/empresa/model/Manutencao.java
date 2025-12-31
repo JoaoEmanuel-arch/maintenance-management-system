@@ -130,20 +130,6 @@ public class Manutencao extends Entidade {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (!(o instanceof Manutencao that)) return false;
-        return Double.compare(custo, that.custo) == 0 && Objects.equals(dataInicio, that.dataInicio)
-                && Objects.equals(dataFim, that.dataFim) && tipoManutencao == that.tipoManutencao
-                && Objects.equals(descricao, that.descricao) && Objects.equals(tecnicoResponsavel, that.tecnicoResponsavel)
-                && Objects.equals(equipamento, that.equipamento) && status == that.status;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(dataInicio, dataFim, tipoManutencao, descricao, custo, tecnicoResponsavel, equipamento, status);
-    }
-
-    @Override
     public String toString() {
         return super.toString() +
                 "Manutencao{" +

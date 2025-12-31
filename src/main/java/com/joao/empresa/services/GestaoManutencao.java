@@ -84,4 +84,6 @@ public class GestaoManutencao {
         return manutencoesFinalizadas.removeIf(mnt -> mnt.getId() == id);
     }
 
+
+
 }

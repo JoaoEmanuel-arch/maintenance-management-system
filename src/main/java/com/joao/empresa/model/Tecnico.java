@@ -12,8 +12,9 @@ public class Tecnico extends Usuario {
 
     private Set<Manutencao> manutencoesResponsaveis = new LinkedHashSet<>();
 
-    public Tecnico(int id, String nome, String email, String senha, TipoUsuario tipoUsuario, String especialidade, String certificacoes) {
+    public Tecnico(int id, String nome, String email, String senha, String especialidade, String certificacoes) {
         super(id, nome, email, senha, TipoUsuario.TECNICO);
+        this.especialidade = especialidade;
         this.certificacoes = certificacoes;
     }
 
@@ -51,17 +52,6 @@ public class Tecnico extends Usuario {
         if(tec.getEspecialidade() != null){
             setEspecialidade(tec.getEspecialidade());
         }
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (!(o instanceof Tecnico tecnico)) return false;
-        return Objects.equals(especialidade, tecnico.especialidade) && Objects.equals(certificacoes, tecnico.certificacoes);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(especialidade, certificacoes);
     }
 
     @Override

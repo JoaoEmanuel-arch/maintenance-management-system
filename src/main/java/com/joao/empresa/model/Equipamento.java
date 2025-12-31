@@ -54,18 +54,6 @@ public class Equipamento extends Entidade {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (!(o instanceof Equipamento that)) return false;
-        return Objects.equals(nome, that.nome) && Objects.equals(codigoPatrimonio, that.codigoPatrimonio)
-                && Objects.equals(dataAquisicao, that.dataAquisicao);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(nome, codigoPatrimonio, dataAquisicao);
-    }
-
-    @Override
     public String toString() {
         return String.format(
                 "Equipamento{id=%d, nome='%s', patrimonio='%s', dataAquisicao=%s, historico=%s}",
