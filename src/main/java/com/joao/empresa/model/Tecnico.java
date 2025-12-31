@@ -55,17 +55,6 @@ public class Tecnico extends Usuario {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (!(o instanceof Tecnico tecnico)) return false;
-        return Objects.equals(especialidade, tecnico.especialidade) && Objects.equals(certificacoes, tecnico.certificacoes);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(especialidade, certificacoes);
-    }
-
-    @Override
     public String toString() {
         return super.toString() +
                 "Tecnico{" +

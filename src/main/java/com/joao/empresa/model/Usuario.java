@@ -82,19 +82,6 @@ public abstract class Usuario extends Entidade{
     public abstract void atualizarEspecifico(Usuario alterado); // cada usuário implementa suas atualizações específicas
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Usuario usuario)) return false;
-        return getId() == usuario.getId();
-    }
-
-    @Override
-    public int hashCode() {
-        return Integer.hashCode(getId());
-    }
-
-
-    @Override
     public String toString() {
         return "Usuario{" +
                 "nome='" + nome + '\'' +
