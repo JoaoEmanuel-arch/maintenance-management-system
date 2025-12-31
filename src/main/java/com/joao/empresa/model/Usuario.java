@@ -83,15 +83,16 @@ public abstract class Usuario extends Entidade{
 
     @Override
     public boolean equals(Object o) {
+        if (this == o) return true;
         if (!(o instanceof Usuario usuario)) return false;
-        return Objects.equals(nome, usuario.nome) && Objects.equals(email, usuario.email)
-                && Objects.equals(senha, usuario.senha) && tipoUsuario == usuario.tipoUsuario;
+        return getId() == usuario.getId();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(nome, email, senha, tipoUsuario);
+        return Integer.hashCode(getId());
     }
+
 
     @Override
     public String toString() {
