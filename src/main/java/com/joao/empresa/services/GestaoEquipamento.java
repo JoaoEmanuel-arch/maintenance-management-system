@@ -36,11 +36,11 @@ public class GestaoEquipamento {
                 orElse(null);
     }
 
-    public boolean cadastrarEquipamento(Equipamento eqp){
+    public void cadastrarEquipamento(Equipamento eqp){
         if(buscarPorIdSemExcecao(eqp.getId()) != null){
             throw new EquipamentoJaCadastradoException("Já existe um equipamento com o id: " + eqp.getId());
         }
-        return equipamentos.add(eqp);
+        equipamentos.add(eqp);
     }
 
     public Set<Equipamento> listarEquipamentos(){
