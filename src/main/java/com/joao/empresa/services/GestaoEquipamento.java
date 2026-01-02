@@ -61,8 +61,7 @@ public class GestaoEquipamento {
         }
     }
 
-    // na hora de testar isso aqui pode dar problema, pq precisa estar alinhado em tempo real no backend
-    public boolean excluirEquipamento(int id) { //só exclui se não tiver manutenção aberta com ele
+    public void excluirEquipamento(int id) { //só exclui se não tiver manutenção aberta com ele
 
         Equipamento existente = buscarPorId(id); // vejo se existe, caso contrário já lança a exceção
 
@@ -72,7 +71,6 @@ public class GestaoEquipamento {
         }
 
         equipamentos.remove(existente);
-        return true;
     }
 
 }
