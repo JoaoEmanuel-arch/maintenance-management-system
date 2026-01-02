@@ -52,11 +52,7 @@ public class GestaoEmpresa {
     }
 
     public void atualizarEmpresa(Empresa alterada){
-        Empresa existente = buscarPorIdSemExcecao(alterada.getId());
-
-        if (existente == null){
-            throw new EmpresaNaoEncontradaException("Não é possível atualizar: empresa com ID " + alterada.getId() + " não existe.");
-        }
+        Empresa existente = buscarPorId(alterada.getId());
 
         if(alterada.getNome() != null){
             existente.setNome(alterada.getNome());
