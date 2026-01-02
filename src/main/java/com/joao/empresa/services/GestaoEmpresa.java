@@ -73,13 +73,9 @@ public class GestaoEmpresa {
 
     }
 
-    public boolean excluirEmpresa(int id){
-        boolean removida = empresas.removeIf(emp -> emp.getId() == id);
-
-        if(!removida){
-            throw new EmpresaNaoEncontradaException("Não foi possível excluir: empresa com ID " + id + " não encontrada.");
-        }
-        return true;
+    public void excluirEmpresa(int id){
+        Empresa emp = buscarPorId(id);
+        empresas.remove(emp);
     }
 
 }
