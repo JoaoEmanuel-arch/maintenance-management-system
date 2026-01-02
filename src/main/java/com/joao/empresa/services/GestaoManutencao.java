@@ -100,10 +100,9 @@ public class GestaoManutencao {
         mnt.getTecnicoResponsavel().adicionarManutencao(mnt); // joga pro histórico do técnico
     }
 
-    public boolean excluirManutencao(int id){
-        return manutencoesFinalizadas.removeIf(mnt -> mnt.getId() == id);
+    public void excluirManutencao(int id){
+        Manutencao mnt = buscarFinalizadasPorId(id);
+        manutencoesFinalizadas.remove(mnt);
     }
-
-
 
 }
