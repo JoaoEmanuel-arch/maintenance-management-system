@@ -87,11 +87,15 @@ public class MainExecution {
                 (Tecnico) gestaoUsuario.buscarPorId(5), gestaoEquipamento.buscarPorId(9)
         );
 
+        gestaoManutencao.cadastrarManutencao(mnt1);
+
         Manutencao mnt2 = new Manutencao(
                 12, Manutencao.TipoManutencao.PREVENTIVA, LocalDate.of(2025, 12, 29),
                 "A base da laminadora pode quebrar, precisa de manutenção urgente, a base foi junto com a peça",
                 (Tecnico) gestaoUsuario.buscarPorId(6), gestaoEquipamento.buscarPorId(10)
         );
+
+        gestaoManutencao.cadastrarManutencao(mnt2);
 
     }
 
