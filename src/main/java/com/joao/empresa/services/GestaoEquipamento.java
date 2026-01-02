@@ -21,7 +21,7 @@ public class GestaoEquipamento {
     }
 
     public Equipamento buscarPorId(int id){
-        return (Equipamento) equipamentos.stream().
+        return equipamentos.stream().
                 filter(eqp -> eqp.getId() == id).
                 findFirst().
                 orElseThrow(() ->
@@ -30,17 +30,17 @@ public class GestaoEquipamento {
 
     //método interno para usar sem ter que lançar exceção
     private Equipamento buscarPorIdSemExcecao(int id){
-        return (Equipamento) equipamentos.stream().
+        return equipamentos.stream().
                 filter(eqp -> eqp.getId() == id).
                 findFirst().
                 orElse(null);
     }
 
-    public boolean cadastrarEquipamento(Equipamento eqp){
+    public void cadastrarEquipamento(Equipamento eqp){
         if(buscarPorIdSemExcecao(eqp.getId()) != null){
             throw new EquipamentoJaCadastradoException("Já existe um equipamento com o id: " + eqp.getId());
         }
-        return equipamentos.add(eqp);
+        equipamentos.add(eqp);
     }
 
     public Set<Equipamento> listarEquipamentos(){
@@ -61,8 +61,7 @@ public class GestaoEquipamento {
         }
     }
 
-    // na hora de testar isso aqui pode dar problema, pq precisa estar alinhado em tempo real no backend
-    public boolean excluirEquipamento(int id) { //só exclui se não tiver manutenção aberta com ele
+    public void excluirEquipamento(int id) { //só exclui se não tiver manutenção aberta com ele
 
         Equipamento existente = buscarPorId(id); // vejo se existe, caso contrário já lança a exceção
 
@@ -72,7 +71,6 @@ public class GestaoEquipamento {
         }
 
         equipamentos.remove(existente);
-        return true;
     }
 
 }

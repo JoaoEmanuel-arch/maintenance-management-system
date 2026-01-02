@@ -36,7 +36,7 @@ public class GestaoEmpresa {
         // retorna true ou false se pelo menos um satisfaz a condição
     }
 
-    public boolean cadastrarEmpresa(Empresa emp){
+    public void cadastrarEmpresa(Empresa emp){
         // se o throw for executado, o método para imediatamente
         if(buscarPorIdSemExcecao(emp.getId()) != null){
             throw new EmpresaJaCadastradaException("Já existe uma empresa cadastrada com o ID: " + emp.getId());
@@ -44,7 +44,7 @@ public class GestaoEmpresa {
         if(existeCnpj(emp.getCnpj())){
             throw new EmpresaJaCadastradaException("CNPJ já cadastrado: " + emp.getCnpj());
         }
-        return empresas.add(emp);
+        empresas.add(emp);
     }
 
     public Set<Empresa> listarEmpresas(){
@@ -52,11 +52,7 @@ public class GestaoEmpresa {
     }
 
     public void atualizarEmpresa(Empresa alterada){
-        Empresa existente = buscarPorIdSemExcecao(alterada.getId());
-
-        if (existente == null){
-            throw new EmpresaNaoEncontradaException("Não é possível atualizar: empresa com ID " + alterada.getId() + " não existe.");
-        }
+        Empresa existente = buscarPorId(alterada.getId());
 
         if(alterada.getNome() != null){
             existente.setNome(alterada.getNome());
@@ -73,13 +69,9 @@ public class GestaoEmpresa {
 
     }
 
-    public boolean excluirEmpresa(int id){
-        boolean removida = empresas.removeIf(emp -> emp.getId() == id);
-
-        if(!removida){
-            throw new EmpresaNaoEncontradaException("Não foi possível excluir: empresa com ID " + id + " não encontrada.");
-        }
-        return true;
+    public void excluirEmpresa(int id){
+        Empresa emp = buscarPorId(id);
+        empresas.remove(emp);
     }
 
 }
