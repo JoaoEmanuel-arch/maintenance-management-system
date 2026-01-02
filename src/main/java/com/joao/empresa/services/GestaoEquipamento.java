@@ -21,7 +21,7 @@ public class GestaoEquipamento {
     }
 
     public Equipamento buscarPorId(int id){
-        return (Equipamento) equipamentos.stream().
+        return equipamentos.stream().
                 filter(eqp -> eqp.getId() == id).
                 findFirst().
                 orElseThrow(() ->
@@ -30,7 +30,7 @@ public class GestaoEquipamento {
 
     //método interno para usar sem ter que lançar exceção
     private Equipamento buscarPorIdSemExcecao(int id){
-        return (Equipamento) equipamentos.stream().
+        return equipamentos.stream().
                 filter(eqp -> eqp.getId() == id).
                 findFirst().
                 orElse(null);
