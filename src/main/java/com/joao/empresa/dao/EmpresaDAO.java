@@ -36,7 +36,7 @@ public class EmpresaDAO {
 
     public Empresa buscarPorId(int id) {
 
-        String sql = "SELECT * FROM empresa WHERE idempresa = ?";
+        String sql = "SELECT * FROM empresa WHERE id = ?";
 
         try (Connection conn = ConnectionFactory.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -78,7 +78,7 @@ public class EmpresaDAO {
     // Busca todos os equipamentos que pertencem à empresa.
     private Set<Equipamento> buscarEquipamentosDaEmpresa(int empresaId) {
 
-        String sql = "SELECT * FROM equipamento WHERE fk_idempresa = ?";
+        String sql = "SELECT * FROM equipamento WHERE empresa_id = ?";
 
         Set<Equipamento> equipamentos = new HashSet<>(); // não deixa duplicado
 

@@ -13,7 +13,7 @@ public class EquipamentoDAO {
 
         String sql = """
             INSERT INTO equipamento
-            (nome, codigo_patrimonio, data_aquisicao, fk_idempresa)
+            (nome, codigo_patrimonio, data_aquisicao, empresa_id)
             VALUES (?, ?, ?, ?)
             """;
 

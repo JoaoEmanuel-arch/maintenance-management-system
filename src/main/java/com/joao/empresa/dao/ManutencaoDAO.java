@@ -18,7 +18,7 @@ public class ManutencaoDAO {
         String sql = """
                 INSERT INTO manutencao
                 (tipo_manutencao, data_inicio, data_fim, descricao, custo,
-                 status, fk_idequipamento, fk_idtecnico)
+                 status, equipamento_id, tecnico_id)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """;
 
@@ -46,7 +46,7 @@ public class ManutencaoDAO {
 
     public Manutencao buscarPorId(int id){
 
-        String sql = "SELECT * FROM manutencao WHERE id_manutencao = ?";
+        String sql = "SELECT * FROM manutencao WHERE id = ?";
 
         try(Connection conn = ConnectionFactory.getConnection();
             PreparedStatement stmt = conn.prepareStatement(sql)){
@@ -72,7 +72,7 @@ public class ManutencaoDAO {
     // transforma uma linha do resultado em um objeto Manutencao
     private Manutencao construirManutencao(ResultSet rs) throws SQLException {
 
-        int id = rs.getInt("id_manutencao");
+        int id = rs.getInt("id");
 
         Manutencao.TipoManutencao tipo =
                 Manutencao.TipoManutencao.valueOf(
@@ -89,9 +89,9 @@ public class ManutencaoDAO {
                         rs.getString("status")
                 );
 
-        int equipamentoId = rs.getInt("fk_idequipamento");
+        int equipamentoId = rs.getInt("equipamento_id");
 
-        int tecnicoId = rs.getInt("fk_idtecnico");
+        int tecnicoId = rs.getInt("tecnico_id");
 
         Equipamento equipamento = equipamentoDAO.buscarPorId(equipamentoId);
 
@@ -117,7 +117,7 @@ public class ManutencaoDAO {
 
         String sql = """
                 SELECT * FROM manutencao
-                WHERE fk_idequipamento = ?
+                WHERE equipamento_id = ?
                 """;
 
         List<Manutencao> manutencoes = new ArrayList<>();
@@ -146,7 +146,7 @@ public class ManutencaoDAO {
 
         String sql = """
                 SELECT * FROM manutencao
-                WHERE fk_idtecnico = ?
+                WHERE tecnico_id = ?
                 """;
 
         List<Manutencao> manutencoes = new ArrayList<>();
@@ -226,8 +226,8 @@ public class ManutencaoDAO {
                     descricao = ?,
                     custo = ?,
                     status = ?,
-                    fk_idequipamento = ?,
-                    fk_idtecnico = ?
+                    equipamento_id = ?,
+                    tecnico_id = ?
                 WHERE id = ?
                 """;
 
@@ -291,7 +291,7 @@ public class ManutencaoDAO {
         String sql = """
             SELECT 1  
             FROM manutencao
-            WHERE fk_idequipamento = ?
+            WHERE equipamento_id = ?
             LIMIT 1
             """;
 
