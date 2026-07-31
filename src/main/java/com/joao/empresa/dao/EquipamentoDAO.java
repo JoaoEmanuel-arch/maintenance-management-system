@@ -9,6 +9,7 @@ import java.util.List;
 
 public class EquipamentoDAO {
 
+    // salva o equipamento no bd e coloca o id gerado no objeto java
     public void salvar(Equipamento equipamento, int idEmpresa){
 
         String sql = """
@@ -18,16 +19,40 @@ public class EquipamentoDAO {
             """;
 
         try (Connection conn = ConnectionFactory.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)){
+             PreparedStatement stmt = conn.prepareStatement(sql,
+                     Statement.RETURN_GENERATED_KEYS)){ // isso é pra avisar pra pegar o id gerado
 
             stmt.setString(1, equipamento.getNome());
             stmt.setString(2, equipamento.getCodigoPatrimonio());
             stmt.setDate(3, Date.valueOf(equipamento.getDataAquisicao()));
             stmt.setInt(4, idEmpresa);
 
-            stmt.executeUpdate();
+            // o executeUpdate é utilizado em comando que alteram dados, retorna a qtd de linhas afetadas
+            int linhasAfetadas = stmt.executeUpdate();
 
-            System.out.println("Equipamento salvo com sucesso");
+            if (linhasAfetadas == 0) { // se nenhuma linha for inserida nem faz sentido pegar o id
+                throw new SQLException(
+                        "Nenhum equipamento foi inserido."
+                );
+            }
+
+            try (ResultSet generatedKeys = stmt.getGeneratedKeys()) { // o ps me dá a última chave gerada pelo banco
+                // o cursor começa antes da primeira linha, por isso chama a próxima
+                if (!generatedKeys.next()) {
+                    throw new SQLException(
+                            "O banco não retornou o ID do equipamento."
+                    );
+                }
+
+                int idGerado = generatedKeys.getInt(1);
+
+                equipamento.definirId(idGerado); // define o id lá dentro da entidade
+            }
+
+            System.out.println(
+                    "Equipamento salvo com ID " +
+                            equipamento.getId()
+            );
 
         } catch (SQLException e) {
             throw new RuntimeException("Erro ao salvar equipamento", e);
