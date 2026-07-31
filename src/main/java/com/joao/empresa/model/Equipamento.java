@@ -13,7 +13,18 @@ public class Equipamento extends Entidade {
 
     private Set<Manutencao> historicoManutencoes = new LinkedHashSet<>();
 
-    public Equipamento(int id, String nome, String codigoPatrimonio, LocalDate dataAquisicao) {
+    // esse construtor é para cadastrar um equipamento novo, o id virá depois pelo banco de dados
+    public Equipamento(String nome, String codigoPatrimonio, LocalDate dataAquisicao) {
+        this(
+                null,
+                nome,
+                codigoPatrimonio,
+                dataAquisicao
+        );
+    }
+
+    // esse construtor é para reconstruir um equipamento que já veio do banco
+    public Equipamento(Integer id, String nome, String codigoPatrimonio, LocalDate dataAquisicao) {
         super(id);
         this.nome = nome;
         this.codigoPatrimonio = codigoPatrimonio;
