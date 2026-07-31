@@ -13,35 +13,68 @@ public class ManutencaoDAO {
     private final EquipamentoDAO equipamentoDAO = new EquipamentoDAO();
     private final UsuarioDAO usuarioDAO = new UsuarioDAO();
 
-    public void salvar(Manutencao manutencao){
+    public void salvar(Manutencao manutencao) {
+
+        if (manutencao.getEquipamento().getId() == null) {
+            throw new IllegalArgumentException("O equipamento precisa estar salvo.");
+        }
+
+        if (manutencao.getTecnicoResponsavel().getId() == null) {
+            throw new IllegalArgumentException("O técnico precisa estar salvo.");
+        }
 
         String sql = """
-                INSERT INTO manutencao
-                (tipo_manutencao, data_inicio, data_fim, descricao, custo,
-                 status, equipamento_id, tecnico_id)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                """;
+            INSERT INTO manutencao
+            (tipo_manutencao, data_inicio, data_fim, descricao,
+             custo, status, equipamento_id, tecnico_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """;
 
-        try(Connection conn = ConnectionFactory.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(sql)){
+        try (Connection conn = ConnectionFactory.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                     sql,
+                     Statement.RETURN_GENERATED_KEYS
+             )) {
 
             stmt.setString(1, manutencao.getTipoManutencao().name());
             stmt.setDate(2, Date.valueOf(manutencao.getDataInicio()));
-            stmt.setDate(3, Date.valueOf(manutencao.getDataFim()));
+
+            // uma manutenção em andamento pode possui uma data final nula ainda
+            if (manutencao.getDataFim() != null) {
+                stmt.setDate(3, Date.valueOf(manutencao.getDataFim())
+                ); // se não for nula coloca a data na tabela
+            } else {
+                stmt.setNull(3, Types.DATE); // coloca um valor nulo em um parâmetro do tipo data
+            }
+
             stmt.setString(4, manutencao.getDescricao());
             stmt.setDouble(5, manutencao.getCusto());
             stmt.setString(6, manutencao.getStatus().name());
             stmt.setInt(7, manutencao.getEquipamento().getId());
             stmt.setInt(8, manutencao.getTecnicoResponsavel().getId());
 
-            stmt.executeUpdate();
+            int linhasAfetadas = stmt.executeUpdate();
 
-            System.out.println("Manutenção salva com sucesso!");
+            if (linhasAfetadas == 0) {
+                throw new SQLException("Nenhuma manutenção foi inserida.");
+            }
+
+            try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+
+                if (!generatedKeys.next()) {
+                    throw new SQLException(
+                            "O banco não retornou o ID da manutenção."
+                    );
+                }
+
+                manutencao.definirId(generatedKeys.getInt(1));
+            }
+
+            System.out.println("Manutenção salva com ID " + manutencao.getId());
 
         } catch (SQLException e) {
             throw new RuntimeException("Erro ao salvar manutenção", e);
         }
-
     }
 
     public Manutencao buscarPorId(int id){
