@@ -27,10 +27,16 @@ public class UsuarioDAO {
 
             stmt.executeUpdate(); // executa o insert no banco
 
-            ResultSet rs = stmt.getGeneratedKeys(); // recupero as chaves primárias
+            try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
 
-            if (rs.next()) {
-                int idGerado = rs.getInt(1); // pega o id gerado e joga na especialização
+                if (!generatedKeys.next()) {
+                    throw new SQLException("O banco não retornou o ID do usuário.");
+                }
+
+                int idGerado = generatedKeys.getInt(1);
+
+                usuario.definirId(idGerado);
+
                 salvarDadosEspecificos(usuario, idGerado);
             }
 
