@@ -31,7 +31,20 @@ public class Empresa extends Entidade {
 
     private Set<Equipamento> equipamentos = new HashSet<>();
 
-    public Empresa(int id, String nome, String cnpj, String endereco, String segmento, Status status){
+    // esse é pra salvar o objeto sem o id, pq ainda não foi gerado pelo banco
+    public Empresa(String nome, String cnpj, String endereco, String segmento, Status status) {
+        this(
+                null,
+                nome,
+                cnpj,
+                endereco,
+                segmento,
+                status
+        );
+    }
+
+    // esse é pra reconstruir o objeto
+    public Empresa(Integer id, String nome, String cnpj, String endereco, String segmento, Status status){
         super(id);
         this.nome = nome;
         this.cnpj = cnpj;
