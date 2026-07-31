@@ -42,6 +42,13 @@ public class GestaoEquipamento {
     }
 
     public void atualizarEquipamento(Equipamento alterado) {
+
+        if (alterado.getId() == null) {
+            throw new IllegalArgumentException(
+                    "Não é possível atualizar um equipamento sem ID."
+            );
+        }
+
         buscarPorId(alterado.getId());
         equipamentoDAO.atualizar(alterado);
     }
