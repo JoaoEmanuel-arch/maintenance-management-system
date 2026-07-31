@@ -29,6 +29,12 @@ public class GestaoUsuario {
 
     public void atualizarUsuario(Usuario alterado) {
 
+        if (alterado.getId() == null) {
+            throw new IllegalArgumentException(
+                    "Não é possível atualizar um usuário sem ID."
+            );
+        }
+
         Usuario existente = buscarPorId(alterado.getId());
 
         existente.atualizarDados(alterado);
