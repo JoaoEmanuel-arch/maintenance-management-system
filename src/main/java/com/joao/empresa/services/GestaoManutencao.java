@@ -70,6 +70,13 @@ public class GestaoManutencao {
     }
 
     public void atualizarManutencao(Manutencao alterada){
+
+        if (alterada.getId() == null) {
+            throw new IllegalArgumentException(
+                    "Não é possível atualizar uma manutenção sem ID."
+            );
+        }
+
         buscarAtivasPorId(alterada.getId()); //lança exceção
         manutencaoDAO.atualizar(alterada);
     }
