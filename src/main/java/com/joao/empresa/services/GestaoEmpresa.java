@@ -28,6 +28,13 @@ public class GestaoEmpresa {
     }
 
     public void atualizarEmpresa(Empresa alterada){
+
+        if (alterada.getId() == null) {
+            throw new IllegalArgumentException(
+                    "Não é possível atualizar uma empresa sem ID."
+            );
+        }
+
         buscarPorId(alterada.getId());
         empresaDAO.atualizar(alterada);
     }
