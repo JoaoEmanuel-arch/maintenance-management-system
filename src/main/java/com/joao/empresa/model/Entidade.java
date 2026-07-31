@@ -1,28 +1,54 @@
 package com.joao.empresa.model;
 
-import java.util.Objects;
-
 public abstract class Entidade {
 
-    private int id;
+    private Integer id;
 
-    public Entidade(int id){
+    protected Entidade(Integer id) {
         this.id = id;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
+    // alterar o id da entidade que estava nulo para o id que veio do banco
+    public void definirId(Integer id) {
+
+        if (id == null || id <= 0) {
+            throw new IllegalArgumentException(
+                    "O ID deve ser um número positivo."
+            );
+        }
+
+        if (this.id != null) {
+            throw new IllegalStateException(
+                    "A entidade já possui um ID."
+            );
+        }
+
+        this.id = id;
+    }
+
     @Override
-    public boolean equals(Object o) { // somente com base no id é mais seguro para o CRUD
-        if (!(o instanceof Entidade entidade)) return false;
-        return id == entidade.id;
+    public boolean equals(Object objeto) {
+
+        if (this == objeto) {
+            return true;
+        }
+
+        if (objeto == null || getClass() != objeto.getClass()) {
+            return false;
+        }
+
+        Entidade outraEntidade = (Entidade) objeto;
+
+        return id != null && id.equals(outraEntidade.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id);
+        return getClass().hashCode();
     }
 
     @Override
