@@ -28,7 +28,17 @@ public abstract class Usuario extends Entidade{
     private String senha;
     private TipoUsuario tipo;
 
-    public Usuario(int id, String nome, String email, String senha, TipoUsuario tipo){
+    protected Usuario(String nome, String email, String senha, TipoUsuario tipo) {
+        this(
+                null,
+                nome,
+                email,
+                senha,
+                tipo
+        );
+    }
+
+    protected Usuario(Integer id, String nome, String email, String senha, TipoUsuario tipo){
         super(id);
         this.nome = nome;
         this.email = email;
