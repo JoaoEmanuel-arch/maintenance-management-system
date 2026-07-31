@@ -17,7 +17,8 @@ public class EmpresaDAO {
         String sql = "INSERT INTO empresa (nome, cnpj, endereco, segmento, status) VALUES (?, ?, ?, ?, ?)";
 
         try (Connection conn = ConnectionFactory.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(sql,
+                     Statement.RETURN_GENERATED_KEYS)) {
 
             stmt.setString(1, empresa.getNome());
             stmt.setString(2, empresa.getCnpj());
@@ -25,9 +26,29 @@ public class EmpresaDAO {
             stmt.setString(4, empresa.getSegmento());
             stmt.setString(5, empresa.getStatus().name());
 
-            stmt.executeUpdate();
+            int linhasAfetadas = stmt.executeUpdate();
 
-            System.out.println("Empresa salva com sucesso!");
+            if (linhasAfetadas == 0) {
+                throw new SQLException(
+                        "Nenhuma empresa foi inserida."
+                );
+            }
+
+            try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+
+                if (!generatedKeys.next()) {
+                    throw new SQLException(
+                            "O banco não retornou o ID da empresa."
+                    );
+                }
+
+                empresa.definirId(generatedKeys.getInt(1));
+            }
+
+            System.out.println(
+                    "Empresa salva com ID " +
+                            empresa.getId()
+            );
 
         } catch (SQLException e) {
             throw new RuntimeException("Erro ao salvar empresa", e);
