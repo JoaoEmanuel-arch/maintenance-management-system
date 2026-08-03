@@ -5,6 +5,7 @@ import com.joao.empresa.model.Equipamento;
 import com.joao.empresa.model.Manutencao;
 import com.joao.empresa.model.Tecnico;
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -117,6 +118,16 @@ public class ManutencaoDAO {
         Date dataInicio = rs.getDate("data_inicio");
         Date dataFim = rs.getDate("data_fim");
 
+        LocalDate dataFimLocal;
+
+        // eu só consigo salvar date no banco, para trazer de volta eu converto pra LocalDate
+        // só que se a dataFim for nula, não pode fazer conversão com nulo pq dá erro
+        if (dataFim != null) {
+            dataFimLocal = dataFim.toLocalDate(); // conversão
+        } else {
+            dataFimLocal = null;
+        }
+
         Manutencao.Status status =
                 Manutencao.Status.valueOf(
                         rs.getString("status")
@@ -136,7 +147,7 @@ public class ManutencaoDAO {
                 descricao,
                 custo,
                 dataInicio.toLocalDate(),
-                dataFim.toLocalDate(),
+                dataFimLocal,
                 status,
                 equipamento,
                 tecnicoResponsavel
