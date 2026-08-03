@@ -9,38 +9,67 @@ import java.util.List;
 
 public class UsuarioDAO {
 
-    // Primeiro eu salvo a superclasse usuário no banco de dados
     public void salvar(Usuario usuario) {
 
-        // código sql que vai receber os parâmetros com PreparedStatement
-        String sql = "INSERT INTO usuario (nome, email, senha, tipo_usuario) VALUES (?, ?, ?, ?)";
+        String sql = """
+            INSERT INTO usuario
+            (nome, email, senha, tipo_usuario)
+            VALUES (?, ?, ?, ?)
+            """;
 
-        // tudo aqui será fechado automaticamente
-        try (Connection conn = ConnectionFactory.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            // esse objeto que coloca o valor no ? do sql // salva as chaves primárias geradas no banco
+        // abre somente a conexão primeiro pq vai usar em mais de um comando SQL
+        try (Connection conn = ConnectionFactory.getConnection()) {
 
-            stmt.setString(1, usuario.getNome());
-            stmt.setString(2, usuario.getEmail());
-            stmt.setString(3, usuario.getSenha());
-            stmt.setString(4, usuario.getTipo().name()); // enum convertido para String
+            // Não confirmar automaticamente cada comando, esperar eu mesmo confirmar com commit()
+            conn.setAutoCommit(false);
 
-            stmt.executeUpdate(); // executa o insert no banco
+            try {
+                int idGerado;
 
-            try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                try (PreparedStatement stmt = conn.prepareStatement(
+                        sql, Statement.RETURN_GENERATED_KEYS
+                )) {
 
-                if (!generatedKeys.next()) {
-                    throw new SQLException("O banco não retornou o ID do usuário.");
+                    stmt.setString(1, usuario.getNome());
+                    stmt.setString(2, usuario.getEmail());
+                    stmt.setString(3, usuario.getSenha());
+                    stmt.setString(4, usuario.getTipo().name());
+
+                    int linhasAfetadas = stmt.executeUpdate();
+
+                    if (linhasAfetadas == 0) {
+                        throw new SQLException("Nenhum usuário foi inserido.");
+                    }
+
+                    try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+
+                        if (!generatedKeys.next()) {
+                            throw new SQLException("O banco não retornou o ID do usuário.");
+                        }
+
+                        idGerado = generatedKeys.getInt(1);
+                    }
                 }
 
-                int idGerado = generatedKeys.getInt(1);
+                // eu salvo os dados específicos agora passando a mesma conexão, sem ter que abrir outra
+                // se der um erro nos filhos como que vou fazer com as alterações já feitas no pai ...
+                salvarDadosEspecificos(conn, usuario, idGerado);
 
+                // Confirma o INSERT em usuario e o INSERT na tabela específica.
+                conn.commit();
+
+                // O objeto só recebe o ID depois de o banco confirmar toda a operação nos filhos.
                 usuario.definirId(idGerado);
 
-                salvarDadosEspecificos(usuario, idGerado);
-            }
+                System.out.println("Usuário salvo com sucesso!");
 
-            System.out.println("Usuário salvo com sucesso!");
+            } catch (SQLException e) {
+
+                executarRollback(conn, e);
+
+                // Relança a exceção para o catch externo.
+                throw e;
+            }
 
         } catch (SQLException e) {
             throw new RuntimeException("Erro ao salvar usuário", e);
@@ -49,13 +78,13 @@ public class UsuarioDAO {
 
     // Depois eu salvo as subclasses com seus dados específicos no banco de dados,
     // com chaves primárias fazendo referência ao id do usuario pai
-    private void salvarDadosEspecificos(Usuario usuario, int idGerado) {
+    // Não preciso fazer uma nova conexão, vem tudo por parâmetro
+    private void salvarDadosEspecificos(Connection conn, Usuario usuario, int idGerado) throws SQLException {
 
         if (usuario instanceof Tecnico tecnico) { // se usuario for instância de tecnico
             String sql = "INSERT INTO tecnico (usuario_id, especialidade) VALUES (?, ?)";
 
-            try (Connection conn = ConnectionFactory.getConnection();
-                 PreparedStatement stmt = conn.prepareStatement(sql)) {
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
 
                 stmt.setInt(1, idGerado);
                 stmt.setString(2, tecnico.getEspecialidade());
@@ -67,11 +96,10 @@ public class UsuarioDAO {
             }
         }
 
-        if (usuario instanceof Gestor gestor) {
+        else if (usuario instanceof Gestor gestor) {
             String sql = "INSERT INTO gestor (usuario_id, area_responsavel) VALUES (?, ?)";
 
-            try (Connection conn = ConnectionFactory.getConnection();
-                 PreparedStatement stmt = conn.prepareStatement(sql)) {
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
 
                 stmt.setInt(1, idGerado);
                 stmt.setString(2, gestor.getAreaResponsavel());
@@ -83,21 +111,31 @@ public class UsuarioDAO {
             }
         }
 
-        if (usuario instanceof Administrador administrador) {
+        else if (usuario instanceof Administrador administrador) {
             String sql = "INSERT INTO administrador (usuario_id, nivel_acesso, departamento) VALUES (?, ?, ?)";
 
-            try (Connection conn = ConnectionFactory.getConnection();
-                 PreparedStatement stmt = conn.prepareStatement(sql)) {
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
 
                 stmt.setInt(1, idGerado);
                 stmt.setString(2, administrador.getNivelAcesso().name());
                 stmt.setString(3, administrador.getDepartamento());
 
                 stmt.executeUpdate();
-
-            } catch (SQLException e) {
-                throw new RuntimeException("Erro ao salvar administrador", e);
             }
+        }
+
+        else {
+            throw new SQLException("Tipo de usuário não suportado.");
+        }
+    }
+
+    private void executarRollback(Connection conn, SQLException causaOriginal) {
+
+        try {
+            conn.rollback();
+
+        } catch (SQLException erroNoRollback) {
+            causaOriginal.addSuppressed(erroNoRollback);
         }
     }
 
