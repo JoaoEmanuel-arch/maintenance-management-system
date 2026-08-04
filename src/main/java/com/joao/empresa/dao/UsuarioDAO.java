@@ -360,7 +360,7 @@ public class UsuarioDAO {
 
             } catch (SQLException e) {
 
-                executarRollback(conn, e); // entender esse negócio de commit e rollback
+                executarRollback(conn, e); // se esse ou um dos filhos deu errado, desfaz tudo
 
                 throw e;
             }
@@ -372,54 +372,73 @@ public class UsuarioDAO {
         }
     }
 
-    private void atualizarDadosEspecificos(Usuario usuario) {
+    private void atualizarDadosEspecificos(Connection conn, Usuario usuario) throws SQLException {
 
         if (usuario instanceof Tecnico tecnico) {
-            String sql = "UPDATE tecnico SET especialidade = ? WHERE usuario_id = ?";
 
-            try (Connection conn = ConnectionFactory.getConnection();
-                 PreparedStatement stmt = conn.prepareStatement(sql)) {
+            String sql = """
+                UPDATE tecnico
+                SET especialidade = ?
+                WHERE usuario_id = ?
+                """;
+
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
 
                 stmt.setString(1, tecnico.getEspecialidade());
                 stmt.setInt(2, tecnico.getId());
 
-                stmt.executeUpdate();
-
-            } catch (SQLException e) {
-                throw new RuntimeException("Erro ao atualizar técnico", e);
+                verificarAtualizacaoEspecifica(stmt, tecnico.getId(), "técnico");
             }
-        }
 
-        if (usuario instanceof Gestor gestor) {
-            String sql = "UPDATE gestor SET area_responsavel = ? WHERE usuario_id = ?";
+        } else if (usuario instanceof Gestor gestor) {
 
-            try (Connection conn = ConnectionFactory.getConnection();
-                 PreparedStatement stmt = conn.prepareStatement(sql)) {
+            String sql = """
+                UPDATE gestor
+                SET area_responsavel = ?
+                WHERE usuario_id = ?
+                """;
+
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
 
                 stmt.setString(1, gestor.getAreaResponsavel());
                 stmt.setInt(2, gestor.getId());
 
-                stmt.executeUpdate();
-
-            } catch (SQLException e) {
-                throw new RuntimeException("Erro ao atualizar gestor", e);
+                verificarAtualizacaoEspecifica(stmt, gestor.getId(), "gestor");
             }
-        }
 
-        if (usuario instanceof Administrador administrador) {
-            String sql = "UPDATE administrador SET departamento = ? WHERE usuario_id = ?";
+        } else if (
+                usuario instanceof Administrador administrador
+        ) {
 
-            try (Connection conn = ConnectionFactory.getConnection();
-                 PreparedStatement stmt = conn.prepareStatement(sql)) {
+            String sql = """
+                UPDATE administrador
+                SET departamento = ?
+                WHERE usuario_id = ?
+                """;
+
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
 
                 stmt.setString(1, administrador.getDepartamento());
                 stmt.setInt(2, administrador.getId());
 
-                stmt.executeUpdate();
-
-            } catch (SQLException e) {
-                throw new RuntimeException("Erro ao atualizar administrador", e);
+                verificarAtualizacaoEspecifica(stmt, administrador.getId(), "administrador");
             }
+
+        } else {
+            throw new SQLException(
+                    "Tipo de usuário não suportado."
+            );
+        }
+    }
+
+    private void verificarAtualizacaoEspecifica(PreparedStatement stmt, int id, String tipo) throws SQLException {
+
+        int linhasAfetadas = stmt.executeUpdate();
+
+        if (linhasAfetadas == 0) {
+            throw new SQLException("Dados específicos do " + tipo
+                            + " com ID " + id + " não foram encontrados."
+            );
         }
     }
 
