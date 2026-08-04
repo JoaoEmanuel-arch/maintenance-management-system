@@ -323,26 +323,52 @@ public class UsuarioDAO {
     // Recebe o usuário já alterado, pego as partes e jogo no update pra mudar dentro do banco
     public void atualizar(Usuario usuario) {
 
-        String sql = "UPDATE usuario SET nome = ?, email = ?, senha = ?, tipo_usuario = ? WHERE id = ?";
+        String sql = """
+            UPDATE usuario
+            SET nome = ?,
+                email = ?,
+                senha = ?,
+                tipo_usuario = ?
+            WHERE id = ?
+            """;
 
-        try (Connection conn = ConnectionFactory.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (Connection conn = ConnectionFactory.getConnection()) {
 
-            stmt.setString(1, usuario.getNome());
-            stmt.setString(2, usuario.getEmail());
-            stmt.setString(3, usuario.getSenha());
-            stmt.setString(4, usuario.getTipo().name());
-            stmt.setInt(5, usuario.getId());
+            conn.setAutoCommit(false);
 
-            stmt.executeUpdate();
+            try {
+                try (PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            // Depois que mudar na tabela pai usuario, muda os específicos na tabela filha
-            atualizarDadosEspecificos(usuario);
+                    stmt.setString(1, usuario.getNome());
+                    stmt.setString(2, usuario.getEmail());
+                    stmt.setString(3, usuario.getSenha());
+                    stmt.setString(4, usuario.getTipo().name());
+                    stmt.setInt(5, usuario.getId());
 
-            System.out.println("Usuário atualizado!");
+                    int linhasAfetadas = stmt.executeUpdate();
+
+                    if (linhasAfetadas == 0) {
+                        throw new SQLException("Usuário com ID " + usuario.getId() + " não foi encontrado.");
+                    }
+                }
+
+                atualizarDadosEspecificos(conn, usuario);
+
+                conn.commit(); // confirma a operação para o JDBC
+
+                System.out.println("Usuário atualizado!");
+
+            } catch (SQLException e) {
+
+                executarRollback(conn, e); // entender esse negócio de commit e rollback
+
+                throw e;
+            }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao atualizar usuário", e);
+            throw new RuntimeException(
+                    "Erro ao atualizar usuário", e
+            );
         }
     }
 
