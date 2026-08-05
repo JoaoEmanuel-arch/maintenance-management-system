@@ -5,6 +5,10 @@ public abstract class Entidade {
     private Integer id;
 
     protected Entidade(Integer id) {
+        if (id != null) {
+            validarIdPositivo(id);
+        }
+
         this.id = id;
     }
 
@@ -14,12 +18,7 @@ public abstract class Entidade {
 
     // alterar o id da entidade que estava nulo para o id que veio do banco
     public void definirId(Integer id) {
-
-        if (id == null || id <= 0) {
-            throw new IllegalArgumentException(
-                    "O ID deve ser um número positivo."
-            );
-        }
+        validarIdPositivo(id);
 
         if (this.id != null) {
             throw new IllegalStateException(
@@ -30,9 +29,18 @@ public abstract class Entidade {
         this.id = id;
     }
 
-    @Override
-    public boolean equals(Object objeto) {
+    private static void validarIdPositivo(Integer id) {
+        if (id == null || id <= 0) {
+            throw new IllegalArgumentException(
+                    "O ID deve ser um número positivo."
+            );
+        }
+    }
 
+    // dois objetos só representam a mesma entidade quando pertencem exatamente à mesma classe
+    // e possuem o mesmo ID não nulo
+    @Override
+    public final boolean equals(Object objeto) {
         if (this == objeto) {
             return true;
         }
@@ -46,8 +54,9 @@ public abstract class Entidade {
         return id != null && id.equals(outraEntidade.id);
     }
 
+    // retorna o hash da própria classe
     @Override
-    public int hashCode() {
+    public final int hashCode() {
         return getClass().hashCode();
     }
 
