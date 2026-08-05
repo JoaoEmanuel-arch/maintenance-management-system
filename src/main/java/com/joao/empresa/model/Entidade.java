@@ -60,6 +60,8 @@ public abstract class Entidade {
         return getClass().hashCode();
     }
 
+    // são finais para nenhuma subclasse sobreescrever e avacalhar o negócio
+
     @Override
     public String toString() {
         return "Entidade{" +
