@@ -4,6 +4,8 @@ import com.joao.empresa.database.ConnectionFactory;
 import com.joao.empresa.model.Equipamento;
 import com.joao.empresa.model.Manutencao;
 import com.joao.empresa.model.Tecnico;
+
+import java.math.BigDecimal;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -49,7 +51,7 @@ public class ManutencaoDAO {
             }
 
             stmt.setString(4, manutencao.getDescricao());
-            stmt.setDouble(5, manutencao.getCusto());
+            stmt.setBigDecimal(5, manutencao.getCusto());
             stmt.setString(6, manutencao.getStatus().name());
             stmt.setInt(7, manutencao.getEquipamento().getId());
             stmt.setInt(8, manutencao.getTecnicoResponsavel().getId());
@@ -114,7 +116,7 @@ public class ManutencaoDAO {
                 ); // o JDBC retorna o valor do ENUM como uma String
 
         String descricao = rs.getString("descricao");
-        double custo = rs.getDouble("custo");
+        BigDecimal custo = rs.getBigDecimal("custo");
         Date dataInicio = rs.getDate("data_inicio");
         Date dataFim = rs.getDate("data_fim");
 
@@ -292,7 +294,7 @@ public class ManutencaoDAO {
             }
 
             stmt.setString(4, manutencao.getDescricao());
-            stmt.setDouble(5, manutencao.getCusto());
+            stmt.setBigDecimal(5, manutencao.getCusto());
             stmt.setString(6, manutencao.getStatus().name());
 
             stmt.setInt(7, manutencao.getEquipamento().getId());

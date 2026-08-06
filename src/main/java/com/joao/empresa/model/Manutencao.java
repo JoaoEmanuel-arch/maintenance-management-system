@@ -204,7 +204,7 @@ public class Manutencao extends Entidade {
         }
     }
 
-    // Atualiza apenas os dados permitidos enquanto a manutenção estiver em andamento. São os setters só q tudo de uma vez só
+    // Atualiza apenas os dados permitidos enquanto a manutenção estiver em andamento. São os setters só q tudo de uma vez sóx
     public void atualizarDados(
             TipoManutencao tipoManutencao,
             String descricao,
@@ -268,7 +268,7 @@ public class Manutencao extends Entidade {
         return descricao;
     }
 
-    public double getCusto() {
+    public BigDecimal getCusto() {
         return custo;
     }
 
