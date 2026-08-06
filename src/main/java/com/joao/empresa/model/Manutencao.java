@@ -1,5 +1,6 @@
 package com.joao.empresa.model;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public class Manutencao extends Entidade {
@@ -49,10 +50,30 @@ public class Manutencao extends Entidade {
     private LocalDate dataInicio, dataFim;
     private TipoManutencao tipoManutencao;
     private String descricao;
-    private double custo;
+    private BigDecimal custo;
     private Tecnico tecnicoResponsavel;
     private Equipamento equipamento;
     private Status status;
+
+    // Construtor usado para criar uma manutenção nova.
+    // Uma manutenção nova: ainda não possui ID, começa em andamento, não possui data final
+    // começa com custo zero. Por isso essas informações não são recebidas por parâmetro
+    public Manutencao(TipoManutencao tipoManutencao, String descricao, LocalDate dataInicio,
+            Equipamento equipamento, Tecnico tecnicoResponsavel
+    ) {
+        this(
+                null,
+                tipoManutencao,
+                descricao,
+                BigDecimal.ZERO,
+                dataInicio,
+                null,
+                Status.ANDAMENTO,
+                equipamento,
+                tecnicoResponsavel
+        );
+    }
+
 
     public Manutencao(TipoManutencao tipoManutencao, String descricao, double custo, LocalDate dataInicio,
             LocalDate dataFim, Status status, Equipamento equipamento, Tecnico tecnicoResponsavel) {
