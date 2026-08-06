@@ -204,7 +204,7 @@ public class Manutencao extends Entidade {
         }
     }
 
-    // Atualiza apenas os dados permitidos enquanto a manutenção estiver em andamento.
+    // Atualiza apenas os dados permitidos enquanto a manutenção estiver em andamento. São os setters só q tudo de uma vez só
     public void atualizarDados(
             TipoManutencao tipoManutencao,
             String descricao,
