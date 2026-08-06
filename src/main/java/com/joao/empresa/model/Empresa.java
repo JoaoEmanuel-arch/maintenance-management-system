@@ -1,7 +1,6 @@
 package com.joao.empresa.model;
 
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 
 public class Empresa extends Entidade {
@@ -101,17 +100,8 @@ public class Empresa extends Entidade {
         equipamentos.add(equipamento);
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (!(o instanceof Empresa empresa)) return false;
-        if (!super.equals(o)) return false;
-        return Objects.equals(nome, empresa.nome) && Objects.equals(cnpj, empresa.cnpj) && Objects.equals(endereco, empresa.endereco) && Objects.equals(segmento, empresa.segmento) && status == empresa.status && Objects.equals(equipamentos, empresa.equipamentos);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), nome, cnpj, endereco, segmento, status, equipamentos);
-    }
+    // o equals e hashcode virá da classe entidade. A determinação para objetos serem iguais
+    // se baseia na classe e no id gerado pelo banco.
 
     @Override
     public String toString() {
