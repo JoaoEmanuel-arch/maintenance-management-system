@@ -58,8 +58,12 @@ public class Manutencao extends Entidade {
     // Construtor usado para criar uma manutenção nova.
     // Uma manutenção nova: ainda não possui ID, começa em andamento, não possui data final
     // começa com custo zero. Por isso essas informações não são recebidas por parâmetro
-    public Manutencao(TipoManutencao tipoManutencao, String descricao, LocalDate dataInicio,
-            Equipamento equipamento, Tecnico tecnicoResponsavel
+    public Manutencao(
+            TipoManutencao tipoManutencao,
+            String descricao,
+            LocalDate dataInicio,
+            Equipamento equipamento,
+            Tecnico tecnicoResponsavel
     ) {
         this(
                 null,
@@ -74,11 +78,21 @@ public class Manutencao extends Entidade {
         );
     }
 
+    // Construtor para o DAO reconstruir manuntenção que já existe no banco
+    public Manutencao(
+            Integer id,
+            TipoManutencao tipoManutencao,
+            String descricao,
+            BigDecimal custo,
+            LocalDate dataInicio,
+            LocalDate dataFim,
+            Status status,
+            Equipamento equipamento,
+            Tecnico tecnicoResponsavel
+    ) {
+        super(id);
 
-    public Manutencao(TipoManutencao tipoManutencao, String descricao, double custo, LocalDate dataInicio,
-            LocalDate dataFim, Status status, Equipamento equipamento, Tecnico tecnicoResponsavel) {
-        this(
-                null,
+        validarEstado(
                 tipoManutencao,
                 descricao,
                 custo,
@@ -88,11 +102,7 @@ public class Manutencao extends Entidade {
                 equipamento,
                 tecnicoResponsavel
         );
-    }
 
-    public Manutencao(Integer id, TipoManutencao tipoManutencao, String descricao, double custo, LocalDate dataInicio,
-                      LocalDate dataFim, Status status, Equipamento equipamento, Tecnico tecnicoResponsavel) {
-        super(id);
         this.tipoManutencao = tipoManutencao;
         this.descricao = descricao;
         this.custo = custo;
