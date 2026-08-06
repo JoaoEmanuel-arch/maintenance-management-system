@@ -141,6 +141,16 @@ public class Manutencao extends Entidade {
         }
     }
 
+    private static void validarCusto(BigDecimal custo) {
+        if (custo == null) {
+            throw new IllegalArgumentException("O custo é obrigatório.");
+        }
+
+        if (custo.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("O custo não pode ser negativo.");
+        }
+    }
+
     // Atualiza apenas os dados permitidos enquanto a manutenção estiver em andamento.
     public void atualizarDados(
             TipoManutencao tipoManutencao,
