@@ -219,64 +219,32 @@ public class Manutencao extends Entidade {
         return tipoManutencao;
     }
 
-    public void setTipoManutencao(TipoManutencao tipoManutencao) {
-        this.tipoManutencao = tipoManutencao;
-    }
-
     public LocalDate getDataInicio() {
         return dataInicio;
-    }
-
-    public void setDataInicio(LocalDate dataInicio) {
-        this.dataInicio = dataInicio;
     }
 
     public LocalDate getDataFim() {
         return dataFim;
     }
 
-    public void setDataFim(LocalDate dataFim) {
-        this.dataFim = dataFim;
-    }
-
     public String getDescricao() {
         return descricao;
-    }
-
-    public void setDescricao(String descricao) {
-        this.descricao = descricao;
     }
 
     public double getCusto() {
         return custo;
     }
 
-    public void setCusto(double custo) {
-        this.custo = custo;
-    }
-
     public Tecnico getTecnicoResponsavel() {
         return tecnicoResponsavel;
-    }
-
-    public void setTecnicoResponsavel(Tecnico tecnicoResponsavel) {
-        this.tecnicoResponsavel = tecnicoResponsavel;
     }
 
     public Equipamento getEquipamento() {
         return equipamento;
     }
 
-    public void setEquipamento(Equipamento equipamento) {
-        this.equipamento = equipamento;
-    }
-
     public Status getStatus() {
         return status;
-    }
-
-    public void setStatus(Status status) {
-        this.status = status;
     }
 
     @Override
