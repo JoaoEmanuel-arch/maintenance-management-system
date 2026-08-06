@@ -77,7 +77,18 @@ public class GestaoManutencao {
             );
         }
 
-        buscarAtivasPorId(alterada.getId()); //lança exceção
+        Manutencao existente = buscarAtivasPorId(alterada.getId()); //lança exceção
+
+        // os métodos atualizar um objeto fica dentro do próprio objeto (equivale ao setter),
+        // mas altera tudo de uma vez dentro do objeto, já fazendo a verificação
+        existente.atualizarDados(
+                alterada.getTipoManutencao(),
+                alterada.getDescricao(),
+                alterada.getDataInicio(),
+                alterada.getEquipamento(),
+                alterada.getTecnicoResponsavel()
+        );
+
         manutencaoDAO.atualizar(alterada);
     }
 
