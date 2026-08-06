@@ -36,7 +36,7 @@ public class GestaoManutencao {
 
     public Manutencao buscarFinalizadasPorId(int id){
 
-        Manutencao manutencao = manutencaoDAO.buscarPorId(id);
+        Manutencao manutencao = buscarPorId(id);
 
         if (manutencao.getStatus() == Manutencao.Status.ANDAMENTO){ // não finalizou, está em andamento
             throw new ManutencaoNaoEncontradaException(
