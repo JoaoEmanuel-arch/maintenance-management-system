@@ -152,6 +152,15 @@ public class Manutencao extends Entidade {
         this.status = Status.CONCLUIDA;
     }
 
+    // O cancelamento também é uma operação completa.
+    public void cancelar(LocalDate dataCancelamento) {
+        exigirEmAndamento();
+        validarDataFim(dataCancelamento, dataInicio);
+
+        this.dataFim = dataCancelamento;
+        this.status = Status.CANCELADA;
+    }
+
     public TipoManutencao getTipoManutencao() {
         return tipoManutencao;
     }
