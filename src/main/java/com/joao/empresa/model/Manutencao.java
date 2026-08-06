@@ -113,6 +113,31 @@ public class Manutencao extends Entidade {
         this.tecnicoResponsavel = tecnicoResponsavel;
     }
 
+    // Atualiza apenas os dados permitidos enquanto a manutenção estiver em andamento.
+    public void atualizarDados(
+            TipoManutencao tipoManutencao,
+            String descricao,
+            LocalDate dataInicio,
+            Equipamento equipamento,
+            Tecnico tecnicoResponsavel
+    ) {
+        exigirEmAndamento();
+
+        validarDadosBasicos(
+                tipoManutencao,
+                descricao,
+                dataInicio,
+                equipamento,
+                tecnicoResponsavel
+        );
+
+        this.tipoManutencao = tipoManutencao;
+        this.descricao = descricao;
+        this.dataInicio = dataInicio;
+        this.equipamento = equipamento;
+        this.tecnicoResponsavel = tecnicoResponsavel;
+    }
+
     public TipoManutencao getTipoManutencao() {
         return tipoManutencao;
     }
