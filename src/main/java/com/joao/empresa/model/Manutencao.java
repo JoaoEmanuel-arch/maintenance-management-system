@@ -161,6 +161,12 @@ public class Manutencao extends Entidade {
         }
     }
 
+    private void exigirEmAndamento() {
+        if (status != Status.ANDAMENTO) {
+            throw new IllegalStateException("Somente uma manutenção em andamento pode ser alterada.");
+        }
+    }
+
     // Atualiza apenas os dados permitidos enquanto a manutenção estiver em andamento.
     public void atualizarDados(
             TipoManutencao tipoManutencao,
