@@ -151,6 +151,16 @@ public class Manutencao extends Entidade {
         }
     }
 
+    private static void validarDataFim(LocalDate dataFim, LocalDate dataInicio) {
+        if (dataFim == null) {
+            throw new IllegalArgumentException("A data final é obrigatória.");
+        }
+
+        if (dataFim.isBefore(dataInicio)) {
+            throw new IllegalArgumentException("A data final não pode ser anterior à data inicial.");
+        }
+    }
+
     // Atualiza apenas os dados permitidos enquanto a manutenção estiver em andamento.
     public void atualizarDados(
             TipoManutencao tipoManutencao,
