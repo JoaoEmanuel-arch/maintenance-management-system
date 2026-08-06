@@ -113,6 +113,34 @@ public class Manutencao extends Entidade {
         this.tecnicoResponsavel = tecnicoResponsavel;
     }
 
+    private static void validarDadosBasicos(
+            TipoManutencao tipoManutencao,
+            String descricao,
+            LocalDate dataInicio,
+            Equipamento equipamento,
+            Tecnico tecnicoResponsavel
+    ) {
+        if (tipoManutencao == null) {
+            throw new IllegalArgumentException("O tipo da manutenção é obrigatório.");
+        }
+
+        if (descricao == null || descricao.isBlank()) {
+            throw new IllegalArgumentException("A descrição da manutenção é obrigatória.");
+        }
+
+        if (dataInicio == null) {
+            throw new IllegalArgumentException("A data inicial é obrigatória.");
+        }
+
+        if (equipamento == null) {
+            throw new IllegalArgumentException("O equipamento é obrigatório.");
+        }
+
+        if (tecnicoResponsavel == null) {
+            throw new IllegalArgumentException("O técnico responsável é obrigatório.");
+        }
+    }
+
     // Atualiza apenas os dados permitidos enquanto a manutenção estiver em andamento.
     public void atualizarDados(
             TipoManutencao tipoManutencao,
