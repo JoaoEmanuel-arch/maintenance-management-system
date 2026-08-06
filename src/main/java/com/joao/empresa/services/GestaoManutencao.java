@@ -3,6 +3,8 @@ package com.joao.empresa.services;
 import com.joao.empresa.dao.ManutencaoDAO;
 import com.joao.empresa.exceptions.ManutencaoNaoEncontradaException;
 import com.joao.empresa.model.Manutencao;
+
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -100,12 +102,13 @@ public class GestaoManutencao {
         manutencaoDAO.atualizar(manutencao); // mando pro banco atualizar lá o novo status e data
     }
 
-    public void finalizarManutencao(int id, double custo) { // encerra ativa e joga pra finalizadas
+    // pra finalizar passa o custo e a data final
+    public void finalizarManutencao(int id, BigDecimal custo) { // encerra ativa e joga pra finalizadas
         Manutencao manutencao = buscarAtivasPorId(id);
-        manutencao.setStatus(Manutencao.Status.CONCLUIDA);
-        manutencao.setDataFim(LocalDate.now());
-        manutencao.setCusto(custo);
-        manutencaoDAO.atualizar(manutencao);
+
+        manutencao.finalizar(custo, LocalDate.now());
+
+        manutencaoDAO.atualizar(manutencao); // DAO é pra mexer com banco de dados
     }
 
     public void excluirManutencao(int id) { // excluir do sistema (finalizadas)
