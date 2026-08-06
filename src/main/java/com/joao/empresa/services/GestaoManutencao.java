@@ -94,8 +94,9 @@ public class GestaoManutencao {
 
     public void cancelarManutencao(int id){ // remove das manutenções ativas
         Manutencao manutencao = buscarAtivasPorId(id);
-        manutencao.setStatus(Manutencao.Status.CANCELADA); // altero localmente assim
-        manutencao.setDataFim(LocalDate.now());
+
+        manutencao.cancelar(LocalDate.now()); // lá dentro do objeto ele mesmo valida
+
         manutencaoDAO.atualizar(manutencao); // mando pro banco atualizar lá o novo status e data
     }
 
