@@ -161,6 +161,43 @@ public class Manutencao extends Entidade {
         }
     }
 
+    private static void validarEstado(
+            TipoManutencao tipoManutencao,
+            String descricao,
+            BigDecimal custo,
+            LocalDate dataInicio,
+            LocalDate dataFim,
+            Status status,
+            Equipamento equipamento,
+            Tecnico tecnicoResponsavel
+    ) {
+        validarDadosBasicos(
+                tipoManutencao,
+                descricao,
+                dataInicio,
+                equipamento,
+                tecnicoResponsavel
+        );
+
+        validarCusto(custo);
+
+        if (status == null) {
+            throw new IllegalArgumentException("O status da manutenção é obrigatório.");
+        }
+
+        if (dataFim != null) {
+            validarDataFim(dataFim, dataInicio);
+        }
+
+        if (status == Status.ANDAMENTO && dataFim != null) {
+            throw new IllegalArgumentException("Uma manutenção em andamento não pode possuir data final.");
+        }
+
+        if (status != Status.ANDAMENTO && dataFim == null) {
+            throw new IllegalArgumentException("Uma manutenção concluída ou cancelada precisa possuir data final.");
+        }
+    }
+
     private void exigirEmAndamento() {
         if (status != Status.ANDAMENTO) {
             throw new IllegalStateException("Somente uma manutenção em andamento pode ser alterada.");
