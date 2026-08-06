@@ -23,9 +23,9 @@ public class GestaoManutencao {
 
     public Manutencao buscarAtivasPorId(int id) {
 
-        Manutencao manutencao = manutencaoDAO.buscarPorId(id);
+        Manutencao manutencao = buscarPorId(id); // o próprio método já lança e exceção correta
 
-        if (manutencao.getStatus() != Manutencao.Status.ANDAMENTO){ // esta comparando somente com a String retornada
+        if (manutencao.getStatus() != Manutencao.Status.ANDAMENTO) {
             throw new ManutencaoNaoEncontradaException(
                     "Não existe manutenção ativa com ID " + id + "."
             );
