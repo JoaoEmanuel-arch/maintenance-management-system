@@ -246,7 +246,7 @@ public class ManutencaoDAO {
         return manutencoes;
     }
 
-    public List<Manutencao> buscarPorTecnico(int tecnicoId) {
+    public List<Manutencao> listarPorTecnico(int tecnicoId) {
 
         String sql = SELECT_MANUTENCAO_COMPLETA + " WHERE m.tecnico_id = ?";
 
