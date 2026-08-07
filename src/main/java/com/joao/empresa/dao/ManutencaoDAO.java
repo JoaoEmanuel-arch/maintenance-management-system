@@ -197,67 +197,9 @@ public class ManutencaoDAO {
         );
     }
 
-    // manutenções associadas a um equipamento
-    public List<Manutencao> buscarPorEquipamento(int equipamentoId) {
-
-        String sql = """
-                SELECT * FROM manutencao
-                WHERE equipamento_id = ?
-                """;
-
-        List<Manutencao> manutencoes = new ArrayList<>();
-
-        try (Connection conn = ConnectionFactory.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setInt(1, equipamentoId);
-
-            try (ResultSet rs = stmt.executeQuery()) {
-
-                while (rs.next()) {
-                    manutencoes.add(construirManutencao(rs));
-                }
-            }
-
-        } catch (SQLException e) {
-            throw new RuntimeException("Erro ao buscar manutenções do equipamento", e);
-        }
-
-        return manutencoes;
-    }
-
-    // manutenções sob responsabilidade de um técnico específico
-    public List<Manutencao> buscarPorTecnico(int tecnicoId) {
-
-        String sql = """
-                SELECT * FROM manutencao
-                WHERE tecnico_id = ?
-                """;
-
-        List<Manutencao> manutencoes = new ArrayList<>();
-
-        try (Connection conn = ConnectionFactory.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setInt(1, tecnicoId);
-
-            try (ResultSet rs = stmt.executeQuery()) {
-
-                while (rs.next()) {
-                    manutencoes.add(construirManutencao(rs));
-                }
-            }
-
-        } catch (SQLException e) {
-            throw new RuntimeException("Erro ao buscar manutenções do técnico", e);
-        }
-
-        return manutencoes;
-    }
-
     public List<Manutencao> listar() {
 
-        String sql = "SELECT * FROM manutencao";
+        String sql = SELECT_MANUTENCAO_COMPLETA + " ORDER BY m.id";
 
         List<Manutencao> manutencoes = new ArrayList<>();
 
