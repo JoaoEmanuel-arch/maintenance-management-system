@@ -13,8 +13,39 @@ import java.util.List;
 
 public class ManutencaoDAO {
 
-    private final EquipamentoDAO equipamentoDAO = new EquipamentoDAO();
-    private final UsuarioDAO usuarioDAO = new UsuarioDAO();
+    private static final String SELECT_MANUTENCAO_COMPLETA = """
+        SELECT
+            m.id AS manutencao_id,
+            m.tipo_manutencao AS manutencao_tipo,
+            m.data_inicio AS manutencao_data_inicio,
+            m.data_fim AS manutencao_data_fim,
+            m.descricao AS manutencao_descricao,
+            m.custo AS manutencao_custo,
+            m.status AS manutencao_status,
+
+            e.id AS equipamento_id,
+            e.nome AS equipamento_nome,
+            e.codigo_patrimonio AS equipamento_codigo_patrimonio,
+            e.data_aquisicao AS equipamento_data_aquisicao,
+
+            u.id AS tecnico_id,
+            u.nome AS tecnico_nome,
+            u.email AS tecnico_email,
+            u.senha AS tecnico_senha,
+
+            t.especialidade AS tecnico_especialidade
+
+        FROM manutencao m
+
+        JOIN equipamento e
+            ON e.id = m.equipamento_id
+
+        JOIN tecnico t
+            ON t.usuario_id = m.tecnico_id
+
+        JOIN usuario u
+            ON u.id = t.usuario_id
+        """;
 
     public void salvar(Manutencao manutencao) {
 
