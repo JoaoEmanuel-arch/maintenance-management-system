@@ -13,6 +13,8 @@ import java.util.List;
 
 public class ManutencaoDAO {
 
+    // isso centraliza a forma de carregar a manutenção, como todos os relacionamentos.
+    // Os métodos apenas colocam filtros diferentes
     private static final String SELECT_MANUTENCAO_COMPLETA = """
         SELECT
             m.id AS manutencao_id,
@@ -272,7 +274,7 @@ public class ManutencaoDAO {
     // listar manuntencoes ativar ou finalizadas ou canceladas
     public List<Manutencao> listarPorStatus(Manutencao.Status status) {
 
-        String sql = "SELECT * FROM manutencao WHERE status = ?";
+        String sql = SELECT_MANUTENCAO_COMPLETA + " WHERE m.status = ?";
 
         List<Manutencao> manutencoes = new ArrayList<>();
 
