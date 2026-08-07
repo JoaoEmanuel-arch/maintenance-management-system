@@ -5,10 +5,8 @@ import com.joao.empresa.model.Empresa;
 import com.joao.empresa.model.Equipamento;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.sql.Date;
+import java.util.*;
 
 public class EmpresaDAO {
 
@@ -132,9 +130,32 @@ public class EmpresaDAO {
 
     public List<Empresa> listar() {
 
-        String sql = "SELECT * FROM empresa";
+        // retorna as empresas com seus equipamentos (podem ser null)
+        // cada linha é um relacionamento, por isso a empresa pode repetir
+        String sql = """
+            SELECT
+                e.id AS empresa_id,
+                e.nome AS empresa_nome,
+                e.cnpj AS empresa_cnpj,
+                e.endereco AS empresa_endereco,
+                e.segmento AS empresa_segmento,
+                e.status AS empresa_status,
 
-        List<Empresa> empresas = new ArrayList<>();
+                eq.id AS equipamento_id,
+                eq.nome AS equipamento_nome,
+                eq.codigo_patrimonio AS equipamento_codigo_patrimonio,
+                eq.data_aquisicao AS equipamento_data_aquisicao
+
+            FROM empresa e
+
+            LEFT JOIN equipamento eq
+                ON eq.empresa_id = e.id
+
+            ORDER BY e.id
+            """;
+
+        //como pode haver várias linhas com o mesmo id, eu salvo apenas uma aqui para não criar vários objetos
+        Map<Integer, Empresa> empresasPorId = new LinkedHashMap<>();
 
         try (Connection conn = ConnectionFactory.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
@@ -142,32 +163,52 @@ public class EmpresaDAO {
 
             while (rs.next()) {
 
-                int id = rs.getInt("id");
-                String nome = rs.getString("nome");
-                String cnpj = rs.getString("cnpj");
-                String endereco = rs.getString("endereco");
-                String segmento = rs.getString("segmento");
+                int empresaId = rs.getInt("empresa_id");
 
-                Empresa.Status status = Empresa.Status.valueOf(
-                        rs.getString("status")
-                );
+                // eu tento pegar o objeto pronto lá no map, pra não criar outro
+                Empresa empresa = empresasPorId.get(empresaId);
 
-                Empresa empresa = new Empresa(id, nome, cnpj, endereco, segmento, status);
+                // Só cria a empresa se ela ainda não foi criada
+                if (empresa == null) {
 
-                Set<Equipamento> equipamentos = buscarEquipamentosDaEmpresa(id);
+                    empresa = new Empresa(
+                            empresaId,
+                            rs.getString("empresa_nome"),
+                            rs.getString("empresa_cnpj"),
+                            rs.getString("empresa_endereco"),
+                            rs.getString("empresa_segmento"),
+                            Empresa.Status.valueOf(
+                                    rs.getString("empresa_status")
+                            )
+                    );
 
-                for (Equipamento equipamento : equipamentos) {
-                    empresa.adicionarEquipamento(equipamento);
+                    // salvo lá dentro para não ter criar outros objetos com o mesmo id
+                    empresasPorId.put(empresaId, empresa);
                 }
 
-                empresas.add(empresa);
+                int equipamentoId = rs.getInt("equipamento_id");
+
+                // LEFT JOIN pode retornar NULL se a empresa
+                // ainda não possuir nenhum equipamento
+                if (!rs.wasNull()) {
+
+                    Equipamento equipamento =
+                            new Equipamento(
+                                    equipamentoId,
+                                    rs.getString("equipamento_nome"),
+                                    rs.getString("equipamento_codigo_patrimonio"),
+                                    rs.getDate("equipamento_data_aquisicao").toLocalDate()
+                            );
+
+                    empresa.adicionarEquipamento(equipamento);
+                }
             }
 
         } catch (SQLException e) {
             throw new RuntimeException("Erro ao listar empresas", e);
         }
 
-        return empresas;
+        return new ArrayList<>(empresasPorId.values());
     }
 
     public void atualizar(Empresa empresa) {
