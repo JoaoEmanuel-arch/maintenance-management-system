@@ -244,6 +244,31 @@ public class ManutencaoDAO {
         return manutencoes;
     }
 
+    public List<Manutencao> buscarPorTecnico(int tecnicoId) {
+
+        String sql = SELECT_MANUTENCAO_COMPLETA + " WHERE m.tecnico_id = ?";
+
+        List<Manutencao> manutencoes = new ArrayList<>();
+
+        try (Connection conn = ConnectionFactory.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, tecnicoId);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+
+                while (rs.next()) {
+                    manutencoes.add(construirManutencao(rs));
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao buscar manutenções do técnico", e);
+        }
+
+        return manutencoes;
+    }
+
     // listar manuntencoes ativar ou finalizadas ou canceladas
     public List<Manutencao> listarPorStatus(Manutencao.Status status) {
 
