@@ -4,13 +4,13 @@ public class Gestor extends Usuario {
 
     private String areaResponsavel;
 
-    public Gestor(String nome, String email, String senha, String areaResponsavel) {
-        super(nome, email, senha, TipoUsuario.GESTOR);
+    public Gestor(String nome, String email, String areaResponsavel) {
+        super(nome, email, TipoUsuario.GESTOR);
         this.areaResponsavel = areaResponsavel;
     }
 
-    public Gestor(Integer id, String nome, String email, String senha, String areaResponsavel) {
-        super(id, nome, email, senha, TipoUsuario.GESTOR);
+    public Gestor(Integer id, String nome, String email, String areaResponsavel) {
+        super(id, nome, email, TipoUsuario.GESTOR);
         this.areaResponsavel = areaResponsavel;
     }
 

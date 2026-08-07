@@ -13,8 +13,8 @@ public class UsuarioDAO {
 
         String sql = """
             INSERT INTO usuario
-            (nome, email, senha, tipo_usuario)
-            VALUES (?, ?, ?, ?)
+            (nome, email, tipo_usuario)
+            VALUES (?, ?, ?)
             """;
 
         // abre somente a conexão primeiro pq vai usar em mais de um comando SQL
@@ -32,8 +32,7 @@ public class UsuarioDAO {
 
                     stmt.setString(1, usuario.getNome());
                     stmt.setString(2, usuario.getEmail());
-                    stmt.setString(3, usuario.getSenha());
-                    stmt.setString(4, usuario.getTipo().name());
+                    stmt.setString(3, usuario.getTipo().name());
 
                     int linhasAfetadas = stmt.executeUpdate();
 
@@ -160,7 +159,6 @@ public class UsuarioDAO {
 
                 String nome = rs.getString("nome"); // pego o valor da coluna e salva aqui
                 String email = rs.getString("email");
-                String senha = rs.getString("senha");
 
                 // Converte String do banco → enum
                 Usuario.TipoUsuario tipo =
@@ -172,13 +170,13 @@ public class UsuarioDAO {
                 // e ele cria o objeto específico já na função. Pq o id é o mesmo
                 switch (tipo) {
                     case TECNICO:
-                        return buscarTecnico(id, nome, email, senha);
+                        return buscarTecnico(id, nome, email);
 
                     case GESTOR:
-                        return buscarGestor(id, nome, email, senha);
+                        return buscarGestor(id, nome, email);
 
                     case ADMINISTRADOR:
-                        return buscarAdministrador(id, nome, email, senha);
+                        return buscarAdministrador(id, nome, email);
 
                     default:
                         throw new RuntimeException("Tipo de usuário inválido");
@@ -190,7 +188,7 @@ public class UsuarioDAO {
         return null;
     }
 
-    private Tecnico buscarTecnico(int id, String nome, String email, String senha) {
+    private Tecnico buscarTecnico(int id, String nome, String email) {
 
         String sql = "SELECT * FROM tecnico WHERE usuario_id = ?";
 
@@ -205,7 +203,7 @@ public class UsuarioDAO {
 
                 String especialidade = rs.getString("especialidade");
 
-                return new Tecnico(id, nome, email, senha, especialidade);
+                return new Tecnico(id, nome, email, especialidade);
             }
 
         } catch (SQLException e) {
@@ -215,7 +213,7 @@ public class UsuarioDAO {
         return null;
     }
 
-    private Gestor buscarGestor(int id, String nome, String email, String senha) {
+    private Gestor buscarGestor(int id, String nome, String email) {
 
         String sql = "SELECT * FROM gestor WHERE usuario_id = ?";
 
@@ -230,7 +228,7 @@ public class UsuarioDAO {
 
                 String areaResponsavel = rs.getString("area_responsavel");
 
-                return new Gestor(id, nome, email, senha, areaResponsavel);
+                return new Gestor(id, nome, email, areaResponsavel);
             }
 
         } catch (SQLException e) {
@@ -240,7 +238,7 @@ public class UsuarioDAO {
         return null;
     }
 
-    private Administrador buscarAdministrador(int id, String nome, String email, String senha) {
+    private Administrador buscarAdministrador(int id, String nome, String email) {
 
         String sql = "SELECT * FROM administrador WHERE usuario_id = ?";
 
@@ -255,7 +253,7 @@ public class UsuarioDAO {
 
                 String departamento = rs.getString("departamento");
 
-                return new Administrador(id, nome, email, senha, departamento);
+                return new Administrador(id, nome, email, departamento);
             }
 
         } catch (SQLException e) {
@@ -283,7 +281,6 @@ public class UsuarioDAO {
                 int id = rs.getInt("id"); // o id já foi gerado, já está lá no banco
                 String nome = rs.getString("nome");
                 String email = rs.getString("email");
-                String senha = rs.getString("senha");
 
                 Usuario.TipoUsuario tipo =
                         Usuario.TipoUsuario.valueOf(rs.getString("tipo_usuario"));
@@ -295,15 +292,15 @@ public class UsuarioDAO {
 
                 switch (tipo) {
                     case ADMINISTRADOR:
-                        usuarios.add(buscarAdministrador(id, nome, email, senha));
+                        usuarios.add(buscarAdministrador(id, nome, email));
                         break;
 
                     case GESTOR:
-                        usuarios.add(buscarGestor(id, nome, email, senha));
+                        usuarios.add(buscarGestor(id, nome, email));
                         break;
 
                     case TECNICO:
-                        usuarios.add(buscarTecnico(id, nome, email, senha));
+                        usuarios.add(buscarTecnico(id, nome, email));
                         break;
 
                     default:
@@ -327,7 +324,6 @@ public class UsuarioDAO {
             UPDATE usuario
             SET nome = ?,
                 email = ?,
-                senha = ?,
                 tipo_usuario = ?
             WHERE id = ?
             """;
@@ -341,9 +337,8 @@ public class UsuarioDAO {
 
                     stmt.setString(1, usuario.getNome());
                     stmt.setString(2, usuario.getEmail());
-                    stmt.setString(3, usuario.getSenha());
-                    stmt.setString(4, usuario.getTipo().name());
-                    stmt.setInt(5, usuario.getId());
+                    stmt.setString(3, usuario.getTipo().name());
+                    stmt.setInt(4, usuario.getId());
 
                     int linhasAfetadas = stmt.executeUpdate();
 

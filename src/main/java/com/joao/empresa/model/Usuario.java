@@ -25,24 +25,21 @@ public abstract class Usuario extends Entidade{
 
     private String nome;
     private String email;
-    private String senha;
     private TipoUsuario tipo;
 
-    protected Usuario(String nome, String email, String senha, TipoUsuario tipo) {
+    protected Usuario(String nome, String email, TipoUsuario tipo) {
         this(
                 null,
                 nome,
                 email,
-                senha,
                 tipo
         );
     }
 
-    protected Usuario(Integer id, String nome, String email, String senha, TipoUsuario tipo){
+    protected Usuario(Integer id, String nome, String email, TipoUsuario tipo){
         super(id);
         this.nome = nome;
         this.email = email;
-        this.senha = senha;
         this.tipo = tipo;
     }
 
@@ -60,14 +57,6 @@ public abstract class Usuario extends Entidade{
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public String getSenha() {
-        return senha;
-    }
-
-    public void setSenha(String senha) {
-        this.senha = senha;
     }
 
     public TipoUsuario getTipo() {
