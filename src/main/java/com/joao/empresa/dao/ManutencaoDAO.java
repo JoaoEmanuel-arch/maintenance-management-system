@@ -139,17 +139,17 @@ public class ManutencaoDAO {
     // transforma uma linha do resultado em um objeto Manutencao
     private Manutencao construirManutencao(ResultSet rs) throws SQLException {
 
-        int id = rs.getInt("id");
+        int manutencaoId = rs.getInt("manutencao_id");
 
         Manutencao.TipoManutencao tipo =
                 Manutencao.TipoManutencao.valueOf(
-                        rs.getString("tipo_manutencao")
+                        rs.getString("manutencao_tipo")
                 ); // o JDBC retorna o valor do ENUM como uma String
 
-        String descricao = rs.getString("descricao");
-        BigDecimal custo = rs.getBigDecimal("custo");
-        Date dataInicio = rs.getDate("data_inicio");
-        Date dataFim = rs.getDate("data_fim");
+        String descricao = rs.getString("manutencao_descricao");
+        BigDecimal custo = rs.getBigDecimal("manutencao_custo");
+        LocalDate dataInicio = rs.getDate("manutencao_data_inicio").toLocalDate();
+        Date dataFim = rs.getDate("manutencao_data_fim");
 
         LocalDate dataFimLocal;
 
@@ -163,30 +163,38 @@ public class ManutencaoDAO {
 
         Manutencao.Status status =
                 Manutencao.Status.valueOf(
-                        rs.getString("status")
+                        rs.getString("manutencao_status")
                 );
 
-        int equipamentoId = rs.getInt("equipamento_id");
+        // construção dos objetos que já vieram do join
+        Equipamento equipamento =
+                new Equipamento(
+                        rs.getInt("equipamento_id"),
+                        rs.getString("equipamento_nome"),
+                        rs.getString(
+                                "equipamento_codigo_patrimonio"),
+                        rs.getDate("equipamento_data_aquisicao").toLocalDate()
+                );
 
-        int tecnicoId = rs.getInt("tecnico_id");
+        Tecnico tecnico =
+                new Tecnico(
+                        rs.getInt("tecnico_id"),
+                        rs.getString("tecnico_nome"),
+                        rs.getString("tecnico_email"),
+                        rs.getString("tecnico_especialidade")
+                );
 
-        Equipamento equipamento = equipamentoDAO.buscarPorId(equipamentoId);
-
-        Tecnico tecnicoResponsavel = (Tecnico) usuarioDAO.buscarPorId(tecnicoId);
-
-        Manutencao manutencao = new Manutencao(
-                id,
+        return new Manutencao(
+                manutencaoId,
                 tipo,
                 descricao,
                 custo,
-                dataInicio.toLocalDate(),
+                dataInicio,
                 dataFimLocal,
                 status,
                 equipamento,
-                tecnicoResponsavel
+                tecnico
         );
-
-        return manutencao;
     }
 
     // manutenções associadas a um equipamento
