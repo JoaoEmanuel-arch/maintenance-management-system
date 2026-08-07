@@ -113,7 +113,8 @@ public class ManutencaoDAO {
 
     public Manutencao buscarPorId(int id){
 
-        String sql = "SELECT * FROM manutencao WHERE id = ?";
+        // aí já sai todos os relacionamentos de uma vez só, pegando a manutenção com o id buscado
+        String sql = SELECT_MANUTENCAO_COMPLETA + " WHERE m.id = ?";
 
         try(Connection conn = ConnectionFactory.getConnection();
             PreparedStatement stmt = conn.prepareStatement(sql)){
