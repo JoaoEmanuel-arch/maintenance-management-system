@@ -263,55 +263,98 @@ public class UsuarioDAO {
         return null;
     }
 
-    // ao pé da letra, na verdade, eu não "retorno usuario", eu retorno tecnico, adm e gestor
     public List<Usuario> listar() {
 
-        String sql = "SELECT * FROM usuario"; // o que seria executado no workbench, retorna todos os usuarios
+        // eu junto em uma tabela todas as informarções de todos os usuários
+        // depois na hora de montar os objetos eu só pego os valores por essa tabela
+        String sql = """
+            SELECT
+                u.id,
+                u.nome,
+                u.email,
+                u.tipo_usuario,
 
-        // eu vou buscar todos os dados no banco, instanciar vários objetos e colocá-los nessa lista para retornar
+                t.especialidade,
+                g.area_responsavel,
+                a.departamento
+
+            FROM usuario u
+
+            LEFT JOIN tecnico t
+                ON t.usuario_id = u.id
+
+            LEFT JOIN gestor g
+                ON g.usuario_id = u.id
+
+            LEFT JOIN administrador a
+                ON a.usuario_id = u.id
+
+            ORDER BY u.id
+            """;
+
         List<Usuario> usuarios = new ArrayList<>();
 
         try (Connection conn = ConnectionFactory.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql); // vai guardando os pedaços de SQL
-             ResultSet rs = stmt.executeQuery()) { // resultado da consulta pq ja consulta de uma vez para listar
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
 
-            // Enquanto existir próxima linha no resultado
             while (rs.next()) {
 
-                int id = rs.getInt("id"); // o id já foi gerado, já está lá no banco
+                int id = rs.getInt("id");
                 String nome = rs.getString("nome");
                 String email = rs.getString("email");
+                Usuario.TipoUsuario tipo = Usuario.TipoUsuario.valueOf(rs.getString("tipo_usuario"));
 
-                Usuario.TipoUsuario tipo =
-                        Usuario.TipoUsuario.valueOf(rs.getString("tipo_usuario"));
-
-                // vou instanciar de acordo com cada tipo e joga tudo na lista
-                // eu uso usuario só para pegar os atributos gerais, crio objeto com o específico
-                // buscando as tabelas filhas (que possuem o mesmo id)
                 Usuario usuario;
 
+                // na hora de montar aqui, eu pego os valores vindo do join
                 switch (tipo) {
-                    case ADMINISTRADOR:
-                        usuarios.add(buscarAdministrador(id, nome, email));
+
+                    case TECNICO:
+
+                        usuario = new Tecnico(
+                                id,
+                                nome,
+                                email,
+                                rs.getString("especialidade")
+                        );
+
                         break;
 
                     case GESTOR:
-                        usuarios.add(buscarGestor(id, nome, email));
+
+                        usuario = new Gestor(
+                                id,
+                                nome,
+                                email,
+                                rs.getString("area_responsavel")
+                        );
+
                         break;
 
-                    case TECNICO:
-                        usuarios.add(buscarTecnico(id, nome, email));
+                    case ADMINISTRADOR:
+
+                        usuario = new Administrador(
+                                id,
+                                nome,
+                                email,
+                                rs.getString("departamento")
+                        );
+
                         break;
 
                     default:
-                        throw new RuntimeException(
-                                "Tipo de usuário inválido"
-                        );
+                        throw new IllegalStateException("Tipo de usuário inválido: " + tipo);
                 }
+
+                usuarios.add(usuario);
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao listar usuários", e);
+            throw new RuntimeException(
+                    "Erro ao listar usuários",
+                    e
+            );
         }
 
         return usuarios;
