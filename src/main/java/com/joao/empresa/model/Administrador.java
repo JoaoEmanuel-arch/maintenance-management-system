@@ -2,43 +2,16 @@ package com.joao.empresa.model;
 
 public class Administrador extends Usuario {
 
-    public enum NivelAcesso{
-        TOTAL("Acesso total"),
-        RESTRITO("Acesso restrito");
-
-        private String descricao;
-
-        NivelAcesso(String descricao) {
-            this.descricao = descricao;
-        }
-
-        public String getDescricao() {
-            return descricao;
-        }
-
-        @Override
-        public String toString() {
-            return descricao;
-        }
-    }
-
-    private NivelAcesso nivelAcesso;
     private String departamento;
 
     public Administrador(String nome, String email, String departamento) {
         super(nome, email, TipoUsuario.ADMINISTRADOR);
-        this.nivelAcesso = NivelAcesso.TOTAL;
         this.departamento = departamento;
     }
 
     public Administrador(Integer id, String nome, String email, String departamento){
         super(id, nome, email, TipoUsuario.ADMINISTRADOR);
-        nivelAcesso = NivelAcesso.TOTAL;
         this.departamento = departamento;
-    }
-
-    public NivelAcesso getNivelAcesso() {
-        return nivelAcesso;
     }
 
     public String getDepartamento() {
@@ -60,10 +33,8 @@ public class Administrador extends Usuario {
 
     @Override
     public String toString() {
-        return super.toString() +
-                " Administrador{" +
-                "nivelAcesso=" + nivelAcesso +
-                ", departamento='" + departamento + '\'' +
+        return "Administrador{" +
+                "departamento='" + departamento + '\'' +
                 '}';
     }
 
