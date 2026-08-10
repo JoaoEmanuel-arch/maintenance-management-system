@@ -57,7 +57,6 @@ CREATE TABLE IF NOT EXISTS usuario (
 
 CREATE TABLE IF NOT EXISTS administrador (
     usuario_id INT NOT NULL,
-    nivel_acesso ENUM('TOTAL', 'RESTRITO') NOT NULL DEFAULT 'TOTAL',
     departamento VARCHAR(100) NOT NULL,
 
     CONSTRAINT pk_administrador
