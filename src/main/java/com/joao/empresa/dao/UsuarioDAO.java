@@ -111,13 +111,12 @@ public class UsuarioDAO {
         }
 
         else if (usuario instanceof Administrador administrador) {
-            String sql = "INSERT INTO administrador (usuario_id, nivel_acesso, departamento) VALUES (?, ?, ?)";
+            String sql = "INSERT INTO administrador (usuario_id, nivel_acesso, departamento) VALUES (?, ?)";
 
             try (PreparedStatement stmt = conn.prepareStatement(sql)) {
 
                 stmt.setInt(1, idGerado);
-                stmt.setString(2, administrador.getNivelAcesso().name());
-                stmt.setString(3, administrador.getDepartamento());
+                stmt.setString(2, administrador.getDepartamento());
 
                 stmt.executeUpdate();
             }
