@@ -123,7 +123,10 @@ public class UsuarioDAO {
         }
 
         else {
-            throw new SQLException("Tipo de usuário não suportado.");
+            throw new IllegalArgumentException(
+                    "Tipo de usuário não suportado: "
+                            + usuario.getClass().getName()
+            );
         }
     }
 
