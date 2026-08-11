@@ -1,6 +1,7 @@
 package com.joao.empresa.dao;
 
 import com.joao.empresa.database.ConnectionFactory;
+import com.joao.empresa.exceptions.PersistenciaException;
 import com.joao.empresa.model.Empresa;
 import com.joao.empresa.model.Equipamento;
 
@@ -49,7 +50,7 @@ public class EmpresaDAO {
             );
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao salvar empresa", e);
+            throw new PersistenciaException("Erro ao salvar empresa", e);
         }
     }
 
@@ -88,7 +89,7 @@ public class EmpresaDAO {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao buscar empresa", e);
+            throw new PersistenciaException("Erro ao buscar empresa", e);
         }
 
         return null;
@@ -122,7 +123,7 @@ public class EmpresaDAO {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao buscar equipamentos da empresa", e);
+            throw new PersistenciaException("Erro ao buscar equipamentos da empresa", e);
         }
 
         return equipamentos;
@@ -205,7 +206,7 @@ public class EmpresaDAO {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao listar empresas", e);
+            throw new PersistenciaException("Erro ao listar empresas", e);
         }
 
         return new ArrayList<>(empresasPorId.values());
@@ -235,7 +236,7 @@ public class EmpresaDAO {
             System.out.println("Empresa atualizada!");
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao atualizar empresa", e);
+            throw new PersistenciaException("Erro ao atualizar empresa", e);
         }
     }
 
@@ -253,7 +254,7 @@ public class EmpresaDAO {
             System.out.println("Empresa deletada!");
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao deletar empresa", e);
+            throw new PersistenciaException("Erro ao deletar empresa", e);
         }
     }
 

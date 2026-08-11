@@ -2,7 +2,6 @@ package com.joao.empresa.services;
 
 import com.joao.empresa.dao.EquipamentoDAO;
 import com.joao.empresa.dao.ManutencaoDAO;
-import com.joao.empresa.exceptions.EquipamentoNaManutencaoException;
 import com.joao.empresa.exceptions.EquipamentoNaoEncontradoException;
 import com.joao.empresa.model.Equipamento;
 import java.util.List;
