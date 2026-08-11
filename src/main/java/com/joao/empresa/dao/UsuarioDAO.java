@@ -310,36 +310,15 @@ public class UsuarioDAO {
                 switch (tipo) {
 
                     case TECNICO:
-
-                        usuario = new Tecnico(
-                                id,
-                                nome,
-                                email,
-                                rs.getString("especialidade")
-                        );
-
+                        usuario = new Tecnico(id, nome, email, rs.getString("especialidade"));
                         break;
 
                     case GESTOR:
-
-                        usuario = new Gestor(
-                                id,
-                                nome,
-                                email,
-                                rs.getString("area_responsavel")
-                        );
-
+                        usuario = new Gestor(id, nome, email, rs.getString("area_responsavel"));
                         break;
 
                     case ADMINISTRADOR:
-
-                        usuario = new Administrador(
-                                id,
-                                nome,
-                                email,
-                                rs.getString("departamento")
-                        );
-
+                        usuario = new Administrador(id, nome, email, rs.getString("departamento"));
                         break;
 
                     default:
@@ -350,10 +329,7 @@ public class UsuarioDAO {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException(
-                    "Erro ao listar usuários",
-                    e
-            );
+            throw new RuntimeException("Erro ao listar usuários", e);
         }
 
         return usuarios;
