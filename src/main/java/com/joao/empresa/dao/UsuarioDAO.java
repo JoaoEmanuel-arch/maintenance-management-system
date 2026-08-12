@@ -1,5 +1,7 @@
 package com.joao.empresa.dao;
 
+import com.joao.empresa.database.TradutorSQLException;
+import com.joao.empresa.exceptions.PersistenciaException;
 import com.joao.empresa.model.*;
 import com.joao.empresa.database.ConnectionFactory;
 
@@ -36,14 +38,15 @@ public class UsuarioDAO {
 
                     int linhasAfetadas = stmt.executeUpdate();
 
+                    // Persistencia exception é quando eu percebo alguma coisa, não que o banco lança
                     if (linhasAfetadas == 0) {
-                        throw new SQLException("Nenhum usuário foi inserido.");
+                        throw new PersistenciaException("Nenhum usuário foi inserido.");
                     }
 
                     try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
 
                         if (!generatedKeys.next()) {
-                            throw new SQLException("O banco não retornou o ID do usuário.");
+                            throw new PersistenciaException("O banco não retornou o ID do usuário.");
                         }
 
                         idGerado = generatedKeys.getInt(1);
@@ -62,16 +65,25 @@ public class UsuarioDAO {
 
                 System.out.println("Usuário salvo com sucesso!");
 
-            } catch (SQLException e) {
+            } catch (SQLException e) { // SQLException é quando o banco lança alguma coisa
 
                 executarRollback(conn, e);
 
-                // Relança a exceção para o catch externo.
+                throw TradutorSQLException.traduzir(e,
+                        "salvar usuário"
+                );
+
+            } catch (RuntimeException e) { // para caso gerar um erro de persistencia ele executar o rollback
+
+                executarRollback(conn, e);
+
                 throw e;
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao salvar usuário", e);
+            throw TradutorSQLException.traduzir(
+                    e, "abrir ou encerrar a conexão ao salvar usuário"
+            );
         }
     }
 
