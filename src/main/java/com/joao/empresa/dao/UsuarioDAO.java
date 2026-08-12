@@ -101,10 +101,6 @@ public class UsuarioDAO {
                 stmt.setString(2, tecnico.getEspecialidade());
 
                 stmt.executeUpdate();
-
-            } catch (SQLException e) {
-                throw new RuntimeException("Erro ao salvar técnico", e);
-            }
         }
 
         else if (usuario instanceof Gestor gestor) {
@@ -116,10 +112,6 @@ public class UsuarioDAO {
                 stmt.setString(2, gestor.getAreaResponsavel());
 
                 stmt.executeUpdate();
-
-            } catch (SQLException e) {
-                throw new RuntimeException("Erro ao salvar gestor", e);
-            }
         }
 
         else if (usuario instanceof Administrador administrador) {
@@ -134,11 +126,9 @@ public class UsuarioDAO {
             }
         }
 
+        // Não é erro de banco, é um argumento que o método não sabe tratar
         else {
-            throw new IllegalArgumentException(
-                    "Tipo de usuário não suportado: "
-                            + usuario.getClass().getName()
-            );
+            throw new IllegalArgumentException("Tipo de usuário não suportado: ");
         }
     }
 
