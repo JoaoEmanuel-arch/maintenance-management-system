@@ -343,7 +343,9 @@ public class UsuarioDAO {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao listar usuários", e);
+            throw TradutorSQLException.traduzir(
+                    e, "listar usuários"
+            );
         }
 
         return usuarios;
@@ -375,7 +377,11 @@ public class UsuarioDAO {
                     int linhasAfetadas = stmt.executeUpdate();
 
                     if (linhasAfetadas == 0) {
-                        throw new SQLException("Usuário com ID " + usuario.getId() + " não foi encontrado.");
+                        throw new PersistenciaException(
+                                "Usuário com ID "
+                                        + usuario.getId()
+                                        + " não foi encontrado para atualização."
+                        );
                     }
                 }
 
@@ -387,14 +393,22 @@ public class UsuarioDAO {
 
             } catch (SQLException e) {
 
-                executarRollback(conn, e); // se esse ou um dos filhos deu errado, desfaz tudo
+                executarRollback(conn, e);
+
+                throw TradutorSQLException.traduzir(
+                        e, "atualizar usuário"
+                );
+
+            } catch (RuntimeException e) {
+
+                executarRollback(conn, e);
 
                 throw e;
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException(
-                    "Erro ao atualizar usuário", e
+            throw TradutorSQLException.traduzir(
+                    e, "abrir ou encerrar a conexão ao atualizar usuário"
             );
         }
     }
@@ -452,7 +466,7 @@ public class UsuarioDAO {
             }
 
         } else {
-            throw new SQLException(
+            throw new IllegalArgumentException(
                     "Tipo de usuário não suportado."
             );
         }
@@ -463,8 +477,12 @@ public class UsuarioDAO {
         int linhasAfetadas = stmt.executeUpdate();
 
         if (linhasAfetadas == 0) {
-            throw new SQLException("Dados específicos do " + tipo
-                            + " com ID " + id + " não foram encontrados."
+            throw new PersistenciaException(
+                    "Dados específicos do "
+                            + tipo
+                            + " com ID "
+                            + id
+                            + " não foram encontrados."
             );
         }
     }
@@ -483,7 +501,9 @@ public class UsuarioDAO {
             System.out.println("Usuário deletado!");
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao deletar usuário", e);
+            throw TradutorSQLException.traduzir(
+                    e, "deletar usuário"
+            );
         }
     }
 }
