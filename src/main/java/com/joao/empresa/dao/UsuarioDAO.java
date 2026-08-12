@@ -188,7 +188,9 @@ public class UsuarioDAO {
                 }
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao buscar usuário", e);
+            throw TradutorSQLException.traduzir(
+                    e, "buscar usuário por ID"
+            );
         }
         return null;
     }
@@ -212,7 +214,9 @@ public class UsuarioDAO {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao buscar técnico", e);
+            throw TradutorSQLException.traduzir(
+                    e, "buscar dados do técnico"
+            );
         }
 
         return null;
@@ -237,7 +241,9 @@ public class UsuarioDAO {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao buscar gestor", e);
+            throw TradutorSQLException.traduzir(
+                    e, "buscar dados do gestor"
+            );
         }
 
         return null;
@@ -262,7 +268,9 @@ public class UsuarioDAO {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao buscar administrador", e);
+            throw TradutorSQLException.traduzir(
+                    e, "buscar dados do administrador"
+            );
         }
 
         return null;
