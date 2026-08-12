@@ -67,6 +67,12 @@ public class GestaoUsuario {
 
         Usuario existente = buscarPorId(alterado.getId());
 
+        if (existente.getTipo() != alterado.getTipo()) {
+            throw new IllegalArgumentException(
+                    "Não é permitido alterar o tipo de um usuário existente."
+            );
+        }
+
         existente.atualizarDados(alterado);
         existente.atualizarEspecifico(alterado);
 
