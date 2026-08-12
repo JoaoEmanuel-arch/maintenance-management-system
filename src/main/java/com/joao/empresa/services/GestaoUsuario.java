@@ -76,7 +76,19 @@ public class GestaoUsuario {
         existente.atualizarDados(alterado);
         existente.atualizarEspecifico(alterado);
 
-        usuarioDAO.atualizar(existente);
+        try {
+
+            usuarioDAO.atualizar(existente);
+
+        } catch (RegistroDuplicadoException e) {
+
+            // aqui é abstrato, dá sql exception só lá no dao, passa no tradutor, chega aqui a abstrai
+            throw new UsuarioJaCadastradoException(
+                    "Já existe outro usuário cadastrado com o e-mail "
+                            + existente.getEmail() + ".", e
+            );
+        }
+
     }
 
     public void removerUsuario(int id) {

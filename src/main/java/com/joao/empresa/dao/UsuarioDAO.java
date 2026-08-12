@@ -391,7 +391,7 @@ public class UsuarioDAO {
 
                 System.out.println("Usuário atualizado!");
 
-            } catch (SQLException e) {
+            } catch (SQLException e) { // duplicidade cai aqui, coisas de SQL não devem vazar para service. Service é abstrato
 
                 executarRollback(conn, e);
 
