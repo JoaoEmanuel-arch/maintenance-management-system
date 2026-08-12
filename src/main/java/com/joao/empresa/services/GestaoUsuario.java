@@ -53,6 +53,12 @@ public class GestaoUsuario {
 
     public void atualizarUsuario(Usuario alterado) {
 
+        if (alterado == null) {
+            throw new IllegalArgumentException(
+                    "O usuário a ser atualizado não pode ser nulo."
+            );
+        }
+
         if (alterado.getId() == null) {
             throw new IllegalArgumentException(
                     "Não é possível atualizar um usuário sem ID."
