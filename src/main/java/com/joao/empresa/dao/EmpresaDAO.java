@@ -266,7 +266,9 @@ public class EmpresaDAO {
             System.out.println("Empresa deletada!");
 
         } catch (SQLException e) {
-            throw new PersistenciaException("Erro ao deletar empresa", e);
+            throw TradutorSQLException.traduzir(
+                    e, "deletar empresa"
+            );
         }
     }
 
