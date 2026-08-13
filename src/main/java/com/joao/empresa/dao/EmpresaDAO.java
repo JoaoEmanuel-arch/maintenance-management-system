@@ -241,7 +241,16 @@ public class EmpresaDAO {
             stmt.setString(5, empresa.getStatus().name());
             stmt.setInt(6, empresa.getId());
 
-            stmt.executeUpdate();
+            // caso alguém exclua a empresa depois do service verificar -> race condition
+            int linhasAfetadas = stmt.executeUpdate();
+
+            if (linhasAfetadas == 0) {
+                throw new PersistenciaException(
+                        "Empresa com ID "
+                                + empresa.getId()
+                                + " não foi encontrada para atualização."
+                );
+            }
 
             System.out.println("Empresa atualizada!");
 
@@ -261,7 +270,14 @@ public class EmpresaDAO {
 
             stmt.setInt(1, id);
 
-            stmt.executeUpdate();
+            // caso alguém exclua a empresa depois do service verificar -> race condition
+            int linhasAfetadas = stmt.executeUpdate();
+
+            if (linhasAfetadas == 0) {
+                throw new PersistenciaException(
+                        "Empresa não foi encontrada para remoção."
+                );
+            }
 
             System.out.println("Empresa deletada!");
 
