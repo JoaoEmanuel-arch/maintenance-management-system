@@ -1,6 +1,7 @@
 package com.joao.empresa.dao;
 
 import com.joao.empresa.database.ConnectionFactory;
+import com.joao.empresa.database.TradutorSQLException;
 import com.joao.empresa.exceptions.PersistenciaException;
 import com.joao.empresa.model.Empresa;
 import com.joao.empresa.model.Equipamento;
@@ -36,7 +37,7 @@ public class EmpresaDAO {
             try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
 
                 if (!generatedKeys.next()) {
-                    throw new SQLException(
+                    throw new PersistenciaException(
                             "O banco não retornou o ID da empresa."
                     );
                 }
@@ -50,7 +51,7 @@ public class EmpresaDAO {
             );
 
         } catch (SQLException e) {
-            throw new PersistenciaException("Erro ao salvar empresa", e);
+            throw TradutorSQLException.traduzir(e, "salvar empresa");
         }
     }
 
