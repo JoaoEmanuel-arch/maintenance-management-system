@@ -126,7 +126,9 @@ public class EmpresaDAO {
             }
 
         } catch (SQLException e) {
-            throw new PersistenciaException("Erro ao buscar equipamentos da empresa", e);
+            throw TradutorSQLException.traduzir(
+                    e, "buscar equipamentos da empresa"
+            );
         }
 
         return equipamentos;
