@@ -136,6 +136,7 @@ public class EmpresaDAO {
 
     public List<Empresa> listar() {
 
+        // JOIN LISTA RELACIONAMENTO (UM DE CADA VEZ)
         // retorna as empresas com seus equipamentos (podem ser null)
         // cada linha é um relacionamento, por isso a empresa pode repetir
         String sql = """
@@ -198,6 +199,8 @@ public class EmpresaDAO {
                 // ainda não possuir nenhum equipamento
                 if (!rs.wasNull()) {
 
+                    // aí como cada linha, mesmo que repita empresa, pode ter equipamentos diferentes.
+                    // Então vai estar colocando os equipamentos dentro da empresa dona mesmo.
                     Equipamento equipamento =
                             new Equipamento(
                                     equipamentoId,
@@ -211,7 +214,9 @@ public class EmpresaDAO {
             }
 
         } catch (SQLException e) {
-            throw new PersistenciaException("Erro ao listar empresas", e);
+            throw TradutorSQLException.traduzir(
+                    e, "listar empresas"
+            );
         }
 
         return new ArrayList<>(empresasPorId.values());
