@@ -42,11 +42,18 @@ public class GestaoEmpresa {
         }
     }
 
+    // o listar dá problema é só dentro do DAO mesmo, com as coisas do banco
     public List<Empresa> listarEmpresas(){
         return empresaDAO.listar();
     }
 
     public void atualizarEmpresa(Empresa alterada){
+
+        if (alterada == null) {
+            throw new IllegalArgumentException(
+                    "A empresa a ser atualizada não pode ser nula."
+            );
+        }
 
         if (alterada.getId() == null) {
             throw new IllegalArgumentException(
