@@ -85,7 +85,17 @@ public class GestaoEmpresa {
             );
         }
 
+        try {
 
+            empresaDAO.deletar(id);
+
+        } catch (IntegridadeReferencialException e) {
+
+            throw new EntidadeEmUsoException(
+                    "Não é possível excluir a empresa de ID " + id +
+                    " porque existem registros associados a ela.", e
+            );
+        }
     }
 
 }
