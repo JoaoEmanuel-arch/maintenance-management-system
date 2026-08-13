@@ -90,7 +90,9 @@ public class EmpresaDAO {
             }
 
         } catch (SQLException e) {
-            throw new PersistenciaException("Erro ao buscar empresa", e);
+            throw TradutorSQLException.traduzir(
+                    e, "buscar empresa por ID"
+            );
         }
 
         return null;
