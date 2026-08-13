@@ -29,7 +29,7 @@ public class EmpresaDAO {
             int linhasAfetadas = stmt.executeUpdate();
 
             if (linhasAfetadas == 0) {
-                throw new SQLException(
+                throw new PersistenciaException(
                         "Nenhuma empresa foi inserida."
                 );
             }
