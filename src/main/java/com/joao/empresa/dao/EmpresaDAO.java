@@ -246,7 +246,9 @@ public class EmpresaDAO {
             System.out.println("Empresa atualizada!");
 
         } catch (SQLException e) {
-            throw new PersistenciaException("Erro ao atualizar empresa", e);
+            throw TradutorSQLException.traduzir(
+                    e, "atualizar empresa"
+            );
         }
     }
 
