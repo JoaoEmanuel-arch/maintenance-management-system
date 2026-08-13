@@ -1,9 +1,7 @@
 package com.joao.empresa.services;
 
 import com.joao.empresa.dao.EmpresaDAO;
-import com.joao.empresa.exceptions.EmpresaJaCadastradaException;
-import com.joao.empresa.exceptions.EmpresaNaoEncontradaException;
-import com.joao.empresa.exceptions.RegistroDuplicadoException;
+import com.joao.empresa.exceptions.*;
 import com.joao.empresa.model.Empresa;
 import java.util.List;
 
@@ -76,9 +74,18 @@ public class GestaoEmpresa {
         }
     }
 
-    public void excluirEmpresa(int id){
-        buscarPorId(id);
-        empresaDAO.deletar(id);
+    public void excluirEmpresa(int id) {
+
+        Empresa empresa = buscarPorId(id);
+
+        if (!empresa.getEquipamentos().isEmpty()) {
+            throw new EntidadeEmUsoException(
+                    "Não é possível excluir a empresa de ID "
+                            + id + " porque ela possui equipamentos cadastrados."
+            );
+        }
+
+
     }
 
 }
