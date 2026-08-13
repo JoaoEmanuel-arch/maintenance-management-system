@@ -93,9 +93,21 @@ public class GestaoUsuario {
 
     public void removerUsuario(int id) {
 
-        buscarPorId(id); // garante que existe, se n existir já lança a exceção
+        buscarPorId(id);
 
-        usuarioDAO.deletar(id);
+        try {
+
+            usuarioDAO.deletar(id);
+
+        } catch (IntegridadeReferencialException e) {
+
+            throw new EntidadeEmUsoException(
+                    "Não é possível remover o usuário de ID "
+                            + id
+                            + " porque existem registros associados a ele.",
+                    e
+            );
+        }
     }
 
 }
