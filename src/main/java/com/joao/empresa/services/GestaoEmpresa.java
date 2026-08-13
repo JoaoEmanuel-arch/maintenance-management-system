@@ -62,7 +62,18 @@ public class GestaoEmpresa {
         }
 
         buscarPorId(alterada.getId());
-        empresaDAO.atualizar(alterada);
+
+        try {
+
+            empresaDAO.atualizar(alterada);
+
+        } catch (RegistroDuplicadoException e) { // cnpj está com unique
+            // não pode atualizar uma empresa colocando nela um cnpj que já pertence a outra empresa.
+            throw new EmpresaJaCadastradaException(
+                    "Já existe outra empresa cadastrada com o CNPJ "
+                            + alterada.getCnpj() + ".", e
+            );
+        }
     }
 
     public void excluirEmpresa(int id){
