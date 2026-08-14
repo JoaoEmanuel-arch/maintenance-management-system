@@ -33,6 +33,11 @@ public class GestaoEquipamento {
     }
 
     public void cadastrarEquipamento(Equipamento equipamento, int idEmpresaDona){
+
+        if (equipamento == null) {
+            throw new IllegalArgumentException("O equipamento a ser cadastrado não pode ser nulo.");
+        }
+
         equipamentoDAO.salvar(equipamento, idEmpresaDona);
     }
 
