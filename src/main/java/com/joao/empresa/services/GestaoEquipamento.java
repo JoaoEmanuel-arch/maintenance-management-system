@@ -100,16 +100,20 @@ public class GestaoEquipamento {
 
     }
 
-    public void excluirEquipamento(int id) { //só exclui se não tiver manutenção aberta com ele
+    public void excluirEquipamento(int id) {
 
-        buscarPorId(id); // vejo se existe, caso contrário já lança a exceção
+        buscarPorId(id);
 
         if (manutencaoDAO.existeManutencaoDoEquipamento(id)) {
-            throw new EquipamentoNaManutencaoException(
-                    "Não é possível excluir. Equipamento possui manutenção associada.");
+
+            throw new EntidadeEmUsoException(
+                    "Não é possível excluir o equipamento de ID "
+                            + id
+                            + " porque existem manutenções associadas a ele."
+            );
         }
 
-        equipamentoDAO.deletar(id);
+
     }
 
 }
