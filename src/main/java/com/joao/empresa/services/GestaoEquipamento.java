@@ -2,7 +2,7 @@ package com.joao.empresa.services;
 
 import com.joao.empresa.dao.EquipamentoDAO;
 import com.joao.empresa.dao.ManutencaoDAO;
-import com.joao.empresa.exceptions.EquipamentoNaoEncontradoException;
+import com.joao.empresa.exceptions.*;
 import com.joao.empresa.model.Equipamento;
 import java.util.List;
 
@@ -38,7 +38,21 @@ public class GestaoEquipamento {
             throw new IllegalArgumentException("O equipamento a ser cadastrado não pode ser nulo.");
         }
 
-        equipamentoDAO.salvar(equipamento, idEmpresaDona);
+        try {
+
+            equipamentoDAO.salvar(equipamento, idEmpresaDona);
+
+        } catch (RegistroDuplicadoException e) {
+
+            throw new EquipamentoJaCadastradoException(
+                    "Já existe um equipamento cadastrado "
+                            + "com o código de patrimônio "
+                            + equipamento.getCodigoPatrimonio()
+                            + ".",
+                    e
+            );
+
+        }
     }
 
     public List<Equipamento> listarEquipamentos() {
