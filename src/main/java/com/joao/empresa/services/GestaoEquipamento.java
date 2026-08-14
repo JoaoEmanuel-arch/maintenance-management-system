@@ -59,9 +59,8 @@ public class GestaoEquipamento {
                                 + idEmpresaDona
                                 + " não encontrada."
                 );
-            }
-
         }
+
     }
 
     public List<Equipamento> listarEquipamentos() {
@@ -69,6 +68,12 @@ public class GestaoEquipamento {
     }
 
     public void atualizarEquipamento(Equipamento alterado) {
+
+        if (alterado == null) {
+            throw new IllegalArgumentException(
+                    "O equipamento a ser atualizado não pode ser nulo."
+            );
+        }
 
         if (alterado.getId() == null) {
             throw new IllegalArgumentException(
