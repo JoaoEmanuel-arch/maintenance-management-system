@@ -82,7 +82,22 @@ public class GestaoEquipamento {
         }
 
         buscarPorId(alterado.getId());
-        equipamentoDAO.atualizar(alterado);
+
+        try {
+
+            equipamentoDAO.atualizar(alterado);
+
+        } catch (RegistroDuplicadoException e) {
+
+            throw new EquipamentoJaCadastradoException(
+                    "Já existe outro equipamento cadastrado "
+                            + "com o código de patrimônio "
+                            + alterado.getCodigoPatrimonio()
+                            + ".",
+                    e
+            );
+        }
+
     }
 
     public void excluirEquipamento(int id) { //só exclui se não tiver manutenção aberta com ele
