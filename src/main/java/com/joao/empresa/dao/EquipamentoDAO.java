@@ -86,7 +86,9 @@ public class EquipamentoDAO {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao buscar equipamento", e);
+            throw TradutorSQLException.traduzir(
+                    e, "buscar equipamento por ID"
+            );
         }
 
         return null;
