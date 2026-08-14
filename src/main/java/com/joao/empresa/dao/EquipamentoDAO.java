@@ -117,7 +117,9 @@ public class EquipamentoDAO {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao listar equipamentos", e);
+            throw TradutorSQLException.traduzir(
+                    e, "listar equipamentos"
+            );
         }
 
         return equipamentos;
