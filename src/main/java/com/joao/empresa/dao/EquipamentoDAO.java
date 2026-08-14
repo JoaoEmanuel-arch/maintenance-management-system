@@ -167,7 +167,16 @@ public class EquipamentoDAO {
 
             stmt.setInt(1, id);
 
-            stmt.executeUpdate();
+            // se nenhuma linha foi afetada, é pq não achou o equipamento para deletar
+            int linhasAfetadas = stmt.executeUpdate();
+
+            if (linhasAfetadas == 0) {
+                throw new PersistenciaException(
+                        "Equipamento com ID "
+                                + id
+                                + " não foi encontrado para exclusão."
+                );
+            }
 
             System.out.println("Equipamento deletado!");
 
