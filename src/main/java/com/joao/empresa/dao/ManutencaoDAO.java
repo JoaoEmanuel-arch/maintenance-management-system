@@ -1,6 +1,8 @@
 package com.joao.empresa.dao;
 
 import com.joao.empresa.database.ConnectionFactory;
+import com.joao.empresa.database.TradutorSQLException;
+import com.joao.empresa.exceptions.PersistenciaException;
 import com.joao.empresa.model.Equipamento;
 import com.joao.empresa.model.Manutencao;
 import com.joao.empresa.model.Tecnico;
@@ -80,7 +82,7 @@ public class ManutencaoDAO {
             stmt.setString(1, manutencao.getTipoManutencao().name());
             stmt.setDate(2, Date.valueOf(manutencao.getDataInicio()));
 
-            // uma manutenção em andamento pode possui uma data final nula ainda
+            // uma manutenção em andamento pode possuir uma data final nula ainda
             if (manutencao.getDataFim() != null) {
                 stmt.setDate(3, Date.valueOf(manutencao.getDataFim())
                 ); // se não for nula coloca a data na tabela
@@ -97,13 +99,13 @@ public class ManutencaoDAO {
             int linhasAfetadas = stmt.executeUpdate();
 
             if (linhasAfetadas == 0) {
-                throw new SQLException("Nenhuma manutenção foi inserida.");
+                throw new PersistenciaException("Nenhuma manutenção foi inserida.");
             }
 
             try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
 
                 if (!generatedKeys.next()) {
-                    throw new SQLException(
+                    throw new PersistenciaException(
                             "O banco não retornou o ID da manutenção."
                     );
                 }
@@ -114,7 +116,10 @@ public class ManutencaoDAO {
             System.out.println("Manutenção salva com ID " + manutencao.getId());
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao salvar manutenção", e);
+            throw TradutorSQLException.traduzir(
+                    e,
+                    "salvar manutenção"
+            );
         }
     }
 
