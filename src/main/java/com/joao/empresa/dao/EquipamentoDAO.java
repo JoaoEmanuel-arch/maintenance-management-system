@@ -1,6 +1,8 @@
 package com.joao.empresa.dao;
 
 import com.joao.empresa.database.ConnectionFactory;
+import com.joao.empresa.database.TradutorSQLException;
+import com.joao.empresa.exceptions.PersistenciaException;
 import com.joao.empresa.model.Equipamento;
 
 import java.sql.*;
@@ -31,7 +33,7 @@ public class EquipamentoDAO {
             int linhasAfetadas = stmt.executeUpdate();
 
             if (linhasAfetadas == 0) { // se nenhuma linha for inserida nem faz sentido pegar o id
-                throw new SQLException(
+                throw new PersistenciaException(
                         "Nenhum equipamento foi inserido."
                 );
             }
@@ -39,7 +41,7 @@ public class EquipamentoDAO {
             try (ResultSet generatedKeys = stmt.getGeneratedKeys()) { // o ps me dá a última chave gerada pelo banco
                 // o cursor começa antes da primeira linha, por isso chama a próxima
                 if (!generatedKeys.next()) {
-                    throw new SQLException(
+                    throw new PersistenciaException(
                             "O banco não retornou o ID do equipamento."
                     );
                 }
@@ -55,7 +57,9 @@ public class EquipamentoDAO {
             );
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao salvar equipamento", e);
+            throw TradutorSQLException.traduzir(
+                    e, "salvar equipamento"
+            );
         }
 
     }
