@@ -98,6 +98,19 @@ public class GestaoEmpresa {
         }
     }
 
+    /* O banco é a última linha de defesa. Mesmo se o service verificar antes,
+    outro processo pode cadastrar e a FK bloquear, aí o service também trata
+    problema de integridade vindo do banco.
+
+    SERVICE
+    verifica regra explicitamente (Segundo as regras da aplicação, não pode)
+
+
+    BANCO
+    FK garante a integridade de qualquer forma (Independentemente do que a aplicação fizer,
+    eu não vou deixar meus dados ficarem inconsistentes)
+
+     */
 }
 
 
