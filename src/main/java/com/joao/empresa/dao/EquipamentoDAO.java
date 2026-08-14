@@ -143,7 +143,9 @@ public class EquipamentoDAO {
             System.out.println("Equipamento atualizado!");
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao atualizar equipamento", e);
+            throw TradutorSQLException.traduzir(
+                    e, "atualizar equipamento"
+            );
         }
 
     }
