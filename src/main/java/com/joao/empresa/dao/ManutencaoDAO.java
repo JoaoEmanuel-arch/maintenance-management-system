@@ -15,6 +15,7 @@ public class ManutencaoDAO {
 
     // isso centraliza a forma de carregar a manutenção, como todos os relacionamentos.
     // Os métodos apenas colocam filtros diferentes
+    // Somente JOIN pq uma manutenção não pode ter tecnico e equipamento nulos.
     private static final String SELECT_MANUTENCAO_COMPLETA = """
         SELECT
             m.id AS manutencao_id,
@@ -39,7 +40,7 @@ public class ManutencaoDAO {
 
         FROM manutencao m
 
-        JOIN equipamento e
+        JOIN equipamento e 
             ON e.id = m.equipamento_id
 
         JOIN tecnico t
@@ -52,11 +53,15 @@ public class ManutencaoDAO {
     public void salvar(Manutencao manutencao) {
 
         if (manutencao.getEquipamento().getId() == null) {
-            throw new IllegalArgumentException("O equipamento precisa estar salvo.");
+            throw new IllegalStateException(
+                    "O equipamento precisa estar persistido antes de ser associado à manutenção."
+            );
         }
 
         if (manutencao.getTecnicoResponsavel().getId() == null) {
-            throw new IllegalArgumentException("O técnico precisa estar salvo.");
+            throw new IllegalStateException(
+                    "O técnico precisa estar persistido antes de ser associado à manutenção."
+            );
         }
 
         String sql = """
