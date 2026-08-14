@@ -138,7 +138,15 @@ public class EquipamentoDAO {
             stmt.setDate(3, Date.valueOf(equipamento.getDataAquisicao()));
             stmt.setInt(4, equipamento.getId());
 
-            stmt.executeUpdate();
+            int linhasAfetadas = stmt.executeUpdate();
+
+            if (linhasAfetadas == 0) {
+                throw new PersistenciaException(
+                        "Equipamento com ID "
+                                + equipamento.getId()
+                                + " não foi encontrado para atualização."
+                );
+            }
 
             System.out.println("Equipamento atualizado!");
 
