@@ -181,7 +181,9 @@ public class EquipamentoDAO {
             System.out.println("Equipamento deletado!");
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao deletar equipamento", e);
+            throw TradutorSQLException.traduzir(
+                    e, "deletar equipamento"
+            );
         }
 
     }
