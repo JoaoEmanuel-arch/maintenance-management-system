@@ -104,6 +104,7 @@ public class GestaoEquipamento {
 
         buscarPorId(id);
 
+        // Regra da aplicação, já trava aqui
         if (manutencaoDAO.existeManutencaoDoEquipamento(id)) {
 
             throw new EntidadeEmUsoException(
@@ -113,6 +114,7 @@ public class GestaoEquipamento {
             );
         }
 
+        // Proteção do banco, se passar ali por algum motivo
         try {
 
             equipamentoDAO.deletar(id);
