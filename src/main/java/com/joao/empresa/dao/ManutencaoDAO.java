@@ -254,7 +254,9 @@ public class ManutencaoDAO {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao buscar manutenções do equipamento", e);
+            throw TradutorSQLException.traduzir(
+                    e, "buscar manutenções do equipamento"
+            );
         }
 
         return manutencoes;
@@ -279,7 +281,9 @@ public class ManutencaoDAO {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao buscar manutenções do técnico", e);
+            throw TradutorSQLException.traduzir(
+                    e, "buscar manutenções do técnico"
+            );
         }
 
         return manutencoes;
