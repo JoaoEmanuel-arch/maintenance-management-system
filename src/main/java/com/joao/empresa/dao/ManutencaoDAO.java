@@ -227,7 +227,9 @@ public class ManutencaoDAO {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao listar manutenções", e);
+            throw TradutorSQLException.traduzir(
+                    e, "listar manutenções"
+            );
         }
 
         return manutencoes;
