@@ -118,7 +118,19 @@ public class GestaoManutencao {
                 alterada.getTecnicoResponsavel()
         );
 
-        manutencaoDAO.atualizar(alterada);
+        try {
+
+            manutencaoDAO.atualizar(existente);
+
+        } catch (IntegridadeReferencialException e) {
+
+            throw new IllegalArgumentException(
+                    "Não foi possível atualizar a manutenção. "
+                            + "O equipamento ou o técnico informado "
+                            + "não existe no banco.",
+                    e
+            );
+        }
     }
 
     public void cancelarManutencao(int id){ // remove das manutenções ativas
