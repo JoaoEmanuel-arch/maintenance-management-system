@@ -292,6 +292,12 @@ public class ManutencaoDAO {
     // listar manuntencoes ativar ou finalizadas ou canceladas
     public List<Manutencao> listarPorStatus(Manutencao.Status status) {
 
+        if (status == null) {
+            throw new IllegalArgumentException(
+                    "O status da manutenção não pode ser nulo."
+            );
+        }
+
         String sql = SELECT_MANUTENCAO_COMPLETA + " WHERE m.status = ?";
 
         List<Manutencao> manutencoes = new ArrayList<>();
