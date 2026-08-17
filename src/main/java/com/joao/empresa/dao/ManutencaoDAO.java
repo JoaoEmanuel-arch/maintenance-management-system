@@ -391,7 +391,15 @@ public class ManutencaoDAO {
 
             stmt.setInt(1, id);
 
-            stmt.executeUpdate();
+            int linhasAfetadas = stmt.executeUpdate();
+
+            if (linhasAfetadas == 0) {
+                throw new PersistenciaException(
+                        "Manutenção com ID "
+                                + id
+                                + " não foi encontrada para exclusão."
+                );
+            }
 
             System.out.println("Manutenção deletada!");
 
