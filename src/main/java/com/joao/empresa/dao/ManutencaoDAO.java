@@ -36,7 +36,6 @@ public class ManutencaoDAO {
             u.id AS tecnico_id,
             u.nome AS tecnico_nome,
             u.email AS tecnico_email,
-            u.senha AS tecnico_senha,
 
             t.especialidade AS tecnico_especialidade
 
@@ -431,7 +430,9 @@ public class ManutencaoDAO {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao verificar manutenções do equipamento", e);
+            throw TradutorSQLException.traduzir(
+                    e, "verificar manutenções do equipamento"
+            );
         }
     }
 
