@@ -376,7 +376,9 @@ public class ManutencaoDAO {
             System.out.println("Manutenção atualizada!");
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao atualizar manutenção", e);
+            throw TradutorSQLException.traduzir(
+                    e, "atualizar manutenção"
+            );
         }
     }
 
