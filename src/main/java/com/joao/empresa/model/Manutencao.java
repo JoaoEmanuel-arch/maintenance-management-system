@@ -230,10 +230,7 @@ public class Manutencao extends Entidade {
     }
 
     // A finalização é uma operação completa. Status, custo e data final são alterados juntos.
-    public void finalizar(
-            BigDecimal custo,
-            LocalDate dataConclusao
-    ) {
+    public void finalizar(BigDecimal custo, LocalDate dataConclusao) {
         exigirEmAndamento();
         validarCusto(custo);
         validarDataFim(dataConclusao, dataInicio);

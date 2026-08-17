@@ -143,7 +143,9 @@ public class ManutencaoDAO {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao buscar manutenção", e);
+            throw TradutorSQLException.traduzir(
+                    e, "buscar manutenção por ID"
+            );
         }
 
         return null;
