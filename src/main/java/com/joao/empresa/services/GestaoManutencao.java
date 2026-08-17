@@ -94,6 +94,12 @@ public class GestaoManutencao {
 
     public void atualizarManutencao(Manutencao alterada){
 
+        if (alterada == null) {
+            throw new IllegalArgumentException(
+                    "A manutenção a ser atualizada não pode ser nula."
+            );
+        }
+
         if (alterada.getId() == null) {
             throw new IllegalArgumentException(
                     "Não é possível atualizar uma manutenção sem ID."
