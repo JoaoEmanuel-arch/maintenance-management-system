@@ -52,7 +52,13 @@ public class GestaoManutencao {
     // o próprio banco não deixa cadastrar duplicado. Ele lança erro, assim, justamente para não
     // aparecer aquele erro feio na cara do usuário, a gente trata esse erro sem quebrar o programa
     public void cadastrarManutencao(Manutencao manutencao) {
-        manutencaoDAO.salvar(manutencao);
+
+        if (manutencao == null) {
+            throw new IllegalArgumentException(
+                    "A manutenção a ser cadastrada não pode ser nula."
+            );
+        }
+
     }
 
     public List<Manutencao> listarTodasManutencoes() {
