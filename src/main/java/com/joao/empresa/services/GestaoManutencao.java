@@ -1,6 +1,7 @@
 package com.joao.empresa.services;
 
 import com.joao.empresa.dao.ManutencaoDAO;
+import com.joao.empresa.exceptions.IntegridadeReferencialException;
 import com.joao.empresa.exceptions.ManutencaoNaoEncontradaException;
 import com.joao.empresa.model.Manutencao;
 
@@ -56,6 +57,20 @@ public class GestaoManutencao {
         if (manutencao == null) {
             throw new IllegalArgumentException(
                     "A manutenção a ser cadastrada não pode ser nula."
+            );
+        }
+
+        try {
+
+            manutencaoDAO.salvar(manutencao);
+
+        } catch (IntegridadeReferencialException e) {
+
+            throw new IllegalArgumentException(
+                    "Não foi possível cadastrar a manutenção. "
+                            + "O equipamento ou o técnico informado "
+                            + "não existe no banco.",
+                    e
             );
         }
 
