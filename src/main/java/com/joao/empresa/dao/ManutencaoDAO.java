@@ -363,7 +363,15 @@ public class ManutencaoDAO {
 
             stmt.setInt(9, manutencao.getId());
 
-            stmt.executeUpdate();
+            int linhasAfetadas = stmt.executeUpdate();
+
+            if (linhasAfetadas == 0) {
+                throw new PersistenciaException(
+                        "Manutenção com ID "
+                                + manutencao.getId()
+                                + " não foi encontrada para atualização."
+                );
+            }
 
             System.out.println("Manutenção atualizada!");
 
