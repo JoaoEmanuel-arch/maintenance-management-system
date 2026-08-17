@@ -314,7 +314,9 @@ public class ManutencaoDAO {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao listar manutenções por status", e);
+            throw TradutorSQLException.traduzir(
+                    e, "listar manutenções por status"
+            );
         }
 
         return manutencoes;
