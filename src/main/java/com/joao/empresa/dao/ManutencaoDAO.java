@@ -404,7 +404,9 @@ public class ManutencaoDAO {
             System.out.println("Manutenção deletada!");
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao deletar manutenção", e);
+            throw TradutorSQLException.traduzir(
+                    e, "deletar manutenção"
+            );
         }
     }
 
