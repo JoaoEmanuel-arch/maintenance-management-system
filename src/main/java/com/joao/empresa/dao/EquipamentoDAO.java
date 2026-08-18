@@ -1,6 +1,8 @@
 package com.joao.empresa.dao;
 
 import com.joao.empresa.database.ConnectionFactory;
+import com.joao.empresa.database.TradutorSQLException;
+import com.joao.empresa.exceptions.PersistenciaException;
 import com.joao.empresa.model.Equipamento;
 
 import java.sql.*;
@@ -9,28 +11,55 @@ import java.util.List;
 
 public class EquipamentoDAO {
 
+    // salva o equipamento no bd e coloca o id gerado no objeto java
     public void salvar(Equipamento equipamento, int idEmpresa){
 
         String sql = """
             INSERT INTO equipamento
-            (nome, codigo_patrimonio, data_aquisicao, fk_idempresa)
+            (nome, codigo_patrimonio, data_aquisicao, empresa_id)
             VALUES (?, ?, ?, ?)
             """;
 
         try (Connection conn = ConnectionFactory.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)){
+             PreparedStatement stmt = conn.prepareStatement(sql,
+                     Statement.RETURN_GENERATED_KEYS)){ // isso é pra avisar pra pegar o id gerado
 
             stmt.setString(1, equipamento.getNome());
             stmt.setString(2, equipamento.getCodigoPatrimonio());
             stmt.setDate(3, Date.valueOf(equipamento.getDataAquisicao()));
             stmt.setInt(4, idEmpresa);
 
-            stmt.executeUpdate();
+            // o executeUpdate é utilizado em comando que alteram dados, retorna a qtd de linhas afetadas
+            int linhasAfetadas = stmt.executeUpdate();
 
-            System.out.println("Equipamento salvo com sucesso");
+            if (linhasAfetadas == 0) { // se nenhuma linha for inserida nem faz sentido pegar o id
+                throw new PersistenciaException(
+                        "Nenhum equipamento foi inserido."
+                );
+            }
+
+            try (ResultSet generatedKeys = stmt.getGeneratedKeys()) { // o ps me dá a última chave gerada pelo banco
+                // o cursor começa antes da primeira linha, por isso chama a próxima
+                if (!generatedKeys.next()) {
+                    throw new PersistenciaException(
+                            "O banco não retornou o ID do equipamento."
+                    );
+                }
+
+                int idGerado = generatedKeys.getInt(1);
+
+                equipamento.definirId(idGerado); // define o id lá dentro da entidade
+            }
+
+            System.out.println(
+                    "Equipamento salvo com ID " +
+                            equipamento.getId()
+            );
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao salvar equipamento", e);
+            throw TradutorSQLException.traduzir(
+                    e, "salvar equipamento"
+            );
         }
 
     }
@@ -57,7 +86,9 @@ public class EquipamentoDAO {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao buscar equipamento", e);
+            throw TradutorSQLException.traduzir(
+                    e, "buscar equipamento por ID"
+            );
         }
 
         return null;
@@ -86,7 +117,9 @@ public class EquipamentoDAO {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao listar equipamentos", e);
+            throw TradutorSQLException.traduzir(
+                    e, "listar equipamentos"
+            );
         }
 
         return equipamentos;
@@ -105,12 +138,22 @@ public class EquipamentoDAO {
             stmt.setDate(3, Date.valueOf(equipamento.getDataAquisicao()));
             stmt.setInt(4, equipamento.getId());
 
-            stmt.executeUpdate();
+            int linhasAfetadas = stmt.executeUpdate();
+
+            if (linhasAfetadas == 0) {
+                throw new PersistenciaException(
+                        "Equipamento com ID "
+                                + equipamento.getId()
+                                + " não foi encontrado para atualização."
+                );
+            }
 
             System.out.println("Equipamento atualizado!");
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao atualizar equipamento", e);
+            throw TradutorSQLException.traduzir(
+                    e, "atualizar equipamento"
+            );
         }
 
     }
@@ -124,12 +167,23 @@ public class EquipamentoDAO {
 
             stmt.setInt(1, id);
 
-            stmt.executeUpdate();
+            // se nenhuma linha foi afetada, é pq não achou o equipamento para deletar
+            int linhasAfetadas = stmt.executeUpdate();
+
+            if (linhasAfetadas == 0) {
+                throw new PersistenciaException(
+                        "Equipamento com ID "
+                                + id
+                                + " não foi encontrado para exclusão."
+                );
+            }
 
             System.out.println("Equipamento deletado!");
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao deletar equipamento", e);
+            throw TradutorSQLException.traduzir(
+                    e, "deletar equipamento"
+            );
         }
 
     }

@@ -1,7 +1,6 @@
 package com.joao.empresa.services;
 
 import com.joao.empresa.builders.ManutencaoBuilder;
-import com.joao.empresa.exceptions.ManutencaoJaCadastradaException;
 import com.joao.empresa.model.Manutencao;
 import org.junit.jupiter.api.*;
 import java.time.LocalDate;

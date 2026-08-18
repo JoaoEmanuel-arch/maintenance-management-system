@@ -1,8 +1,11 @@
 package com.joao.empresa.services;
 
 import com.joao.empresa.dao.ManutencaoDAO;
+import com.joao.empresa.exceptions.IntegridadeReferencialException;
 import com.joao.empresa.exceptions.ManutencaoNaoEncontradaException;
 import com.joao.empresa.model.Manutencao;
+
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -23,9 +26,9 @@ public class GestaoManutencao {
 
     public Manutencao buscarAtivasPorId(int id) {
 
-        Manutencao manutencao = manutencaoDAO.buscarPorId(id);
+        Manutencao manutencao = buscarPorId(id); // o próprio método já lança e exceção correta
 
-        if (manutencao.getStatus() != Manutencao.Status.ANDAMENTO){ // esta comparando somente com a String retornada
+        if (manutencao.getStatus() != Manutencao.Status.ANDAMENTO) {
             throw new ManutencaoNaoEncontradaException(
                     "Não existe manutenção ativa com ID " + id + "."
             );
@@ -36,7 +39,7 @@ public class GestaoManutencao {
 
     public Manutencao buscarFinalizadasPorId(int id){
 
-        Manutencao manutencao = manutencaoDAO.buscarPorId(id);
+        Manutencao manutencao = buscarPorId(id);
 
         if (manutencao.getStatus() == Manutencao.Status.ANDAMENTO){ // não finalizou, está em andamento
             throw new ManutencaoNaoEncontradaException(
@@ -47,10 +50,28 @@ public class GestaoManutencao {
         return manutencao;
     }
 
-    // o próprio banco não deixa cadastrar duplicado. Ele lança erro, assim, justamente para não
-    // aparecer aquele erro feio na cara do usuário, a gente trata esse erro sem quebrar o programa
     public void cadastrarManutencao(Manutencao manutencao) {
-        manutencaoDAO.salvar(manutencao);
+
+        if (manutencao == null) {
+            throw new IllegalArgumentException(
+                    "A manutenção a ser cadastrada não pode ser nula."
+            );
+        }
+
+        try {
+
+            manutencaoDAO.salvar(manutencao);
+
+        } catch (IntegridadeReferencialException e) {
+
+            throw new IllegalArgumentException(
+                    "Não foi possível cadastrar a manutenção. "
+                            + "O equipamento ou o técnico informado "
+                            + "não existe no banco.",
+                    e
+            );
+        }
+
     }
 
     public List<Manutencao> listarTodasManutencoes() {
@@ -70,23 +91,63 @@ public class GestaoManutencao {
     }
 
     public void atualizarManutencao(Manutencao alterada){
-        buscarAtivasPorId(alterada.getId()); //lança exceção
-        manutencaoDAO.atualizar(alterada);
+
+        if (alterada == null) {
+            throw new IllegalArgumentException(
+                    "A manutenção a ser atualizada não pode ser nula."
+            );
+        }
+
+        if (alterada.getId() == null) {
+            throw new IllegalArgumentException(
+                    "Não é possível atualizar uma manutenção sem ID."
+            );
+        }
+
+        // Não precisa buscar nas ativas, pq na entidade ele já exige estar em andamento
+        // as regras estão dentro da entidade, o service não precisa duplicar regra
+        Manutencao existente = buscarPorId(alterada.getId());
+
+        // os métodos atualizar um objeto fica dentro do próprio objeto (equivale ao setter),
+        // mas altera tudo de uma vez dentro do objeto, já fazendo a verificação
+        existente.atualizarDados(
+                alterada.getTipoManutencao(),
+                alterada.getDescricao(),
+                alterada.getDataInicio(),
+                alterada.getEquipamento(),
+                alterada.getTecnicoResponsavel()
+        );
+
+        try {
+
+            manutencaoDAO.atualizar(existente);
+
+        } catch (IntegridadeReferencialException e) {
+
+            throw new IllegalArgumentException(
+                    "Não foi possível atualizar a manutenção. "
+                            + "O equipamento ou o técnico informado "
+                            + "não existe no banco.",
+                    e
+            );
+        }
     }
 
     public void cancelarManutencao(int id){ // remove das manutenções ativas
-        Manutencao manutencao = buscarAtivasPorId(id);
-        manutencao.setStatus(Manutencao.Status.CANCELADA); // altero localmente assim
-        manutencao.setDataFim(LocalDate.now());
+        Manutencao manutencao = buscarPorId(id);
+
+        manutencao.cancelar(LocalDate.now()); // lá dentro do objeto ele mesmo valida
+
         manutencaoDAO.atualizar(manutencao); // mando pro banco atualizar lá o novo status e data
     }
 
-    public void finalizarManutencao(int id, double custo) { // encerra ativa e joga pra finalizadas
-        Manutencao manutencao = buscarAtivasPorId(id);
-        manutencao.setStatus(Manutencao.Status.CONCLUIDA);
-        manutencao.setDataFim(LocalDate.now());
-        manutencao.setCusto(custo);
-        manutencaoDAO.atualizar(manutencao);
+    // pra finalizar passa o custo e a data final
+    public void finalizarManutencao(int id, BigDecimal custo) { // encerra ativa e joga pra finalizadas
+        Manutencao manutencao = buscarPorId(id);
+
+        manutencao.finalizar(custo, LocalDate.now());
+
+        manutencaoDAO.atualizar(manutencao); // DAO é pra mexer com banco de dados
     }
 
     public void excluirManutencao(int id) { // excluir do sistema (finalizadas)

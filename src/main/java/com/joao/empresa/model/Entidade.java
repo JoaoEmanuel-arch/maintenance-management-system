@@ -1,29 +1,66 @@
 package com.joao.empresa.model;
 
-import java.util.Objects;
-
 public abstract class Entidade {
 
-    private int id;
+    private Integer id;
 
-    public Entidade(int id){
+    protected Entidade(Integer id) {
+        if (id != null) {
+            validarIdPositivo(id);
+        }
+
         this.id = id;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    @Override
-    public boolean equals(Object o) { // somente com base no id é mais seguro para o CRUD
-        if (!(o instanceof Entidade entidade)) return false;
-        return id == entidade.id;
+    // alterar o id da entidade que estava nulo para o id que veio do banco
+    public void definirId(Integer id) {
+        validarIdPositivo(id);
+
+        if (this.id != null) {
+            throw new IllegalStateException(
+                    "A entidade já possui um ID."
+            );
+        }
+
+        this.id = id;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(id);
+    private static void validarIdPositivo(Integer id) {
+        if (id == null || id <= 0) {
+            throw new IllegalArgumentException(
+                    "O ID deve ser um número positivo."
+            );
+        }
     }
+
+    // dois objetos só representam a mesma entidade quando pertencem exatamente à mesma classe
+    // e possuem o mesmo ID não nulo
+    @Override
+    public final boolean equals(Object objeto) {
+        if (this == objeto) {
+            return true;
+        }
+
+        if (objeto == null || getClass() != objeto.getClass()) {
+            return false;
+        }
+
+        Entidade outraEntidade = (Entidade) objeto;
+
+        return id != null && id.equals(outraEntidade.id);
+    }
+
+    // retorna o hash da própria classe
+    @Override
+    public final int hashCode() {
+        return getClass().hashCode();
+    }
+
+    // são finais para nenhuma subclasse sobreescrever e avacalhar o negócio
 
     @Override
     public String toString() {

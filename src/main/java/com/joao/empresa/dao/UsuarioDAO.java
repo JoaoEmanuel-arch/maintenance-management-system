@@ -1,5 +1,7 @@
 package com.joao.empresa.dao;
 
+import com.joao.empresa.database.TradutorSQLException;
+import com.joao.empresa.exceptions.PersistenciaException;
 import com.joao.empresa.model.*;
 import com.joao.empresa.database.ConnectionFactory;
 
@@ -9,89 +11,135 @@ import java.util.List;
 
 public class UsuarioDAO {
 
-    // Primeiro eu salvo a superclasse usuário no banco de dados
     public void salvar(Usuario usuario) {
 
-        // código sql que vai receber os parâmetros com PreparedStatement
-        String sql = "INSERT INTO usuario (nome, email, senha, tipo_usuario) VALUES (?, ?, ?, ?)";
+        String sql = """
+            INSERT INTO usuario
+            (nome, email, tipo_usuario)
+            VALUES (?, ?, ?)
+            """;
 
-        // tudo aqui será fechado automaticamente
-        try (Connection conn = ConnectionFactory.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            // esse objeto que coloca o valor no ? do sql // salva as chaves primárias geradas no banco
+        // abre somente a conexão primeiro pq vai usar em mais de um comando SQL
+        try (Connection conn = ConnectionFactory.getConnection()) {
 
-            stmt.setString(1, usuario.getNome());
-            stmt.setString(2, usuario.getEmail());
-            stmt.setString(3, usuario.getSenha());
-            stmt.setString(4, usuario.getTipo().name()); // enum convertido para String
+            // Não confirmar automaticamente cada comando, esperar eu mesmo confirmar com commit()
+            conn.setAutoCommit(false);
 
-            stmt.executeUpdate(); // executa o insert no banco
+            try {
+                int idGerado;
 
-            ResultSet rs = stmt.getGeneratedKeys(); // recupero as chaves primárias
+                try (PreparedStatement stmt = conn.prepareStatement(
+                        sql, Statement.RETURN_GENERATED_KEYS
+                )) {
 
-            if (rs.next()) {
-                int idGerado = rs.getInt(1); // pega o id gerado e joga na especialização
-                salvarDadosEspecificos(usuario, idGerado);
+                    stmt.setString(1, usuario.getNome());
+                    stmt.setString(2, usuario.getEmail());
+                    stmt.setString(3, usuario.getTipo().name());
+
+                    int linhasAfetadas = stmt.executeUpdate();
+
+                    // Persistencia exception é quando eu percebo alguma coisa, não que o banco lança
+                    if (linhasAfetadas == 0) {
+                        throw new PersistenciaException("Nenhum usuário foi inserido.");
+                    }
+
+                    try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+
+                        if (!generatedKeys.next()) {
+                            throw new PersistenciaException("O banco não retornou o ID do usuário.");
+                        }
+
+                        idGerado = generatedKeys.getInt(1);
+                    }
+                }
+
+                // eu salvo os dados específicos agora passando a mesma conexão, sem ter que abrir outra
+                // se der um erro nos filhos como que vou fazer com as alterações já feitas no pai ...
+                salvarDadosEspecificos(conn, usuario, idGerado);
+
+                // Confirma o INSERT em usuario e o INSERT na tabela específica.
+                conn.commit();
+
+                // O objeto só recebe o ID depois de o banco confirmar toda a operação nos filhos.
+                usuario.definirId(idGerado);
+
+                System.out.println("Usuário salvo com sucesso!");
+
+            } catch (SQLException e) { // SQLException é quando o banco lança alguma coisa
+
+                executarRollback(conn, e);
+
+                throw TradutorSQLException.traduzir(e,
+                        "salvar usuário"
+                );
+
+            } catch (RuntimeException e) { // para caso gerar um erro de persistencia ele executar o rollback
+
+                executarRollback(conn, e);
+
+                throw e;
             }
 
-            System.out.println("Usuário salvo com sucesso!");
-
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao salvar usuário", e);
+            throw TradutorSQLException.traduzir(
+                    e, "abrir ou encerrar a conexão ao salvar usuário"
+            );
         }
     }
 
     // Depois eu salvo as subclasses com seus dados específicos no banco de dados,
     // com chaves primárias fazendo referência ao id do usuario pai
-    private void salvarDadosEspecificos(Usuario usuario, int idGerado) {
+    // Não preciso fazer uma nova conexão, vem tudo por parâmetro
+    private void salvarDadosEspecificos(Connection conn, Usuario usuario, int idGerado) throws SQLException {
 
         if (usuario instanceof Tecnico tecnico) { // se usuario for instância de tecnico
             String sql = "INSERT INTO tecnico (usuario_id, especialidade) VALUES (?, ?)";
 
-            try (Connection conn = ConnectionFactory.getConnection();
-                 PreparedStatement stmt = conn.prepareStatement(sql)) {
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
 
                 stmt.setInt(1, idGerado);
                 stmt.setString(2, tecnico.getEspecialidade());
 
                 stmt.executeUpdate();
-
-            } catch (SQLException e) {
-                throw new RuntimeException("Erro ao salvar técnico", e);
             }
         }
 
-        if (usuario instanceof Gestor gestor) {
+        else if (usuario instanceof Gestor gestor) {
             String sql = "INSERT INTO gestor (usuario_id, area_responsavel) VALUES (?, ?)";
 
-            try (Connection conn = ConnectionFactory.getConnection();
-                 PreparedStatement stmt = conn.prepareStatement(sql)) {
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
 
                 stmt.setInt(1, idGerado);
                 stmt.setString(2, gestor.getAreaResponsavel());
 
                 stmt.executeUpdate();
-
-            } catch (SQLException e) {
-                throw new RuntimeException("Erro ao salvar gestor", e);
             }
         }
 
-        if (usuario instanceof Administrador administrador) {
-            String sql = "INSERT INTO administrador (usuario_id, nivel_acesso, departamento) VALUES (?, ?, ?)";
+        else if (usuario instanceof Administrador administrador) {
+            String sql = "INSERT INTO administrador (usuario_id, nivel_acesso, departamento) VALUES (?, ?)";
 
-            try (Connection conn = ConnectionFactory.getConnection();
-                 PreparedStatement stmt = conn.prepareStatement(sql)) {
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
 
                 stmt.setInt(1, idGerado);
-                stmt.setString(2, administrador.getNivelAcesso().name());
-                stmt.setString(3, administrador.getDepartamento());
+                stmt.setString(2, administrador.getDepartamento());
 
                 stmt.executeUpdate();
-
-            } catch (SQLException e) {
-                throw new RuntimeException("Erro ao salvar administrador", e);
             }
+        }
+
+        // Não é erro de banco, é um argumento que o método não sabe tratar
+        else {
+            throw new IllegalArgumentException("Tipo de usuário não suportado: ");
+        }
+    }
+
+    private void executarRollback(Connection conn, Throwable causaOriginal) {
+
+        try {
+            conn.rollback();
+        } catch (SQLException erroNoRollback) {
+            causaOriginal.addSuppressed(erroNoRollback);
         }
     }
 
@@ -116,7 +164,6 @@ public class UsuarioDAO {
 
                 String nome = rs.getString("nome"); // pego o valor da coluna e salva aqui
                 String email = rs.getString("email");
-                String senha = rs.getString("senha");
 
                 // Converte String do banco → enum
                 Usuario.TipoUsuario tipo =
@@ -128,25 +175,27 @@ public class UsuarioDAO {
                 // e ele cria o objeto específico já na função. Pq o id é o mesmo
                 switch (tipo) {
                     case TECNICO:
-                        return buscarTecnico(id, nome, email, senha);
+                        return buscarTecnico(id, nome, email);
 
                     case GESTOR:
-                        return buscarGestor(id, nome, email, senha);
+                        return buscarGestor(id, nome, email);
 
                     case ADMINISTRADOR:
-                        return buscarAdministrador(id, nome, email, senha);
+                        return buscarAdministrador(id, nome, email);
 
                     default:
                         throw new RuntimeException("Tipo de usuário inválido");
                 }
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao buscar usuário", e);
+            throw TradutorSQLException.traduzir(
+                    e, "buscar usuário por ID"
+            );
         }
         return null;
     }
 
-    private Tecnico buscarTecnico(int id, String nome, String email, String senha) {
+    private Tecnico buscarTecnico(int id, String nome, String email) {
 
         String sql = "SELECT * FROM tecnico WHERE usuario_id = ?";
 
@@ -161,17 +210,19 @@ public class UsuarioDAO {
 
                 String especialidade = rs.getString("especialidade");
 
-                return new Tecnico(id, nome, email, senha, especialidade);
+                return new Tecnico(id, nome, email, especialidade);
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao buscar técnico", e);
+            throw TradutorSQLException.traduzir(
+                    e, "buscar dados do técnico"
+            );
         }
 
         return null;
     }
 
-    private Gestor buscarGestor(int id, String nome, String email, String senha) {
+    private Gestor buscarGestor(int id, String nome, String email) {
 
         String sql = "SELECT * FROM gestor WHERE usuario_id = ?";
 
@@ -186,17 +237,19 @@ public class UsuarioDAO {
 
                 String areaResponsavel = rs.getString("area_responsavel");
 
-                return new Gestor(id, nome, email, senha, areaResponsavel);
+                return new Gestor(id, nome, email, areaResponsavel);
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao buscar gestor", e);
+            throw TradutorSQLException.traduzir(
+                    e, "buscar dados do gestor"
+            );
         }
 
         return null;
     }
 
-    private Administrador buscarAdministrador(int id, String nome, String email, String senha) {
+    private Administrador buscarAdministrador(int id, String nome, String email) {
 
         String sql = "SELECT * FROM administrador WHERE usuario_id = ?";
 
@@ -211,66 +264,88 @@ public class UsuarioDAO {
 
                 String departamento = rs.getString("departamento");
 
-                return new Administrador(id, nome, email, senha, departamento);
+                return new Administrador(id, nome, email, departamento);
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao buscar administrador", e);
+            throw TradutorSQLException.traduzir(
+                    e, "buscar dados do administrador"
+            );
         }
 
         return null;
     }
 
-    // ao pé da letra, na verdade, eu não "retorno usuario", eu retorno tecnico, adm e gestor
     public List<Usuario> listar() {
 
-        String sql = "SELECT * FROM usuario"; // o que seria executado no workbench, retorna todos os usuarios
+        // eu junto em uma tabela todas as informarções de todos os usuários
+        // depois na hora de montar os objetos eu só pego os valores por essa tabela
+        String sql = """
+            SELECT
+                u.id,
+                u.nome,
+                u.email,
+                u.tipo_usuario,
 
-        // eu vou buscar todos os dados no banco, instanciar vários objetos e colocá-los nessa lista para retornar
+                t.especialidade,
+                g.area_responsavel,
+                a.departamento
+
+            FROM usuario u
+
+            LEFT JOIN tecnico t
+                ON t.usuario_id = u.id
+
+            LEFT JOIN gestor g
+                ON g.usuario_id = u.id
+
+            LEFT JOIN administrador a
+                ON a.usuario_id = u.id
+
+            ORDER BY u.id
+            """;
+
         List<Usuario> usuarios = new ArrayList<>();
 
         try (Connection conn = ConnectionFactory.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql); // vai guardando os pedaços de SQL
-             ResultSet rs = stmt.executeQuery()) { // resultado da consulta pq ja consulta de uma vez para listar
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
 
-            // Enquanto existir próxima linha no resultado
             while (rs.next()) {
 
-                int id = rs.getInt("id"); // o id já foi gerado, já está lá no banco
+                int id = rs.getInt("id");
                 String nome = rs.getString("nome");
                 String email = rs.getString("email");
-                String senha = rs.getString("senha");
+                Usuario.TipoUsuario tipo = Usuario.TipoUsuario.valueOf(rs.getString("tipo_usuario"));
 
-                Usuario.TipoUsuario tipo =
-                        Usuario.TipoUsuario.valueOf(rs.getString("tipo_usuario"));
-
-                // vou instanciar de acordo com cada tipo e joga tudo na lista
-                // eu uso usuario só para pegar os atributos gerais, crio objeto com o específico
-                // buscando as tabelas filhas (que possuem o mesmo id)
                 Usuario usuario;
 
+                // na hora de montar aqui, eu pego os valores vindo do join
                 switch (tipo) {
-                    case ADMINISTRADOR:
-                        usuarios.add(buscarAdministrador(id, nome, email, senha));
+
+                    case TECNICO:
+                        usuario = new Tecnico(id, nome, email, rs.getString("especialidade"));
                         break;
 
                     case GESTOR:
-                        usuarios.add(buscarGestor(id, nome, email, senha));
+                        usuario = new Gestor(id, nome, email, rs.getString("area_responsavel"));
                         break;
 
-                    case TECNICO:
-                        usuarios.add(buscarTecnico(id, nome, email, senha));
+                    case ADMINISTRADOR:
+                        usuario = new Administrador(id, nome, email, rs.getString("departamento"));
                         break;
 
                     default:
-                        throw new RuntimeException(
-                                "Tipo de usuário inválido"
-                        );
+                        throw new IllegalStateException("Tipo de usuário inválido: " + tipo);
                 }
+
+                usuarios.add(usuario);
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao listar usuários", e);
+            throw TradutorSQLException.traduzir(
+                    e, "listar usuários"
+            );
         }
 
         return usuarios;
@@ -279,77 +354,136 @@ public class UsuarioDAO {
     // Recebe o usuário já alterado, pego as partes e jogo no update pra mudar dentro do banco
     public void atualizar(Usuario usuario) {
 
-        String sql = "UPDATE usuario SET nome = ?, email = ?, senha = ?, tipo_usuario = ? WHERE id = ?";
+        String sql = """
+            UPDATE usuario
+            SET nome = ?,
+                email = ?,
+                tipo_usuario = ?
+            WHERE id = ?
+            """;
 
-        try (Connection conn = ConnectionFactory.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (Connection conn = ConnectionFactory.getConnection()) {
 
-            stmt.setString(1, usuario.getNome());
-            stmt.setString(2, usuario.getEmail());
-            stmt.setString(3, usuario.getSenha());
-            stmt.setString(4, usuario.getTipo().name());
-            stmt.setInt(5, usuario.getId());
+            conn.setAutoCommit(false);
 
-            stmt.executeUpdate();
+            try {
+                try (PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            // Depois que mudar na tabela pai usuario, muda os específicos na tabela filha
-            atualizarDadosEspecificos(usuario);
+                    stmt.setString(1, usuario.getNome());
+                    stmt.setString(2, usuario.getEmail());
+                    stmt.setString(3, usuario.getTipo().name());
+                    stmt.setInt(4, usuario.getId());
 
-            System.out.println("Usuário atualizado!");
+                    int linhasAfetadas = stmt.executeUpdate();
+
+                    if (linhasAfetadas == 0) {
+                        throw new PersistenciaException(
+                                "Usuário com ID "
+                                        + usuario.getId()
+                                        + " não foi encontrado para atualização."
+                        );
+                    }
+                }
+
+                atualizarDadosEspecificos(conn, usuario);
+
+                conn.commit(); // confirma a operação para o JDBC
+
+                System.out.println("Usuário atualizado!");
+
+            } catch (SQLException e) { // duplicidade cai aqui, coisas de SQL não devem vazar para service. Service é abstrato
+
+                executarRollback(conn, e);
+
+                throw TradutorSQLException.traduzir(
+                        e, "atualizar usuário"
+                );
+
+            } catch (RuntimeException e) {
+
+                executarRollback(conn, e);
+
+                throw e;
+            }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao atualizar usuário", e);
+            throw TradutorSQLException.traduzir(
+                    e, "abrir ou encerrar a conexão ao atualizar usuário"
+            );
         }
     }
 
-    private void atualizarDadosEspecificos(Usuario usuario) {
+    private void atualizarDadosEspecificos(Connection conn, Usuario usuario) throws SQLException {
 
         if (usuario instanceof Tecnico tecnico) {
-            String sql = "UPDATE tecnico SET especialidade = ? WHERE usuario_id = ?";
 
-            try (Connection conn = ConnectionFactory.getConnection();
-                 PreparedStatement stmt = conn.prepareStatement(sql)) {
+            String sql = """
+                UPDATE tecnico
+                SET especialidade = ?
+                WHERE usuario_id = ?
+                """;
+
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
 
                 stmt.setString(1, tecnico.getEspecialidade());
                 stmt.setInt(2, tecnico.getId());
 
-                stmt.executeUpdate();
-
-            } catch (SQLException e) {
-                throw new RuntimeException("Erro ao atualizar técnico", e);
+                verificarAtualizacaoEspecifica(stmt, tecnico.getId(), "técnico");
             }
-        }
 
-        if (usuario instanceof Gestor gestor) {
-            String sql = "UPDATE gestor SET area_responsavel = ? WHERE usuario_id = ?";
+        } else if (usuario instanceof Gestor gestor) {
 
-            try (Connection conn = ConnectionFactory.getConnection();
-                 PreparedStatement stmt = conn.prepareStatement(sql)) {
+            String sql = """
+                UPDATE gestor
+                SET area_responsavel = ?
+                WHERE usuario_id = ?
+                """;
+
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
 
                 stmt.setString(1, gestor.getAreaResponsavel());
                 stmt.setInt(2, gestor.getId());
 
-                stmt.executeUpdate();
-
-            } catch (SQLException e) {
-                throw new RuntimeException("Erro ao atualizar gestor", e);
+                verificarAtualizacaoEspecifica(stmt, gestor.getId(), "gestor");
             }
-        }
 
-        if (usuario instanceof Administrador administrador) {
-            String sql = "UPDATE administrador SET departamento = ? WHERE usuario_id = ?";
+        } else if (
+                usuario instanceof Administrador administrador
+        ) {
 
-            try (Connection conn = ConnectionFactory.getConnection();
-                 PreparedStatement stmt = conn.prepareStatement(sql)) {
+            String sql = """
+                UPDATE administrador
+                SET departamento = ?
+                WHERE usuario_id = ?
+                """;
+
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
 
                 stmt.setString(1, administrador.getDepartamento());
                 stmt.setInt(2, administrador.getId());
 
-                stmt.executeUpdate();
-
-            } catch (SQLException e) {
-                throw new RuntimeException("Erro ao atualizar administrador", e);
+                verificarAtualizacaoEspecifica(stmt, administrador.getId(), "administrador");
             }
+
+        } else {
+            throw new IllegalArgumentException(
+                    "Tipo de usuário não suportado."
+            );
+        }
+    }
+
+    private void verificarAtualizacaoEspecifica(PreparedStatement stmt, int id, String tipo) throws SQLException {
+
+        int linhasAfetadas = stmt.executeUpdate();
+
+        if (linhasAfetadas == 0) {
+            throw new PersistenciaException(
+                    "Dados específicos do "
+                            + tipo
+                            + " com ID "
+                            + id
+                            + " não foram encontrados."
+            );
         }
     }
 
@@ -367,7 +501,9 @@ public class UsuarioDAO {
             System.out.println("Usuário deletado!");
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao deletar usuário", e);
+            throw TradutorSQLException.traduzir(
+                    e, "deletar usuário"
+            );
         }
     }
 }

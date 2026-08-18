@@ -1,14 +1,14 @@
 package com.joao.empresa.dao;
 
 import com.joao.empresa.database.ConnectionFactory;
+import com.joao.empresa.database.TradutorSQLException;
+import com.joao.empresa.exceptions.PersistenciaException;
 import com.joao.empresa.model.Empresa;
 import com.joao.empresa.model.Equipamento;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.sql.Date;
+import java.util.*;
 
 public class EmpresaDAO {
 
@@ -17,7 +17,8 @@ public class EmpresaDAO {
         String sql = "INSERT INTO empresa (nome, cnpj, endereco, segmento, status) VALUES (?, ?, ?, ?, ?)";
 
         try (Connection conn = ConnectionFactory.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(sql,
+                     Statement.RETURN_GENERATED_KEYS)) {
 
             stmt.setString(1, empresa.getNome());
             stmt.setString(2, empresa.getCnpj());
@@ -25,18 +26,38 @@ public class EmpresaDAO {
             stmt.setString(4, empresa.getSegmento());
             stmt.setString(5, empresa.getStatus().name());
 
-            stmt.executeUpdate();
+            int linhasAfetadas = stmt.executeUpdate();
 
-            System.out.println("Empresa salva com sucesso!");
+            if (linhasAfetadas == 0) {
+                throw new PersistenciaException(
+                        "Nenhuma empresa foi inserida."
+                );
+            }
+
+            try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+
+                if (!generatedKeys.next()) {
+                    throw new PersistenciaException(
+                            "O banco não retornou o ID da empresa."
+                    );
+                }
+
+                empresa.definirId(generatedKeys.getInt(1));
+            }
+
+            System.out.println(
+                    "Empresa salva com ID " +
+                            empresa.getId()
+            );
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao salvar empresa", e);
+            throw TradutorSQLException.traduzir(e, "salvar empresa");
         }
     }
 
     public Empresa buscarPorId(int id) {
 
-        String sql = "SELECT * FROM empresa WHERE idempresa = ?";
+        String sql = "SELECT * FROM empresa WHERE id = ?";
 
         try (Connection conn = ConnectionFactory.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -69,7 +90,9 @@ public class EmpresaDAO {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao buscar empresa", e);
+            throw TradutorSQLException.traduzir(
+                    e, "buscar empresa por ID"
+            );
         }
 
         return null;
@@ -78,7 +101,7 @@ public class EmpresaDAO {
     // Busca todos os equipamentos que pertencem à empresa.
     private Set<Equipamento> buscarEquipamentosDaEmpresa(int empresaId) {
 
-        String sql = "SELECT * FROM equipamento WHERE fk_idempresa = ?";
+        String sql = "SELECT * FROM equipamento WHERE empresa_id = ?";
 
         Set<Equipamento> equipamentos = new HashSet<>(); // não deixa duplicado
 
@@ -103,7 +126,9 @@ public class EmpresaDAO {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao buscar equipamentos da empresa", e);
+            throw TradutorSQLException.traduzir(
+                    e, "buscar equipamentos da empresa"
+            );
         }
 
         return equipamentos;
@@ -111,9 +136,33 @@ public class EmpresaDAO {
 
     public List<Empresa> listar() {
 
-        String sql = "SELECT * FROM empresa";
+        // JOIN LISTA RELACIONAMENTO (UM DE CADA VEZ)
+        // retorna as empresas com seus equipamentos (podem ser null)
+        // cada linha é um relacionamento, por isso a empresa pode repetir
+        String sql = """
+            SELECT
+                e.id AS empresa_id,
+                e.nome AS empresa_nome,
+                e.cnpj AS empresa_cnpj,
+                e.endereco AS empresa_endereco,
+                e.segmento AS empresa_segmento,
+                e.status AS empresa_status,
 
-        List<Empresa> empresas = new ArrayList<>();
+                eq.id AS equipamento_id,
+                eq.nome AS equipamento_nome,
+                eq.codigo_patrimonio AS equipamento_codigo_patrimonio,
+                eq.data_aquisicao AS equipamento_data_aquisicao
+
+            FROM empresa e
+
+            LEFT JOIN equipamento eq
+                ON eq.empresa_id = e.id
+
+            ORDER BY e.id
+            """;
+
+        //como pode haver várias linhas com o mesmo id, eu salvo apenas uma aqui para não criar vários objetos
+        Map<Integer, Empresa> empresasPorId = new LinkedHashMap<>();
 
         try (Connection conn = ConnectionFactory.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
@@ -121,32 +170,56 @@ public class EmpresaDAO {
 
             while (rs.next()) {
 
-                int id = rs.getInt("id");
-                String nome = rs.getString("nome");
-                String cnpj = rs.getString("cnpj");
-                String endereco = rs.getString("endereco");
-                String segmento = rs.getString("segmento");
+                int empresaId = rs.getInt("empresa_id");
 
-                Empresa.Status status = Empresa.Status.valueOf(
-                        rs.getString("status")
-                );
+                // eu tento pegar o objeto pronto lá no map, pra não criar outro
+                Empresa empresa = empresasPorId.get(empresaId);
 
-                Empresa empresa = new Empresa(id, nome, cnpj, endereco, segmento, status);
+                // Só cria a empresa se ela ainda não foi criada
+                if (empresa == null) {
 
-                Set<Equipamento> equipamentos = buscarEquipamentosDaEmpresa(id);
+                    empresa = new Empresa(
+                            empresaId,
+                            rs.getString("empresa_nome"),
+                            rs.getString("empresa_cnpj"),
+                            rs.getString("empresa_endereco"),
+                            rs.getString("empresa_segmento"),
+                            Empresa.Status.valueOf(
+                                    rs.getString("empresa_status")
+                            )
+                    );
 
-                for (Equipamento equipamento : equipamentos) {
-                    empresa.adicionarEquipamento(equipamento);
+                    // salvo lá dentro para não ter criar outros objetos com o mesmo id
+                    empresasPorId.put(empresaId, empresa);
                 }
 
-                empresas.add(empresa);
+                int equipamentoId = rs.getInt("equipamento_id");
+
+                // LEFT JOIN pode retornar NULL se a empresa
+                // ainda não possuir nenhum equipamento
+                if (!rs.wasNull()) {
+
+                    // aí como cada linha, mesmo que repita empresa, pode ter equipamentos diferentes.
+                    // Então vai estar colocando os equipamentos dentro da empresa dona mesmo.
+                    Equipamento equipamento =
+                            new Equipamento(
+                                    equipamentoId,
+                                    rs.getString("equipamento_nome"),
+                                    rs.getString("equipamento_codigo_patrimonio"),
+                                    rs.getDate("equipamento_data_aquisicao").toLocalDate()
+                            );
+
+                    empresa.adicionarEquipamento(equipamento);
+                }
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao listar empresas", e);
+            throw TradutorSQLException.traduzir(
+                    e, "listar empresas"
+            );
         }
 
-        return empresas;
+        return new ArrayList<>(empresasPorId.values());
     }
 
     public void atualizar(Empresa empresa) {
@@ -168,12 +241,23 @@ public class EmpresaDAO {
             stmt.setString(5, empresa.getStatus().name());
             stmt.setInt(6, empresa.getId());
 
-            stmt.executeUpdate();
+            // caso alguém exclua a empresa depois do service verificar -> race condition
+            int linhasAfetadas = stmt.executeUpdate();
+
+            if (linhasAfetadas == 0) {
+                throw new PersistenciaException(
+                        "Empresa com ID "
+                                + empresa.getId()
+                                + " não foi encontrada para atualização."
+                );
+            }
 
             System.out.println("Empresa atualizada!");
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao atualizar empresa", e);
+            throw TradutorSQLException.traduzir(
+                    e, "atualizar empresa"
+            );
         }
     }
 
@@ -186,12 +270,21 @@ public class EmpresaDAO {
 
             stmt.setInt(1, id);
 
-            stmt.executeUpdate();
+            // caso alguém exclua a empresa depois do service verificar -> race condition
+            int linhasAfetadas = stmt.executeUpdate();
+
+            if (linhasAfetadas == 0) {
+                throw new PersistenciaException(
+                        "Empresa não foi encontrada para remoção."
+                );
+            }
 
             System.out.println("Empresa deletada!");
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao deletar empresa", e);
+            throw TradutorSQLException.traduzir(
+                    e, "deletar empresa"
+            );
         }
     }
 
