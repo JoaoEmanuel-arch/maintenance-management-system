@@ -50,8 +50,6 @@ public class GestaoManutencao {
         return manutencao;
     }
 
-    // o próprio banco não deixa cadastrar duplicado. Ele lança erro, assim, justamente para não
-    // aparecer aquele erro feio na cara do usuário, a gente trata esse erro sem quebrar o programa
     public void cadastrarManutencao(Manutencao manutencao) {
 
         if (manutencao == null) {
@@ -106,7 +104,9 @@ public class GestaoManutencao {
             );
         }
 
-        Manutencao existente = buscarAtivasPorId(alterada.getId()); //lança exceção
+        // Não precisa buscar nas ativas, pq na entidade ele já exige estar em andamento
+        // as regras estão dentro da entidade, o service não precisa duplicar regra
+        Manutencao existente = buscarPorId(alterada.getId());
 
         // os métodos atualizar um objeto fica dentro do próprio objeto (equivale ao setter),
         // mas altera tudo de uma vez dentro do objeto, já fazendo a verificação
@@ -134,7 +134,7 @@ public class GestaoManutencao {
     }
 
     public void cancelarManutencao(int id){ // remove das manutenções ativas
-        Manutencao manutencao = buscarAtivasPorId(id);
+        Manutencao manutencao = buscarPorId(id);
 
         manutencao.cancelar(LocalDate.now()); // lá dentro do objeto ele mesmo valida
 
@@ -143,7 +143,7 @@ public class GestaoManutencao {
 
     // pra finalizar passa o custo e a data final
     public void finalizarManutencao(int id, BigDecimal custo) { // encerra ativa e joga pra finalizadas
-        Manutencao manutencao = buscarAtivasPorId(id);
+        Manutencao manutencao = buscarPorId(id);
 
         manutencao.finalizar(custo, LocalDate.now());
 
