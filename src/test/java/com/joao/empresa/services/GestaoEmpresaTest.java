@@ -256,4 +256,20 @@ public class GestaoEmpresaTest {
         verify(empresaDAO).atualizar(empresa);
     }
 
+    @Test
+    void excluirEmpresa_quandoEmpresaNaoPossuirEquipamentos_deveExcluir() {
+
+        Empresa empresa = EmpresaBuilder.builder()
+                .comId(1)
+                .build();
+
+        when(empresaDAO.buscarPorId(1))
+                .thenReturn(empresa);
+
+        gestaoEmpresa.excluirEmpresa(1);
+
+        verify(empresaDAO).buscarPorId(1);
+        verify(empresaDAO).deletar(1);
+    }
+
 }
