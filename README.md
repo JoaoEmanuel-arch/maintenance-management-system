@@ -1,27 +1,39 @@
 # 🔧 Maintenance Management System
 
-Sistema de gestão de manutenção desenvolvido em **Java 17**, com persistência de dados utilizando **JDBC e MySQL**.
+Sistema de gerenciamento de manutenções desenvolvido em **Java 17**, utilizando **JDBC puro e MySQL** para persistência de dados.
 
-O projeto está em desenvolvimento e faz parte do meu processo de aprendizado em Back-End Java. Nesta etapa, o foco está na modelagem do domínio, na separação de responsabilidades, no acesso manual ao banco de dados e na compreensão dos fundamentos que serão utilizados futuramente em uma migração para Spring Boot.
+O projeto faz parte do processo de aprofundamento em **desenvolvimento Back-End Java**, com foco em compreender os fundamentos que frameworks como Spring abstraem: acesso ao banco de dados, transações, mapeamento entre objetos e tabelas, tratamento de exceções, regras de negócio e organização em camadas.
 
-> **Status atual:** versão JDBC em desenvolvimento. O projeto ainda não possui interface gráfica nem API REST.
+> **Status atual:** versão JDBC em fase final de estabilização e atualização da suíte de testes.
 
 ---
 
 ## 📌 Sobre o projeto
 
-O sistema representa o domínio de manutenção de equipamentos de empresas.
+O sistema representa o domínio de manutenção de equipamentos pertencentes a empresas.
 
-A aplicação possui estruturas para gerenciar:
+A aplicação permite gerenciar:
 
 * empresas;
-* equipamentos vinculados a empresas;
-* usuários com diferentes especializações;
-* manutenções preventivas e corretivas;
+* equipamentos vinculados às empresas;
+* usuários com diferentes papéis;
 * técnicos responsáveis pelas manutenções;
-* estados de uma manutenção: em andamento, concluída ou cancelada.
+* manutenções preventivas e corretivas;
+* histórico e estados das manutenções.
 
-O objetivo desta versão é praticar Java e banco de dados sem utilizar frameworks de persistência, implementando manualmente as consultas SQL, o mapeamento dos resultados e a comunicação entre as camadas da aplicação.
+Os tipos de usuário atualmente modelados são:
+
+* `Administrador`, com departamento;
+* `Gestor`, com área responsável;
+* `Tecnico`, com especialidade.
+
+As manutenções podem assumir os estados:
+
+* `ANDAMENTO`;
+* `CONCLUIDA`;
+* `CANCELADA`.
+
+A proposta desta primeira versão é implementar a persistência **sem ORM ou framework**, permitindo compreender manualmente o fluxo completo entre aplicação Java e banco de dados antes da futura evolução para Spring Boot.
 
 ---
 
@@ -34,7 +46,10 @@ O objetivo desta versão é praticar Java e banco de dados sem utilizar framewor
 * listagem;
 * atualização;
 * exclusão;
-* status de empresa ativada ou desativada.
+* status de empresa ativada ou desativada;
+* vínculo com equipamentos;
+* proteção contra exclusão de empresas que ainda possuem registros associados;
+* validação de unicidade de CNPJ pelo banco de dados.
 
 ### Equipamentos
 
@@ -43,7 +58,9 @@ O objetivo desta versão é praticar Java e banco de dados sem utilizar framewor
 * listagem;
 * atualização;
 * exclusão;
-* verificação de manutenção associada antes da exclusão.
+* código patrimonial único;
+* validação da empresa responsável;
+* bloqueio da exclusão quando existem manutenções associadas.
 
 ### Usuários
 
@@ -52,14 +69,11 @@ O objetivo desta versão é praticar Java e banco de dados sem utilizar framewor
 * listagem;
 * atualização;
 * exclusão;
-* modelagem com herança e polimorfismo;
-* persistência dos dados gerais e específicos de cada tipo de usuário.
-
-Tipos de usuário existentes:
-
-* `Administrador`, com departamento e nível de acesso;
-* `Gestor`, com área responsável;
-* `Tecnico`, com especialidade.
+* herança e polimorfismo entre os diferentes tipos de usuário;
+* persistência dos dados gerais e específicos em tabelas relacionadas;
+* transações JDBC para operações que envolvem múltiplas tabelas;
+* proteção contra alteração indevida do tipo do usuário;
+* unicidade de e-mail.
 
 ### Manutenções
 
@@ -70,64 +84,224 @@ Tipos de usuário existentes:
 * listagem por status;
 * busca por equipamento;
 * busca por técnico;
-* atualização de manutenção em andamento;
+* atualização enquanto a manutenção está em andamento;
 * conclusão com registro de data final e custo;
 * cancelamento;
-* bloqueio da exclusão de uma manutenção que ainda está em andamento.
+* tratamento de `data_fim` opcional;
+* bloqueio de alterações incompatíveis com o estado atual;
+* bloqueio da exclusão de manutenção em andamento.
 
 ---
 
-## 🏗️ Estrutura do projeto
+## 🏗️ Arquitetura
+
+O projeto utiliza uma organização em camadas:
 
 ```text
 src/main/java/com/joao/empresa
-├── model       # Entidades e objetos do domínio
-├── services    # Operações de gestão e regras da aplicação
-├── dao         # Consultas SQL e persistência com JDBC
-├── database    # Configuração da conexão com o MySQL
-└── exceptions  # Exceções personalizadas
+├── model        # Entidades, comportamento e regras do domínio
+├── services     # Casos de uso e regras da aplicação
+├── dao          # Persistência e consultas SQL utilizando JDBC
+├── database     # Conexão e tratamento de erros do banco
+└── exceptions   # Exceções de persistência e de negócio
 ```
 
-O fluxo principal da versão atual é:
+O fluxo principal da aplicação é:
 
 ```text
+Entidades
+    ↑
 Services
-   ↓
+    ↓
 DAOs
-   ↓
+    ↓
 JDBC
-   ↓
+    ↓
 MySQL
 ```
 
-Nesta etapa, o projeto ainda não possui camada `Controller`, endpoints HTTP ou interface para interação com o usuário.
+Cada camada possui uma responsabilidade específica:
+
+* **Entidades:** protegem o estado dos objetos e as invariantes do domínio;
+* **Services:** coordenam operações e interpretam regras de negócio;
+* **DAOs:** isolam consultas SQL e detalhes da persistência;
+* **Banco de dados:** garante integridade por meio de constraints e relacionamentos.
+
+A versão atual ainda não possui `Controller`, endpoints HTTP ou interface gráfica.
 
 ---
 
-## 🧠 Conceitos praticados
+## 🧠 Conceitos aplicados
 
-Durante o desenvolvimento do projeto, estão sendo praticados conceitos como:
+O projeto foi utilizado para praticar e aplicar conceitos importantes de desenvolvimento Back-End e arquitetura de software:
 
-* Programação Orientada a Objetos;
+### Java e Orientação a Objetos
+
+* encapsulamento;
 * abstração;
 * herança;
 * polimorfismo;
 * classes abstratas;
 * enums;
-* coleções Java;
+* coleções;
+* `equals()` e `hashCode()`;
+* identidade de entidades;
+* validações e invariantes de domínio.
+
+### Arquitetura
+
 * arquitetura em camadas;
+* Separation of Concerns;
+* baixo acoplamento;
+* alta coesão;
 * padrão DAO;
-* JDBC;
+* Fail Fast;
+* regras de negócio dentro do domínio;
+* separação entre regra de negócio e infraestrutura.
+
+### JDBC e persistência
+
 * `Connection`;
 * `PreparedStatement`;
 * `ResultSet`;
-* consultas SQL parametrizadas;
-* recuperação de chaves geradas pelo banco;
-* relacionamento entre tabelas;
-* tratamento de exceções;
-* Maven;
-* Git e GitHub;
-* testes unitários com JUnit e Mockito.
+* consultas parametrizadas;
+* `INSERT`, `SELECT`, `UPDATE` e `DELETE`;
+* `JOIN`;
+* mapeamento manual entre tabelas e objetos;
+* relacionamentos por chaves estrangeiras;
+* `AUTO_INCREMENT`;
+* `RETURN_GENERATED_KEYS`;
+* tratamento de valores `NULL`;
+* transações;
+* `commit`;
+* `rollback`;
+* atomicidade;
+* integridade referencial.
+
+### Performance
+
+Durante a evolução do projeto também foram identificados e corrigidos cenários de **N+1 queries**, nos quais uma listagem executava uma consulta inicial e depois novas consultas para cada registro encontrado.
+
+Parte dessas operações passou a utilizar `JOIN`, reduzindo o número de acessos ao banco e reforçando a importância de analisar não apenas se uma consulta funciona, mas também **quantas consultas estão sendo executadas**.
+
+---
+
+## ⚠️ Tratamento de exceções
+
+O tratamento de erros foi estruturado considerando o nível de abstração de cada camada.
+
+Erros técnicos do JDBC são tratados na camada de persistência e traduzidos para exceções próprias da aplicação.
+
+Exemplo:
+
+```text
+MySQL
+  ↓
+SQLException
+  ↓
+TradutorSQLException
+  ↓
+RegistroDuplicadoException
+  ↓
+Service
+  ↓
+EmpresaJaCadastradaException
+```
+
+A ideia central é que:
+
+> **O erro evolui conforme atravessa as camadas da aplicação, sendo traduzido para a linguagem e o nível de abstração de cada camada.**
+
+Entre as exceções utilizadas estão:
+
+```text
+PersistenciaException
+RegistroDuplicadoException
+IntegridadeReferencialException
+
+UsuarioNaoEncontradoException
+EmpresaNaoEncontradaException
+EquipamentoNaoEncontradoException
+ManutencaoNaoEncontradaException
+
+UsuarioJaCadastradoException
+EmpresaJaCadastradaException
+EquipamentoJaCadastradoException
+
+EntidadeEmUsoException
+```
+
+Também são utilizadas exceções padrão do Java quando representam melhor o problema:
+
+* `IllegalArgumentException` → entrada ou argumento inválido;
+* `IllegalStateException` → operação incompatível com o estado atual da entidade.
+
+O banco permanece como última linha de defesa por meio de constraints como:
+
+```text
+PRIMARY KEY
+FOREIGN KEY
+UNIQUE
+NOT NULL
+ON DELETE RESTRICT
+ON DELETE CASCADE
+```
+
+---
+
+## 🔄 Transações
+
+Operações que alteram múltiplas tabelas utilizam transações JDBC.
+
+Um exemplo é o cadastro de usuários, que pode envolver:
+
+```text
+INSERT usuario
+        ↓
+INSERT tecnico / gestor / administrador
+        ↓
+COMMIT
+```
+
+Caso alguma etapa falhe:
+
+```text
+INSERT usuario
+        ↓
+falha ao inserir dados específicos
+        ↓
+ROLLBACK
+```
+
+Isso garante **atomicidade**, evitando que uma operação fique parcialmente persistida no banco.
+
+---
+
+## 🗄️ Banco de dados
+
+O projeto utiliza **MySQL** e possui um `schema.sql` responsável pela definição da estrutura do banco.
+
+Entre as principais relações estão:
+
+```text
+Empresa
+   └── Equipamentos
+
+Usuario
+   ├── Administrador
+   ├── Gestor
+   └── Tecnico
+          └── Manutenções
+
+Equipamento
+   └── Manutenções
+```
+
+Restrições de unicidade são utilizadas para proteger campos como:
+
+* e-mail de usuário;
+* CNPJ de empresa;
+* código patrimonial de equipamento.
 
 ---
 
@@ -137,122 +311,154 @@ Durante o desenvolvimento do projeto, estão sendo praticados conceitos como:
 | ----------------- | --------------------------------------- |
 | Java 17           | Linguagem principal                     |
 | Maven             | Build e gerenciamento de dependências   |
-| JDBC              | Comunicação manual com o banco de dados |
-| MySQL             | Persistência dos dados                  |
-| MySQL Connector/J | Driver de conexão JDBC                  |
-| JUnit 5           | Estrutura de testes                     |
-| Mockito           | Criação de mocks nos testes             |
-| JaCoCo            | Geração de relatório de cobertura       |
-| Git e GitHub      | Controle de versão e publicação         |
+| JDBC              | Comunicação manual com o banco          |
+| MySQL             | Banco de dados relacional               |
+| MySQL Connector/J | Driver JDBC                             |
+| JUnit 5           | Testes automatizados                    |
+| Mockito           | Mocks e isolamento de dependências      |
+| JaCoCo            | Relatórios de cobertura                 |
+| Git               | Controle de versão                      |
+| GitHub            | Versionamento e documentação do projeto |
 
 ---
 
-## 🧪 Situação dos testes
+## 🧪 Testes
 
-O projeto possui uma estrutura de testes utilizando **JUnit 5**, **Mockito** e builders para criação dos objetos usados nos cenários de teste.
+O projeto utiliza **JUnit 5**, **Mockito** e builders para construção dos objetos utilizados nos cenários de teste.
 
-A suíte de testes foi criada durante uma versão anterior do projeto, que utilizava coleções em memória.
+A suíte de testes foi criada durante versões anteriores da aplicação e atualmente está sendo **reestruturada para refletir o domínio e a arquitetura atualizados**.
 
-Como o projeto passou a utilizar JDBC e banco de dados, os testes estão sendo atualizados para acompanhar a nova implementação.
+A nova suíte deverá cobrir:
 
-As próximas etapas relacionadas aos testes incluem:
+* entidades e invariantes do domínio;
+* transições de estado;
+* regras das Services;
+* cenários de sucesso;
+* entidades não encontradas;
+* duplicidades;
+* argumentos inválidos;
+* estados inválidos;
+* entidades em uso;
+* tradução de exceções;
+* DAOs e operações JDBC;
+* geração de IDs;
+* valores opcionais;
+* integridade referencial;
+* transações, `commit` e `rollback`.
 
-* atualizar os testes unitários da camada de serviço;
-* corrigir os builders conforme os construtores atuais;
-* criar testes de integração para os DAOs;
-* testar os principais fluxos de manutenção;
-* validar regras de negócio sem depender diretamente do banco de dados.
+A meta é permitir que a versão JDBC seja considerada estabilizada somente após toda a suíte executar corretamente com:
+
+```bash
+mvn test
+```
 
 ---
 
-## ⚠️ Limitações da versão atual
+## 🚧 Status atual
 
-Como esta é uma versão de estudo em desenvolvimento, ainda existem pontos que serão revisados antes de o projeto ser considerado finalizado.
+A camada JDBC passou por uma etapa de estabilização envolvendo:
 
-Atualmente:
+* correção do gerenciamento de IDs;
+* melhoria de `equals()` e `hashCode()`;
+* fortalecimento das invariantes do domínio;
+* correção do tratamento de valores opcionais;
+* melhoria do mapeamento entre banco e objetos Java;
+* redução de consultas N+1;
+* utilização de transações;
+* implementação adequada de `commit` e `rollback`;
+* padronização do tratamento de exceções;
+* tradução de erros entre as camadas;
+* proteção da integridade dos relacionamentos;
+* revisão das operações de atualização e exclusão.
 
-* os scripts de criação e carga inicial do banco ainda não estão incluídos no repositório;
-* a configuração da conexão depende de um banco MySQL local;
-* a suíte de testes ainda está sendo adaptada para a versão JDBC;
-* algumas validações e exceções de domínio precisam ser integradas aos DAOs;
-* operações que alteram mais de uma tabela ainda precisam utilizar transações;
-* ainda não existe autenticação;
-* ainda não existe autorização baseada no perfil do usuário;
-* ainda não existe API REST;
-* ainda não existe interface gráfica.
-
-Esses itens estão documentados para que a evolução do projeto possa ser acompanhada de maneira transparente.
+A principal etapa em andamento é a **reestruturação da suíte de testes automatizados**.
 
 ---
 
 ## 📈 Próximas etapas
 
-### Estabilização da versão JDBC
+### Finalização da versão JDBC
 
-* [ ] corrigir e padronizar os nomes das tabelas, colunas e chaves;
-* [ ] atualizar os builders e testes existentes;
-* [ ] garantir que o build do Maven seja executado com sucesso;
-* [ ] adicionar um arquivo `schema.sql` com a estrutura do banco;
-* [ ] adicionar dados opcionais para demonstração;
-* [ ] mover as credenciais do banco para variáveis de ambiente;
-* [ ] tratar corretamente valores opcionais, como a data de conclusão;
-* [ ] utilizar transações nas operações que envolvem várias tabelas;
-* [ ] mapear violações do banco para exceções de domínio;
-* [ ] criar testes de integração para os DAOs;
-* [ ] documentar o processo completo de execução do projeto.
+* [ ] atualizar builders de teste;
+* [ ] reconstruir os testes das entidades;
+* [ ] reconstruir os testes das Services;
+* [ ] criar/revisar testes de integração dos DAOs;
+* [ ] testar fluxos transacionais;
+* [ ] revisar cobertura com JaCoCo;
+* [ ] garantir execução completa com `mvn test`;
+* [ ] revisar documentação de execução;
+* [ ] preparar a release da versão JDBC.
 
-### Regras de negócio planejadas
+### Evolução futura
 
-* [ ] impedir duas manutenções em andamento para o mesmo equipamento;
-* [ ] validar as datas de abertura e conclusão;
-* [ ] garantir unicidade de CNPJ, e-mail e código patrimonial;
-* [ ] impedir alterações indevidas em manutenções concluídas ou canceladas;
-* [ ] ampliar as consultas de histórico por equipamento e técnico.
-
-### Evolução futura com Spring
-
-Após a conclusão da versão JDBC, o projeto será evoluído para uma API utilizando:
+Após a conclusão e estabilização da versão JDBC, o projeto será utilizado como base para uma nova implementação utilizando:
 
 * Spring Boot;
 * Spring Web;
 * Spring Data JPA;
+* Hibernate;
 * DTOs;
 * Bean Validation;
+* `@Transactional`;
 * tratamento global de exceções;
 * Flyway;
 * Spring Security;
-* Docker;
+* autenticação e autorização;
+* API REST;
 * documentação da API;
-* testes automatizados de unidade e integração.
+* Docker;
+* testes unitários e de integração.
 
 ---
 
 ## 🎯 Objetivo de aprendizado
 
-Este projeto não tem como objetivo apenas entregar um CRUD.
+O objetivo do projeto não é apenas construir um CRUD, mas compreender os fundamentos utilizados no desenvolvimento de aplicações Back-End Java.
 
-Ele está sendo utilizado para compreender o que acontece por trás de frameworks como o Spring Data JPA.
+A implementação manual com JDBC permite compreender na prática:
 
-Antes da migração para Spring, a proposta é aprender na prática:
-
-* como uma aplicação Java abre e fecha conexões;
-* como os objetos são convertidos em registros no banco;
-* como os resultados SQL são transformados novamente em objetos;
-* como os relacionamentos entre entidades são persistidos;
+* como uma aplicação estabelece conexões com o banco;
+* como SQL é executado pelo Java;
+* como parâmetros são enviados de forma segura;
+* como registros são convertidos em objetos;
+* como objetos são persistidos novamente;
+* como IDs são gerados e recuperados;
+* como relacionamentos são representados;
+* como funcionam transações;
+* como `commit` e `rollback` protegem a consistência;
+* como identificar problemas de performance como N+1;
+* como o banco protege a integridade dos dados;
 * onde devem ficar as regras de negócio;
-* como testar cada camada de maneira isolada;
-* por que transações são importantes;
-* por que validações são necessárias;
-* como tratar erros de banco de dados;
-* como manter uma aplicação organizada em camadas.
+* como erros técnicos são traduzidos entre camadas;
+* como organizar uma aplicação reduzindo acoplamento entre domínio e infraestrutura.
+
+A futura migração para Spring terá como objetivo abstrair parte desse código manual sem perder a compreensão dos mecanismos existentes por trás do framework.
 
 ---
 
-## 🚧 Status do projeto
+## 🗺️ Roadmap
 
-O projeto está em desenvolvimento ativo.
-
-A versão atual tem como foco a implementação manual da persistência utilizando JDBC. Após a estabilização dessa etapa, será criada uma nova versão utilizando Spring Boot.
+```text
+Java + JDBC
+    ↓
+Estabilização da persistência ✅
+    ↓
+Regras e invariantes do domínio ✅
+    ↓
+Tratamento de exceções ✅
+    ↓
+Testes automatizados 🚧
+    ↓
+Release JDBC
+    ↓
+Spring Boot
+    ↓
+Spring Data JPA
+    ↓
+API REST
+    ↓
+Spring Security
+```
 
 ---
 
@@ -260,8 +466,8 @@ A versão atual tem como foco a implementação manual da persistência utilizan
 
 **João Emanuel Pereira do Nascimento**
 
-Estudante de Ciência da Computação com foco em desenvolvimento Back-End Java.
+Estudante de Ciência da Computação com foco em desenvolvimento **Back-End Java**.
 
 📧 [pnjoaoemanuel@gmail.com](mailto:pnjoaoemanuel@gmail.com)
-💼 [LinkedIn](https://www.linkedin.com/in/joão-emanuel-5b268b22b)
+💼 [LinkedIn](https://www.linkedin.com/in/jo%C3%A3o-emanuel-5b268b22b)
 🐙 [GitHub](https://github.com/joaoemanuel-dev)
