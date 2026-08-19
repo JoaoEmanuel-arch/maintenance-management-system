@@ -179,7 +179,31 @@ public class GestaoEmpresaTest {
                 () -> gestaoEmpresa.atualizarEmpresa(empresa)
         );
 
-        verifyNoInteractions(empresaDAO);
+        verifyNoInteractions(empresaDAO); // nem consulte o banco, pq a requisição já é inválida
+    }
+
+    // não existe -> para aqui X não chega em atualizar
+    @Test
+    void atualizarEmpresa_quandoEmpresaNaoExistir_deveLancarExcecaoENaoAtualizar() {
+
+        Empresa empresa = EmpresaBuilder.builder()
+                .comId(1)
+                .build();
+
+        when(empresaDAO.buscarPorId(1))
+                .thenReturn(null);
+
+        assertThrows(
+                EmpresaNaoEncontradaException.class,
+                () -> gestaoEmpresa.atualizarEmpresa(empresa)
+        );
+
+        verify(empresaDAO).buscarPorId(1);
+
+        verify( // o mockito garante que o método atualizar() nunca foi chamado
+                empresaDAO,
+                never()
+        ).atualizar(any()); // não importa qual empresa. não pode ter chamado atualizar com nenhuma
     }
 
 }
