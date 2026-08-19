@@ -77,4 +77,19 @@ public class GestaoEmpresaTest {
         // A service tem que barrar antes -> o DAO não pode ser chamado.
     }
 
+    @Test
+    void cadastrarEmpresa_quandoDadosForemValidos_deveSalvarEmpresa() {
+
+        Empresa empresa = EmpresaBuilder.builder()
+                .semId()
+                .build();
+
+        gestaoEmpresa.cadastrarEmpresa(empresa);
+
+        // verifica se depois de receber uma empresa válida a service mandou o DAO salvá-la
+        verify(empresaDAO).salvar(empresa);
+    }
+
+
+
 }
