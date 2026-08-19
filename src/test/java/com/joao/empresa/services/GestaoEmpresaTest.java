@@ -2,7 +2,9 @@ package com.joao.empresa.services;
 
 import com.joao.empresa.builders.EmpresaBuilder;
 import com.joao.empresa.dao.EmpresaDAO;
+import com.joao.empresa.exceptions.EmpresaJaCadastradaException;
 import com.joao.empresa.exceptions.EmpresaNaoEncontradaException;
+import com.joao.empresa.exceptions.RegistroDuplicadoException;
 import com.joao.empresa.model.Empresa;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -90,6 +92,41 @@ public class GestaoEmpresaTest {
         verify(empresaDAO).salvar(empresa);
     }
 
+    @Test
+    void cadastrarEmpresa_quandoCnpjForDuplicado_deveTraduzirExcecao() {
 
+        Empresa empresa = EmpresaBuilder.builder()
+                .semId()
+                .build();
+
+        // criar exceção que está fingindo que veio da camada de persistência
+        RegistroDuplicadoException causa =
+                new RegistroDuplicadoException(
+                        "Registro duplicado.",
+                        new RuntimeException()
+                );
+
+        //Mockito, quando a service tentar empresaDAO.salvar(empresa), em vez de salvar,
+        // lance RegistroDuplicadoException (causa)
+        doThrow(causa)
+                .when(empresaDAO)
+                .salvar(empresa);
+
+        /* MySQL: "Não posso inserir. UNIQUE CNPJ violado."
+           DAO: "Transformei isso em RegistroDuplicadoException." */
+
+        // esse teste pergunta se a service pegou uma exceção técnica de persistência e traduziu
+        // para uma exceção que faz sentido para o negócio
+        EmpresaJaCadastradaException exception =
+                assertThrows(
+                        EmpresaJaCadastradaException.class,
+                        () -> gestaoEmpresa.cadastrarEmpresa(empresa)
+                );
+
+        // verifica se preservou a exceção original
+        assertSame(causa, exception.getCause());
+
+        verify(empresaDAO).salvar(empresa);
+    }
 
 }
