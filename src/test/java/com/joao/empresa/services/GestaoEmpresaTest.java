@@ -167,4 +167,19 @@ public class GestaoEmpresaTest {
         verifyNoInteractions(empresaDAO);
     }
 
+    @Test
+    void atualizarEmpresa_quandoEmpresaNaoPossuirId_deveLancarExcecao() {
+
+        Empresa empresa = EmpresaBuilder.builder()
+                .semId()
+                .build();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> gestaoEmpresa.atualizarEmpresa(empresa)
+        );
+
+        verifyNoInteractions(empresaDAO);
+    }
+
 }
