@@ -1,9 +1,11 @@
 package com.joao.empresa.services;
 
 import com.joao.empresa.builders.EmpresaBuilder;
+import com.joao.empresa.builders.EquipamentoBuilder;
 import com.joao.empresa.dao.EmpresaDAO;
 import com.joao.empresa.exceptions.EmpresaJaCadastradaException;
 import com.joao.empresa.exceptions.EmpresaNaoEncontradaException;
+import com.joao.empresa.exceptions.EntidadeEmUsoException;
 import com.joao.empresa.exceptions.RegistroDuplicadoException;
 import com.joao.empresa.model.Empresa;
 import org.junit.jupiter.api.BeforeEach;
@@ -271,5 +273,32 @@ public class GestaoEmpresaTest {
         verify(empresaDAO).buscarPorId(1);
         verify(empresaDAO).deletar(1);
     }
+
+    @Test
+    void excluirEmpresa_quandoEmpresaPossuirEquipamentos_deveLancarExcecaoENaoExcluir() {
+
+        Empresa empresa = EmpresaBuilder.builder()
+                .comId(1)
+                .build();
+
+        empresa.adicionarEquipamento(EquipamentoBuilder.builder().build());
+
+        when(empresaDAO.buscarPorId(1))
+                .thenReturn(empresa);
+
+        assertThrows(
+                EntidadeEmUsoException.class,
+                () -> gestaoEmpresa.excluirEmpresa(1)
+        );
+
+        verify(empresaDAO).buscarPorId(1);
+
+        verify( // depois da exceção, ele realmente parou e não tentou apagar?
+                empresaDAO,
+                never()
+        ).deletar(anyInt()); // não quero que deletar() tenha sido chamado com nenhum inteiro
+    }
+
+
 
 }
