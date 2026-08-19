@@ -1,8 +1,12 @@
 package com.joao.empresa.exceptions;
 
-// Alguma operação da camada de persistência falhou
 public class PersistenciaException extends RuntimeException {
-    public PersistenciaException(String message) {
-        super(message);
+
+    public PersistenciaException(String mensagem) {
+        super(mensagem);
+    }
+
+    public PersistenciaException(String mensagem, Throwable causa) {
+        super(mensagem, causa);
     }
 }
