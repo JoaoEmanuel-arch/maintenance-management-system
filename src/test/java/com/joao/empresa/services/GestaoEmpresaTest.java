@@ -12,6 +12,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -127,6 +129,31 @@ public class GestaoEmpresaTest {
         assertSame(causa, exception.getCause());
 
         verify(empresaDAO).salvar(empresa);
+    }
+
+    @Test
+    void listarEmpresas_deveRetornarEmpresasFornecidasPeloDao() {
+
+        List<Empresa> empresas = List.of(
+                EmpresaBuilder.builder()
+                        .comId(1)
+                        .build(),
+
+                EmpresaBuilder.builder()
+                        .comId(2)
+                        .comCnpj("123456789")
+                        .build()
+        );
+
+        when(empresaDAO.listar())
+                .thenReturn(empresas);
+
+        List<Empresa> resultado =
+                gestaoEmpresa.listarEmpresas();
+
+        assertSame(empresas, resultado);
+
+        verify(empresaDAO).listar(); // confirma se realmente usou o DAO
     }
 
 }
