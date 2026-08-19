@@ -206,4 +206,23 @@ public class GestaoEmpresaTest {
         ).atualizar(any()); // não importa qual empresa. não pode ter chamado atualizar com nenhuma
     }
 
+    @Test
+    void atualizarEmpresa_quandoEmpresaExistir_deveAtualizar() {
+
+        Empresa empresa = EmpresaBuilder.builder()
+                .comId(1)
+                .build();
+
+        when(empresaDAO.buscarPorId(1))
+                .thenReturn(empresa);
+
+        gestaoEmpresa.atualizarEmpresa(empresa);
+
+        // verifica se os dois métodos realmente foram chamados
+        verify(empresaDAO).buscarPorId(1);
+        verify(empresaDAO).atualizar(empresa);
+    }
+
+
+
 }
