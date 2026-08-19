@@ -12,8 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 // Teste unitário do Service não deve precisar de banco de dados. O DAO é mockado.
 
@@ -63,6 +62,19 @@ public class GestaoEmpresaTest {
         );
 
         verify(empresaDAO).buscarPorId(1);
+    }
+
+    @Test
+    void cadastrarEmpresa_quandoEmpresaForNula_deveLancarExcecao() {
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> gestaoEmpresa.cadastrarEmpresa(null)
+        );
+
+        verifyNoInteractions(empresaDAO); // mockito garante que ninguém encostou no DAO
+        // se a empresa já chegou null, não faz sentido chamar o salvar no banco.
+        // A service tem que barrar antes -> o DAO não pode ser chamado.
     }
 
 }
