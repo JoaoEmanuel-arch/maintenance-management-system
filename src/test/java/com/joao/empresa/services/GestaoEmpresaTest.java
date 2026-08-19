@@ -223,6 +223,37 @@ public class GestaoEmpresaTest {
         verify(empresaDAO).atualizar(empresa);
     }
 
+    @Test
+    void atualizarEmpresa_quandoNovoCnpjPertencerAOutraEmpresa_deveTraduzirExcecao() {
 
+        Empresa empresa = EmpresaBuilder.builder()
+                .comId(1)
+                .build();
+
+        when(empresaDAO.buscarPorId(1))
+                .thenReturn(empresa);
+
+        RegistroDuplicadoException causa =
+                new RegistroDuplicadoException(
+                        "Registro duplicado.",
+                        new RuntimeException()
+                );
+
+        // quando tentar atualizar, simule que o banco encontrou duplicidade
+        doThrow(causa)
+                .when(empresaDAO)
+                .atualizar(empresa);
+
+        EmpresaJaCadastradaException exception =
+                assertThrows(
+                        EmpresaJaCadastradaException.class,
+                        () -> gestaoEmpresa.atualizarEmpresa(empresa)
+                );
+
+        assertSame(causa, exception.getCause());
+
+        verify(empresaDAO).buscarPorId(1);
+        verify(empresaDAO).atualizar(empresa);
+    }
 
 }
