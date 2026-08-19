@@ -2,6 +2,7 @@ package com.joao.empresa.services;
 
 import com.joao.empresa.builders.EmpresaBuilder;
 import com.joao.empresa.dao.EmpresaDAO;
+import com.joao.empresa.exceptions.EmpresaNaoEncontradaException;
 import com.joao.empresa.model.Empresa;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,6 +11,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -45,6 +47,21 @@ public class GestaoEmpresaTest {
         assertSame(empresa, resultado); // verifica se são os mesmos objetos na memória, não apenas o resultado
 
         // pergunta ao Mockito se a GestaoEmpresa realmente chamou empresaDAO.buscarPorId(1)
+        verify(empresaDAO).buscarPorId(1);
+    }
+
+    @Test
+    void buscarPorId_quandoEmpresaNaoExistir_deveLancarExcecao() {
+
+        when(empresaDAO.buscarPorId(1))
+                .thenReturn(null); // se procurar empresa com id 1, finge que o banco não encontrou
+
+        // espero que saia a exceção ao executar buscarPorId
+        assertThrows(
+                EmpresaNaoEncontradaException.class,
+                () -> gestaoEmpresa.buscarPorId(1)
+        );
+
         verify(empresaDAO).buscarPorId(1);
     }
 
