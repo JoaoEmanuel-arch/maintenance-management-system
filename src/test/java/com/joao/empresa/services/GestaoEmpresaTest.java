@@ -156,4 +156,15 @@ public class GestaoEmpresaTest {
         verify(empresaDAO).listar(); // confirma se realmente usou o DAO
     }
 
+    @Test
+    void atualizarEmpresa_quandoEmpresaForNula_deveLancarExcecao() {
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> gestaoEmpresa.atualizarEmpresa(null)
+        );
+
+        verifyNoInteractions(empresaDAO);
+    }
+
 }
