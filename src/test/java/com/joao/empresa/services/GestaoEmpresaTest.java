@@ -3,10 +3,7 @@ package com.joao.empresa.services;
 import com.joao.empresa.builders.EmpresaBuilder;
 import com.joao.empresa.builders.EquipamentoBuilder;
 import com.joao.empresa.dao.EmpresaDAO;
-import com.joao.empresa.exceptions.EmpresaJaCadastradaException;
-import com.joao.empresa.exceptions.EmpresaNaoEncontradaException;
-import com.joao.empresa.exceptions.EntidadeEmUsoException;
-import com.joao.empresa.exceptions.RegistroDuplicadoException;
+import com.joao.empresa.exceptions.*;
 import com.joao.empresa.model.Empresa;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -299,6 +296,46 @@ public class GestaoEmpresaTest {
         ).deletar(anyInt()); // não quero que deletar() tenha sido chamado com nenhum inteiro
     }
 
+    @Test
+    void excluirEmpresa_quandoBancoDetectarIntegridadeReferencial_deveTraduzirExcecao() {
 
+        Empresa empresa = EmpresaBuilder.builder()
+                .comId(1)
+                .build();
+
+        when(empresaDAO.buscarPorId(1))
+                .thenReturn(empresa);
+
+        IntegridadeReferencialException causa =
+                new IntegridadeReferencialException(
+                        "Registro possui relacionamentos.",
+                        new RuntimeException()
+                );
+
+        doThrow(causa)
+                .when(empresaDAO)
+                .deletar(1);
+
+        EntidadeEmUsoException exception =
+                assertThrows(
+                        EntidadeEmUsoException.class,
+                        () -> gestaoEmpresa.excluirEmpresa(1)
+                );
+
+        assertSame(causa, exception.getCause());
+
+        verify(empresaDAO).buscarPorId(1);
+        verify(empresaDAO).deletar(1);
+    }
+
+    /*
+        Service: "Empresa aparentemente pode ser excluída."
+        DAO: "Vou executar DELETE."
+        Banco: "NÃO.
+        Existe outro registro referenciando essa empresa."
+        DAO: "IntegridadeReferencialException."
+
+        A service pega IntegridadeReferencialException e transforma em EntidadeEmUsoException
+    */
 
 }
