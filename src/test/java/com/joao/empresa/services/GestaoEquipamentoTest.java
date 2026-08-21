@@ -125,4 +125,36 @@ public class GestaoEquipamentoTest {
         verify(equipamentoDAO).salvar(equipamento, 10);
     }
 
+    @Test
+    void cadastrarEquipamento_quandoEmpresaNaoExistir_deveTraduzirExcecao() {
+
+        Equipamento equipamento =
+                EquipamentoBuilder.builder()
+                        .semId()
+                        .build();
+
+        IntegridadeReferencialException causa =
+                new IntegridadeReferencialException(
+                        "Empresa inexistente.",
+                        new RuntimeException()
+                );
+
+        doThrow(causa)
+                .when(equipamentoDAO)
+                .salvar(equipamento, 99);
+
+        EmpresaNaoEncontradaException exception =
+                assertThrows(
+                        EmpresaNaoEncontradaException.class,
+                        () -> gestaoEquipamento
+                                .cadastrarEquipamento(equipamento, 99)
+                );
+
+        assertSame(causa, exception.getCause());
+
+        verify(equipamentoDAO).salvar(equipamento, 99);
+    }
+
+
+
 }
