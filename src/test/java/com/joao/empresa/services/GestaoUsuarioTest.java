@@ -183,4 +183,28 @@ public class GestaoUsuarioTest {
         verify(usuarioDAO, never()).atualizar(any());
     }
 
+    @Test
+    void atualizarUsuario_quandoTipoForAlterado_deveLancarExcecaoENaoAtualizar() {
+
+        Usuario existente = AdministradorBuilder.builder()
+                .comId(1)
+                .build();
+
+        Usuario alterado = GestorBuilder.builder()
+                .comId(1)
+                .build();
+
+        when(usuarioDAO.buscarPorId(1))
+                .thenReturn(existente);
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> gestaoUsuario.atualizarUsuario(alterado)
+        );
+
+        verify(usuarioDAO).buscarPorId(1);
+
+        verify(usuarioDAO, never()).atualizar(any());
+    }
+
 }
