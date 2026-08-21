@@ -6,11 +6,7 @@ import com.joao.empresa.dao.ManutencaoDAO;
 import com.joao.empresa.exceptions.*;
 import com.joao.empresa.model.Equipamento;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import java.time.LocalDate;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
