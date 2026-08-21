@@ -55,4 +55,18 @@ public class GestaoUsuarioTest {
         verify(usuarioDAO).buscarPorId(1);
     }
 
+    @Test
+    void buscarPorId_quandoUsuarioNaoExistir_deveLancarExcecao() {
+
+        when(usuarioDAO.buscarPorId(1))
+                .thenReturn(null);
+
+        assertThrows(
+                UsuarioNaoEncontradoException.class,
+                () -> gestaoUsuario.buscarPorId(1)
+        );
+
+        verify(usuarioDAO).buscarPorId(1);
+    }
+
 }
