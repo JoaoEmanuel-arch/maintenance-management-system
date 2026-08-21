@@ -241,6 +241,38 @@ public class GestaoUsuarioTest {
         verify(usuarioDAO).atualizar(existente);
     }
 
+    @Test
+    void atualizarUsuario_quandoForGestor_deveAtualizarDadosComunsEEspecificos() {
 
+        Gestor existente =
+                GestorBuilder.builder()
+                        .comId(1)
+                        .comNome("Nome antigo")
+                        .comEmail("antigo@email.com")
+                        .comAreaResponsavel("Financeiro")
+                        .build();
+
+        Gestor alterado =
+                GestorBuilder.builder()
+                        .comId(1)
+                        .comNome("Nome novo")
+                        .comEmail("novo@email.com")
+                        .comAreaResponsavel("Operações")
+                        .build();
+
+        when(usuarioDAO.buscarPorId(1))
+                .thenReturn(existente);
+
+        gestaoUsuario.atualizarUsuario(alterado);
+
+        assertEquals("Nome novo", existente.getNome());
+
+        assertEquals("novo@email.com", existente.getEmail());
+
+        assertEquals("Operações", existente.getAreaResponsavel());
+
+        verify(usuarioDAO).buscarPorId(1);
+        verify(usuarioDAO).atualizar(existente);
+    }
 
 }
