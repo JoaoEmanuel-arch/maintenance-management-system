@@ -28,6 +28,31 @@ import static org.mockito.Mockito.*;
 
 public class GestaoUsuarioTest {
 
+    @Mock
+    private UsuarioDAO usuarioDAO;
 
+    private GestaoUsuario gestaoUsuario;
+
+    @BeforeEach
+    void setUp() {
+        gestaoUsuario = new GestaoUsuario(usuarioDAO);
+    }
+
+    @Test
+    void buscarPorId_quandoUsuarioExistir_deveRetornarUsuario() {
+
+        Usuario usuario = AdministradorBuilder.builder()
+                .comId(1)
+                .build();
+
+        when(usuarioDAO.buscarPorId(1))
+                .thenReturn(usuario);
+
+        Usuario resultado = gestaoUsuario.buscarPorId(1);
+
+        assertSame(usuario, resultado);
+
+        verify(usuarioDAO).buscarPorId(1);
+    }
 
 }
