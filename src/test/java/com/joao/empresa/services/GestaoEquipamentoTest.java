@@ -327,5 +327,33 @@ public class GestaoEquipamentoTest {
         verify(equipamentoDAO).deletar(1);
     }
 
+    @Test
+    void excluirEquipamento_quandoPossuirManutencoes_deveLancarExcecaoENaoExcluir() {
+
+        Equipamento equipamento =
+                EquipamentoBuilder.builder()
+                        .comId(1)
+                        .build();
+
+        when(equipamentoDAO.buscarPorId(1))
+                .thenReturn(equipamento);
+
+        when(manutencaoDAO.existeManutencaoDoEquipamento(1)).
+                thenReturn(true);
+
+        assertThrows(
+                EntidadeEmUsoException.class,
+                () -> gestaoEquipamento
+                        .excluirEquipamento(1)
+        );
+
+        verify(equipamentoDAO).buscarPorId(1);
+
+        verify(manutencaoDAO).existeManutencaoDoEquipamento(1);
+
+        verify(equipamentoDAO, never()).deletar(anyInt());
+
+    }
+
 
 }
