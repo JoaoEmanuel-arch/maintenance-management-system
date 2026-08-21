@@ -232,5 +232,24 @@ public class GestaoEquipamentoTest {
         verify(equipamentoDAO, never()).atualizar(any()); // não pode ter sido chamado com nenhum objeto
     }
 
+    @Test
+    void atualizarEquipamento_quandoEquipamentoExistir_deveAtualizar() {
+
+        Equipamento equipamento =
+                EquipamentoBuilder.builder()
+                        .comId(1)
+                        .build();
+
+        when(equipamentoDAO.buscarPorId(1))
+                .thenReturn(equipamento);
+
+        gestaoEquipamento.atualizarEquipamento(equipamento);
+
+        verify(equipamentoDAO).buscarPorId(1);
+
+        verify(equipamentoDAO).atualizar(equipamento);
+    }
+
+
 
 }
