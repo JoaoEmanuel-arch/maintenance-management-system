@@ -69,4 +69,17 @@ public class GestaoUsuarioTest {
         verify(usuarioDAO).buscarPorId(1);
     }
 
+    @Test
+    void cadastrarUsuario_quandoUsuarioForNulo_deveLancarExcecao() {
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> gestaoUsuario.cadastrarUsuario(null)
+        );
+
+        verifyNoInteractions(usuarioDAO);
+    }
+
+
+
 }
