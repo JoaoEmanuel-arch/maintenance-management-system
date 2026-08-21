@@ -80,6 +80,34 @@ public class GestaoUsuarioTest {
         verifyNoInteractions(usuarioDAO);
     }
 
+    @Test
+    void cadastrarUsuario_quandoEmailForDuplicado_deveTraduzirExcecao() {
+
+        Usuario usuario = AdministradorBuilder.builder()
+                .semId()
+                .build();
+
+        RegistroDuplicadoException causa =
+                new RegistroDuplicadoException(
+                        "Registro duplicado.",
+                        new RuntimeException()
+                );
+
+        doThrow(causa)
+                .when(usuarioDAO) // ele navega entre as tabelas filhas de usuario na herança
+                .salvar(usuario);
+
+        UsuarioJaCadastradoException exception =
+                assertThrows(
+                        UsuarioJaCadastradoException.class,
+                        () -> gestaoUsuario.cadastrarUsuario(usuario)
+                );
+
+        assertSame(causa, exception.getCause());
+
+        verify(usuarioDAO).salvar(usuario);
+    }
+
 
 
 }
