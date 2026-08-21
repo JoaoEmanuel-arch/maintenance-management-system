@@ -18,10 +18,7 @@ public class GestaoEquipamento {
         );
     }
 
-    public GestaoEquipamento(
-            EquipamentoDAO equipamentoDAO,
-            ManutencaoDAO manutencaoDAO
-    ) {
+    public GestaoEquipamento(EquipamentoDAO equipamentoDAO, ManutencaoDAO manutencaoDAO) {
         this.equipamentoDAO = equipamentoDAO;
         this.manutencaoDAO = manutencaoDAO;
     }
