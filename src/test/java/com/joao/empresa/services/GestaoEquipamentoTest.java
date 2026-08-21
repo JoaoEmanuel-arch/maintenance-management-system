@@ -80,4 +80,20 @@ public class GestaoEquipamentoTest {
         verifyNoInteractions(equipamentoDAO, manutencaoDAO);
     }
 
+    @Test
+    void cadastrarEquipamento_quandoDadosForemValidos_deveSalvarEquipamento() {
+
+        Equipamento equipamento =
+                EquipamentoBuilder.builder()
+                        .semId()
+                        .build();
+
+        gestaoEquipamento.cadastrarEquipamento(equipamento, 10);
+
+        verify(equipamentoDAO).salvar(equipamento, 10);
+
+        verifyNoInteractions(manutencaoDAO);
+    }
+
+
 }
