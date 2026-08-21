@@ -355,5 +355,44 @@ public class GestaoEquipamentoTest {
 
     }
 
+    @Test
+    void excluirEquipamento_quandoBancoDetectarIntegridadeReferencial_deveTraduzirExcecao() {
+
+        Equipamento equipamento =
+                EquipamentoBuilder.builder()
+                        .comId(1)
+                        .build();
+
+        when(equipamentoDAO.buscarPorId(1))
+                .thenReturn(equipamento);
+
+        when(manutencaoDAO.existeManutencaoDoEquipamento(1)).
+                thenReturn(false);
+
+        IntegridadeReferencialException causa =
+                new IntegridadeReferencialException(
+                        "Registro em uso.",
+                        new RuntimeException()
+                );
+
+        doThrow(causa)
+                .when(equipamentoDAO)
+                .deletar(1);
+
+        EntidadeEmUsoException exception =
+                assertThrows(
+                        EntidadeEmUsoException.class,
+                        () -> gestaoEquipamento
+                                .excluirEquipamento(1)
+                );
+
+        assertSame(causa, exception.getCause());
+
+        verify(equipamentoDAO).buscarPorId(1);
+
+        verify(manutencaoDAO).existeManutencaoDoEquipamento(1);
+
+        verify(equipamentoDAO).deletar(1);
+    }
 
 }
