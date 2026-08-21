@@ -18,7 +18,15 @@ EntidadeEmUsoException
 
 public class GestaoUsuario {
 
-    private UsuarioDAO usuarioDAO = new UsuarioDAO(); // poder mexer no banco daqui mesmo
+    private final UsuarioDAO usuarioDAO;
+
+    public GestaoUsuario() {
+        this(new UsuarioDAO());
+    }
+
+    public GestaoUsuario(UsuarioDAO usuarioDAO) {
+        this.usuarioDAO = usuarioDAO;
+    }
 
     public Usuario buscarPorId(int id){
         Usuario usuario = usuarioDAO.buscarPorId(id);
