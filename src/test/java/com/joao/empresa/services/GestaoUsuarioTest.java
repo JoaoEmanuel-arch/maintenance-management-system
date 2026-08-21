@@ -148,6 +148,19 @@ public class GestaoUsuarioTest {
         verifyNoInteractions(usuarioDAO);
     }
 
+    @Test
+    void atualizarUsuario_quandoUsuarioNaoPossuirId_deveLancarExcecao() {
 
+        Usuario usuario = AdministradorBuilder.builder()
+                .semId()
+                .build();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> gestaoUsuario.atualizarUsuario(usuario)
+        );
+
+        verifyNoInteractions(usuarioDAO);
+    }
 
 }
