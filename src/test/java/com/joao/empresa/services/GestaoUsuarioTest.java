@@ -108,6 +108,33 @@ public class GestaoUsuarioTest {
         verify(usuarioDAO).salvar(usuario);
     }
 
+    @Test
+    void listarUsuarios_deveRetornarUsuariosFornecidosPeloDao() {
 
+        List<Usuario> usuarios = List.of(
+                AdministradorBuilder.builder()
+                        .comId(1)
+                        .build(),
+
+                GestorBuilder.builder()
+                        .comId(2)
+                        .comEmail("gestor@email.com")
+                        .build(),
+
+                TecnicoBuilder.builder()
+                        .comId(3)
+                        .comEmail("tecnico@email.com")
+                        .build()
+        );
+
+        when(usuarioDAO.listar())
+                .thenReturn(usuarios);
+
+        List<Usuario> resultado = gestaoUsuario.listarUsuarios();
+
+        assertSame(usuarios, resultado);
+
+        verify(usuarioDAO).listar();
+    }
 
 }
