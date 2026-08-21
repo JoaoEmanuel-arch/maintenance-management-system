@@ -285,4 +285,25 @@ public class GestaoEquipamentoTest {
         verify(equipamentoDAO).atualizar(equipamento);
     }
 
+    @Test
+    void excluirEquipamento_quandoEquipamentoNaoExistir_deveLancarExcecaoENaoConsultarManutencoes() {
+
+        when(equipamentoDAO.buscarPorId(1))
+                .thenReturn(null);
+
+        assertThrows(
+                EquipamentoNaoEncontradoException.class,
+                () -> gestaoEquipamento
+                        .excluirEquipamento(1)
+        );
+
+        verify(equipamentoDAO).buscarPorId(1);
+
+        verifyNoInteractions(manutencaoDAO);
+
+        verify(equipamentoDAO, never()).deletar(anyInt());
+    }
+
+
+
 }
