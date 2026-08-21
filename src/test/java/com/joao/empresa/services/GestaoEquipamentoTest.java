@@ -193,4 +193,22 @@ public class GestaoEquipamentoTest {
         verifyNoInteractions(equipamentoDAO, manutencaoDAO);
     }
 
+    @Test
+    void atualizarEquipamento_quandoEquipamentoNaoPossuirId_deveLancarExcecao() {
+
+        Equipamento equipamento =
+                EquipamentoBuilder.builder()
+                        .semId()
+                        .build();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> gestaoEquipamento
+                        .atualizarEquipamento(equipamento)
+        );
+
+        verifyNoInteractions(equipamentoDAO, manutencaoDAO);
+    }
+
+
 }
