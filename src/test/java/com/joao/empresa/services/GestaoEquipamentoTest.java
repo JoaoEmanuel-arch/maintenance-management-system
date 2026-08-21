@@ -210,5 +210,27 @@ public class GestaoEquipamentoTest {
         verifyNoInteractions(equipamentoDAO, manutencaoDAO);
     }
 
+    @Test
+    void atualizarEquipamento_quandoEquipamentoNaoExistir_deveLancarExcecaoENaoAtualizar() {
+
+        Equipamento equipamento =
+                EquipamentoBuilder.builder()
+                        .comId(1)
+                        .build();
+
+        when(equipamentoDAO.buscarPorId(1))
+                .thenReturn(null);
+
+        assertThrows(
+                EquipamentoNaoEncontradoException.class,
+                () -> gestaoEquipamento
+                        .atualizarEquipamento(equipamento)
+        );
+
+        verify(equipamentoDAO).buscarPorId(1);
+
+        verify(equipamentoDAO, never()).atualizar(any()); // não pode ter sido chamado com nenhum objeto
+    }
+
 
 }
