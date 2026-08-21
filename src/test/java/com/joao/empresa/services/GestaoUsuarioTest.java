@@ -137,4 +137,17 @@ public class GestaoUsuarioTest {
         verify(usuarioDAO).listar();
     }
 
+    @Test
+    void atualizarUsuario_quandoUsuarioForNulo_deveLancarExcecao() {
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> gestaoUsuario.atualizarUsuario(null)
+        );
+
+        verifyNoInteractions(usuarioDAO);
+    }
+
+
+
 }
