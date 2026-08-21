@@ -58,7 +58,8 @@ public class GestaoEquipamento {
                 throw new EmpresaNaoEncontradaException(
                         "Empresa com ID "
                                 + idEmpresaDona
-                                + " não encontrada."
+                                + " não encontrada.",
+                        e
                 );
         }
 
