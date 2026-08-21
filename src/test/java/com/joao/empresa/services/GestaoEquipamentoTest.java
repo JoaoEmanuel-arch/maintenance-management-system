@@ -11,6 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDate;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -155,6 +156,30 @@ public class GestaoEquipamentoTest {
         verify(equipamentoDAO).salvar(equipamento, 99);
     }
 
+    @Test
+    void listarEquipamentos_deveRetornarEquipamentosFornecidosPeloDao() {
+
+        List<Equipamento> equipamentos =
+                List.of(
+                        EquipamentoBuilder.builder()
+                                .comId(1)
+                                .build(),
+
+                        EquipamentoBuilder.builder()
+                                .comId(2)
+                                .comCodigoPatrimonio("PAT-002")
+                                .build()
+                );
+
+        when(equipamentoDAO.listar())
+                .thenReturn(equipamentos);
+
+        List<Equipamento> resultado = gestaoEquipamento.listarEquipamentos();
+
+        assertSame(equipamentos, resultado);
+
+        verify(equipamentoDAO).listar();
+    }
 
 
 }
