@@ -55,6 +55,18 @@ public class GestaoEquipamentoTest {
         verify(equipamentoDAO).buscarPorId(1);
     }
 
+    @Test
+    void buscarPorId_quandoEquipamentoNaoExistir_deveLancarExcecao() {
 
+        when(equipamentoDAO.buscarPorId(1))
+                .thenReturn(null);
+
+        assertThrows(
+                EquipamentoNaoEncontradoException.class,
+                () -> gestaoEquipamento.buscarPorId(1)
+        );
+
+        verify(equipamentoDAO).buscarPorId(1);
+    }
 
 }
