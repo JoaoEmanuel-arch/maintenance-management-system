@@ -13,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 // a explicação do basicão está tudo no GestaoEmpresaTest
@@ -35,5 +36,25 @@ public class GestaoEquipamentoTest {
                         manutencaoDAO
                 );
     }
+
+    @Test
+    void buscarPorId_quandoEquipamentoExistir_deveRetornarEquipamento() {
+
+        Equipamento equipamento =
+                EquipamentoBuilder.builder()
+                        .comId(1)
+                        .build();
+
+        when(equipamentoDAO.buscarPorId(1))
+                .thenReturn(equipamento);
+
+        Equipamento resultado = gestaoEquipamento.buscarPorId(1);
+
+        assertSame(equipamento, resultado);
+
+        verify(equipamentoDAO).buscarPorId(1);
+    }
+
+
 
 }
