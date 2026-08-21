@@ -1,6 +1,8 @@
 package com.joao.empresa.services;
 
 import com.joao.empresa.builders.EquipamentoBuilder;
+import com.joao.empresa.dao.EquipamentoDAO;
+import com.joao.empresa.dao.ManutencaoDAO;
 import com.joao.empresa.exceptions.*;
 import com.joao.empresa.model.Equipamento;
 import org.junit.jupiter.api.*;
@@ -17,6 +19,21 @@ import static org.mockito.Mockito.when;
 
 public class GestaoEquipamentoTest {
 
+    @Mock
+    private EquipamentoDAO equipamentoDAO;
 
+    @Mock
+    private ManutencaoDAO manutencaoDAO;
+
+    private GestaoEquipamento gestaoEquipamento;
+
+    @BeforeEach
+    void setUp() {
+        gestaoEquipamento = // cria a gestão equipamento e injeta os daos nela
+                new GestaoEquipamento(
+                        equipamentoDAO,
+                        manutencaoDAO
+                );
+    }
 
 }
