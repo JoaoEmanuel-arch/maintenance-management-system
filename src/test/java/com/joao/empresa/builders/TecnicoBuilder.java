@@ -4,18 +4,22 @@ import com.joao.empresa.model.Tecnico;
 
 public class TecnicoBuilder {
 
-    private int id = 1;
+    private Integer id = 1;
     private String nome = "João Emanuel";
     private String email = "pnjoao@gmail.com";
-    private String senha = "ea34";
     private String especialidade = "Tecnologia da Informação";
 
     public static TecnicoBuilder builder() {
         return new TecnicoBuilder();
     }
 
-    public TecnicoBuilder comId(int id) {
+    public TecnicoBuilder comId(Integer id) {
         this.id = id;
+        return this;
+    }
+
+    public TecnicoBuilder semId() {
+        this.id = null;
         return this;
     }
 
@@ -29,19 +33,17 @@ public class TecnicoBuilder {
         return this;
     }
 
-    public TecnicoBuilder comSenha(String senha) {
-        this.senha = senha;
-        return this;
-    }
-
     public TecnicoBuilder comEspecialidade(String especialidade) {
         this.especialidade = especialidade;
         return this;
     }
 
     public Tecnico build() {
-        return new Tecnico(id, nome, email, senha, especialidade);
+        return new Tecnico(
+                id,
+                nome,
+                email,
+                especialidade
+        );
     }
-
 }
-
