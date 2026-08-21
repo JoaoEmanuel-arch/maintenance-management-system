@@ -13,8 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 // a explicação do basicão está tudo no GestaoEmpresaTest
 
@@ -67,6 +66,18 @@ public class GestaoEquipamentoTest {
         );
 
         verify(equipamentoDAO).buscarPorId(1);
+    }
+
+    @Test
+    void cadastrarEquipamento_quandoEquipamentoForNulo_deveLancarExcecao() {
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> gestaoEquipamento
+                        .cadastrarEquipamento(null, 10)
+        );
+
+        verifyNoInteractions(equipamentoDAO, manutencaoDAO);
     }
 
 }
