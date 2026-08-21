@@ -309,4 +309,47 @@ public class GestaoUsuarioTest {
         verify(usuarioDAO).atualizar(existente);
     }
 
+    @Test
+    void atualizarUsuario_quandoNovoEmailForDuplicado_deveTraduzirExcecao() {
+
+        Administrador existente =
+                AdministradorBuilder.builder()
+                        .comId(1)
+                        .comEmail("antigo@email.com")
+                        .build();
+
+        Administrador alterado =
+                AdministradorBuilder.builder()
+                        .comId(1)
+                        .comEmail("emailduplicado@email.com") // é o mesmo usuario, só mudou o id
+                        .build();
+        // só que imagina que emailduplicado@email já pertence a outro usuário = UNIQUE
+
+        when(usuarioDAO.buscarPorId(1)) // faz o fluxo na gestao. Tem que ensinar o mockito kk
+                .thenReturn(existente);
+
+        RegistroDuplicadoException causa =
+                new RegistroDuplicadoException(
+                        "Registro duplicado.",
+                        new RuntimeException()
+                );
+
+        doThrow(causa)
+                .when(usuarioDAO)
+                .atualizar(existente);
+
+        UsuarioJaCadastradoException exception =
+                assertThrows(
+                        UsuarioJaCadastradoException.class,
+                        () -> gestaoUsuario.atualizarUsuario(alterado) // vai devolver o existente atualizado
+                ); // ai eu chama o dao para jogar o existente dentro dele e lança a exceção
+
+        assertSame(causa, exception.getCause());
+
+        verify(usuarioDAO).buscarPorId(1);
+        verify(usuarioDAO).atualizar(existente);
+    }
+
+
+
 }
