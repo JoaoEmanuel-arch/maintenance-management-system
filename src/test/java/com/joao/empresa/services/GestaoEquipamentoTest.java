@@ -181,5 +181,16 @@ public class GestaoEquipamentoTest {
         verify(equipamentoDAO).listar();
     }
 
+    @Test
+    void atualizarEquipamento_quandoEquipamentoForNulo_deveLancarExcecao() {
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> gestaoEquipamento
+                        .atualizarEquipamento(null)
+        );
+
+        verifyNoInteractions(equipamentoDAO, manutencaoDAO);
+    }
 
 }
