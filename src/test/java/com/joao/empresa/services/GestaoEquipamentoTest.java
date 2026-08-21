@@ -95,5 +95,34 @@ public class GestaoEquipamentoTest {
         verifyNoInteractions(manutencaoDAO);
     }
 
+    @Test
+    void cadastrarEquipamento_quandoCodigoPatrimonioForDuplicado_deveTraduzirExcecao() {
+
+        Equipamento equipamento =
+                EquipamentoBuilder.builder()
+                        .semId()
+                        .build();
+
+        RegistroDuplicadoException causa =
+                new RegistroDuplicadoException(
+                        "Registro duplicado.",
+                        new RuntimeException()
+                );
+
+        doThrow(causa)
+                .when(equipamentoDAO)
+                .salvar(equipamento, 10);
+
+        EquipamentoJaCadastradoException exception =
+                assertThrows(
+                        EquipamentoJaCadastradoException.class,
+                        () -> gestaoEquipamento
+                                .cadastrarEquipamento(equipamento, 10)
+                );
+
+        assertSame(causa, exception.getCause());
+
+        verify(equipamentoDAO).salvar(equipamento, 10);
+    }
 
 }
