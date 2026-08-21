@@ -275,4 +275,38 @@ public class GestaoUsuarioTest {
         verify(usuarioDAO).atualizar(existente);
     }
 
+    @Test
+    void atualizarUsuario_quandoForTecnico_deveAtualizarDadosComunsEEspecificos() {
+
+        Tecnico existente =
+                TecnicoBuilder.builder()
+                        .comId(1)
+                        .comNome("Nome antigo")
+                        .comEmail("antigo@email.com")
+                        .comEspecialidade("Mecânica")
+                        .build();
+
+        Tecnico alterado =
+                TecnicoBuilder.builder()
+                        .comId(1)
+                        .comNome("Nome novo")
+                        .comEmail("novo@email.com")
+                        .comEspecialidade("Elétrica")
+                        .build();
+
+        when(usuarioDAO.buscarPorId(1))
+                .thenReturn(existente);
+
+        gestaoUsuario.atualizarUsuario(alterado);
+
+        assertEquals("Nome novo", existente.getNome());
+
+        assertEquals("novo@email.com", existente.getEmail());
+
+        assertEquals("Elétrica", existente.getEspecialidade());
+
+        verify(usuarioDAO).buscarPorId(1);
+        verify(usuarioDAO).atualizar(existente);
+    }
+
 }
