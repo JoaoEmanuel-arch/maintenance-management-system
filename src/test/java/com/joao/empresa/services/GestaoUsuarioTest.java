@@ -163,4 +163,24 @@ public class GestaoUsuarioTest {
         verifyNoInteractions(usuarioDAO);
     }
 
+    @Test
+    void atualizarUsuario_quandoUsuarioNaoExistir_deveLancarExcecaoENaoAtualizar() {
+
+        Usuario alterado = AdministradorBuilder.builder()
+                .comId(1)
+                .build();
+
+        when(usuarioDAO.buscarPorId(1))
+                .thenReturn(null);
+
+        assertThrows(
+                UsuarioNaoEncontradoException.class,
+                () -> gestaoUsuario.atualizarUsuario(alterado)
+        );
+
+        verify(usuarioDAO).buscarPorId(1);
+
+        verify(usuarioDAO, never()).atualizar(any());
+    }
+
 }
