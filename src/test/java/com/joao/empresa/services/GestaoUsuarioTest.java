@@ -336,7 +336,7 @@ public class GestaoUsuarioTest {
 
         doThrow(causa)
                 .when(usuarioDAO)
-                .atualizar(existente);
+                .atualizar(existente); // existente foi atualizado com base no alterado recebido por parâmetro
 
         UsuarioJaCadastradoException exception =
                 assertThrows(
