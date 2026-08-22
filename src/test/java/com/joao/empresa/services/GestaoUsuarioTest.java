@@ -366,6 +366,24 @@ public class GestaoUsuarioTest {
         verify(usuarioDAO, never()).deletar(anyInt());
     }
 
+    @Test
+    void removerUsuario_quandoNaoPossuirRegistrosAssociados_deveExcluir() {
+
+        Usuario usuario = AdministradorBuilder.builder()
+                .comId(1)
+                .build();
+
+        when(usuarioDAO.buscarPorId(1))
+                .thenReturn(usuario);
+
+        gestaoUsuario.removerUsuario(1);
+
+        verify(usuarioDAO).buscarPorId(1);
+        verify(usuarioDAO).deletar(1);
+    }
+
+
+
 
 
 }
