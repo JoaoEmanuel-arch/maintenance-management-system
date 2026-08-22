@@ -382,7 +382,37 @@ public class GestaoUsuarioTest {
         verify(usuarioDAO).deletar(1);
     }
 
+    @Test
+    void removerUsuario_quandoPossuirRegistrosAssociados_deveTraduzirExcecao() {
 
+        Usuario usuario = TecnicoBuilder.builder()
+                .comId(1)
+                .build();
+
+        when(usuarioDAO.buscarPorId(1))
+                .thenReturn(usuario);
+
+        IntegridadeReferencialException causa =
+                new IntegridadeReferencialException(
+                        "Usuário possui registros associados.",
+                        new RuntimeException()
+                );
+
+        doThrow(causa)
+                .when(usuarioDAO)
+                .deletar(1);
+
+        EntidadeEmUsoException exception =
+                assertThrows(
+                        EntidadeEmUsoException.class,
+                        () -> gestaoUsuario.removerUsuario(1)
+                );
+
+        assertSame(causa, exception.getCause());
+
+        verify(usuarioDAO).buscarPorId(1);
+        verify(usuarioDAO).deletar(1);
+    }
 
 
 
