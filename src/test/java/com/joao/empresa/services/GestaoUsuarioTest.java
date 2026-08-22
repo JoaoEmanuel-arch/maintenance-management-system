@@ -414,6 +414,4 @@ public class GestaoUsuarioTest {
         verify(usuarioDAO).deletar(1);
     }
 
-
-
 }
