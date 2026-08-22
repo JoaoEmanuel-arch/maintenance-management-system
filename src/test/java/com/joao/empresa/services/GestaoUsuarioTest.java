@@ -414,4 +414,7 @@ public class GestaoUsuarioTest {
         verify(usuarioDAO).deletar(1);
     }
 
+    // service -> DAO -> banco -> banco lança erro -> DAO traduz o erro -> service aplica o
+    // erro pra regra de negócio. Vai o fluxo pra frente e o erro volta pra trás.
+
 }
