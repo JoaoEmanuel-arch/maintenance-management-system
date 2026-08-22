@@ -350,6 +350,22 @@ public class GestaoUsuarioTest {
         verify(usuarioDAO).atualizar(existente);
     }
 
+    @Test
+    void removerUsuario_quandoUsuarioNaoExistir_deveLancarExcecaoENaoExcluir() {
+
+        when(usuarioDAO.buscarPorId(1)) // esse buscar por id está no fluxo do gestaoUsuario
+                .thenReturn(null);
+
+        assertThrows(
+                UsuarioNaoEncontradoException.class,
+                () -> gestaoUsuario.removerUsuario(1)
+        );
+
+        verify(usuarioDAO).buscarPorId(1);
+
+        verify(usuarioDAO, never()).deletar(anyInt());
+    }
+
 
 
 }
