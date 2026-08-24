@@ -11,7 +11,15 @@ import java.util.List;
 
 public class GestaoManutencao {
 
-    ManutencaoDAO manutencaoDAO = new ManutencaoDAO();
+    private final ManutencaoDAO manutencaoDAO;
+
+    public GestaoManutencao() {
+        this(new ManutencaoDAO());
+    }
+
+    public GestaoManutencao(ManutencaoDAO manutencaoDAO) {
+        this.manutencaoDAO = manutencaoDAO;
+    }
 
     public Manutencao buscarPorId(int id) {
 
