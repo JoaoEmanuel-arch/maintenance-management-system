@@ -2,6 +2,7 @@ package com.joao.empresa.services;
 
 import com.joao.empresa.builders.ManutencaoBuilder;
 import com.joao.empresa.dao.ManutencaoDAO;
+import com.joao.empresa.exceptions.ManutencaoNaoEncontradaException;
 import com.joao.empresa.model.Manutencao;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,6 +11,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -43,5 +45,21 @@ public class GestaoManutencaoTest {
 
         verify(manutencaoDAO).buscarPorId(1);
     }
+
+    @Test
+    void buscarPorId_quandoManutencaoNaoExistir_deveLancarExcecao() {
+
+        when(manutencaoDAO.buscarPorId(1))
+                .thenReturn(null);
+
+        assertThrows(
+                ManutencaoNaoEncontradaException.class,
+                () -> gestaoManutencao.buscarPorId(1)
+        );
+
+        verify(manutencaoDAO).buscarPorId(1);
+    }
+
+
 
 }
