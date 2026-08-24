@@ -2,6 +2,7 @@ package com.joao.empresa.services;
 
 import com.joao.empresa.builders.ManutencaoBuilder;
 import com.joao.empresa.dao.ManutencaoDAO;
+import com.joao.empresa.exceptions.IntegridadeReferencialException;
 import com.joao.empresa.exceptions.ManutencaoNaoEncontradaException;
 import com.joao.empresa.model.Manutencao;
 import org.junit.jupiter.api.BeforeEach;
@@ -155,6 +156,35 @@ public class GestaoManutencaoTest {
                         .build();
 
         gestaoManutencao.cadastrarManutencao(manutencao);
+
+        verify(manutencaoDAO).salvar(manutencao);
+    }
+
+    @Test
+    void cadastrarManutencao_quandoEquipamentoOuTecnicoNaoExistir_deveTraduzirExcecao() {
+
+        Manutencao manutencao =
+                ManutencaoBuilder.builder()
+                        .semId()
+                        .build();
+
+        IntegridadeReferencialException causa =
+                new IntegridadeReferencialException(
+                        "Chave estrangeira inválida.",
+                        new RuntimeException()
+                );
+
+        doThrow(causa)
+                .when(manutencaoDAO)
+                .salvar(manutencao);
+
+        IllegalArgumentException exception =
+                assertThrows(
+                        IllegalArgumentException.class,
+                        () -> gestaoManutencao.cadastrarManutencao(manutencao)
+                );
+
+        assertSame(causa, exception.getCause());
 
         verify(manutencaoDAO).salvar(manutencao);
     }
