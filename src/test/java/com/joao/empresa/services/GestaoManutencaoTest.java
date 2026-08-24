@@ -1,1 +1,47 @@
+package com.joao.empresa.services;
 
+import com.joao.empresa.builders.ManutencaoBuilder;
+import com.joao.empresa.dao.ManutencaoDAO;
+import com.joao.empresa.model.Manutencao;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+@ExtendWith(MockitoExtension.class)
+public class GestaoManutencaoTest {
+
+    @Mock
+    private ManutencaoDAO manutencaoDAO;
+
+    private GestaoManutencao gestaoManutencao;
+
+    @BeforeEach
+    void setUp() {
+        gestaoManutencao = new GestaoManutencao(manutencaoDAO);
+    }
+
+    @Test
+    void buscarPorId_quandoManutencaoExistir_deveRetornarManutencao() {
+
+        Manutencao manutencao =
+                ManutencaoBuilder.builder()
+                        .comId(1)
+                        .build();
+
+        when(manutencaoDAO.buscarPorId(1))
+                .thenReturn(manutencao);
+
+        Manutencao resultado = gestaoManutencao.buscarPorId(1);
+
+        assertSame(manutencao, resultado);
+
+        verify(manutencaoDAO).buscarPorId(1);
+    }
+
+}
