@@ -146,6 +146,18 @@ public class GestaoManutencaoTest {
         verifyNoInteractions(manutencaoDAO);
     }
 
+    @Test
+    void cadastrarManutencao_quandoDadosForemValidos_deveSalvarManutencao() {
+
+        Manutencao manutencao =
+                ManutencaoBuilder.builder()
+                        .semId()
+                        .build();
+
+        gestaoManutencao.cadastrarManutencao(manutencao);
+
+        verify(manutencaoDAO).salvar(manutencao);
+    }
 
 
 }
