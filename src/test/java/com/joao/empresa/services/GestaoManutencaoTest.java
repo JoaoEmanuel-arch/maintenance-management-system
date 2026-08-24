@@ -98,6 +98,25 @@ public class GestaoManutencaoTest {
         verify(manutencaoDAO).buscarPorId(1);
     }
 
+    @Test
+    void buscarFinalizadasPorId_quandoManutencaoEstiverConcluida_deveRetornarManutencao() {
+
+        Manutencao manutencao =
+                ManutencaoBuilder.builder()
+                        .comId(1)
+                        .concluida()
+                        .build();
+
+        when(manutencaoDAO.buscarPorId(1))
+                .thenReturn(manutencao);
+
+        Manutencao resultado = gestaoManutencao.buscarFinalizadasPorId(1);
+
+        assertSame(manutencao, resultado);
+
+        verify(manutencaoDAO).buscarPorId(1);
+    }
+
 
 
 }
