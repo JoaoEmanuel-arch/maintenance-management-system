@@ -237,6 +237,28 @@ public class GestaoManutencaoTest {
                 );
     }
 
+    @Test
+    void listarManutencoesConcluidas_deveConsultarStatusConcluida() {
+
+        List<Manutencao> manutencoes = List.of(
+                ManutencaoBuilder.builder()
+                        .concluida()
+                        .build()
+        );
+
+        when(manutencaoDAO.listarPorStatus(Manutencao.Status.CONCLUIDA)).
+                thenReturn(manutencoes);
+
+        List<Manutencao> resultado = gestaoManutencao.listarManutencoesConcluidas();
+
+        assertSame(manutencoes, resultado);
+
+        verify(manutencaoDAO)
+                .listarPorStatus(
+                        Manutencao.Status.CONCLUIDA
+                );
+    }
+
 
 
 }
