@@ -60,6 +60,24 @@ public class GestaoManutencaoTest {
         verify(manutencaoDAO).buscarPorId(1);
     }
 
+    @Test
+    void buscarAtivasPorId_quandoManutencaoEstiverEmAndamento_deveRetornarManutencao() {
+
+        Manutencao manutencao =
+                ManutencaoBuilder.builder()
+                        .comId(1)
+                        .build();
+
+        when(manutencaoDAO.buscarPorId(1))
+                .thenReturn(manutencao);
+
+        Manutencao resultado = gestaoManutencao.buscarAtivasPorId(1);
+
+        assertSame(manutencao, resultado);
+
+        verify(manutencaoDAO).buscarPorId(1);
+    }
+
 
 
 }
