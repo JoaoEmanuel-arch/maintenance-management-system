@@ -11,6 +11,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -188,6 +190,33 @@ public class GestaoManutencaoTest {
 
         verify(manutencaoDAO).salvar(manutencao);
     }
+
+    @Test
+    void listarTodasManutencoes_deveRetornarResultadoDoDao() {
+
+        List<Manutencao> manutencoes =
+                List.of(
+                        ManutencaoBuilder.builder()
+                                .comId(1)
+                                .build(),
+
+                        ManutencaoBuilder.builder()
+                                .comId(2)
+                                .concluida()
+                                .build()
+                );
+
+        when(manutencaoDAO.listar())
+                .thenReturn(manutencoes);
+
+        List<Manutencao> resultado = gestaoManutencao.listarTodasManutencoes();
+
+        assertSame(manutencoes, resultado);
+
+        verify(manutencaoDAO).listar();
+    }
+
+
 
 
 }
