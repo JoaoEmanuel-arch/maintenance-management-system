@@ -282,6 +282,15 @@ public class GestaoManutencaoTest {
                 );
     }
 
+    @Test
+    void atualizarManutencao_quandoManutencaoForNula_deveLancarExcecao() {
 
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> gestaoManutencao.atualizarManutencao(null)
+        );
+
+        verifyNoInteractions(manutencaoDAO);
+    }
 
 }
