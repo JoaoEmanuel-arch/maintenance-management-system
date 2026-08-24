@@ -293,4 +293,21 @@ public class GestaoManutencaoTest {
         verifyNoInteractions(manutencaoDAO);
     }
 
+    @Test
+    void atualizarManutencao_quandoManutencaoNaoPossuirId_deveLancarExcecao() {
+
+        Manutencao alterada =
+                ManutencaoBuilder.builder()
+                        .semId()
+                        .build();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> gestaoManutencao.atualizarManutencao(alterada)
+        );
+
+        verifyNoInteractions(manutencaoDAO);
+    }
+
+
 }
