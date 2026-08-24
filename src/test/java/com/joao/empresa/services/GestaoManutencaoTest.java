@@ -259,6 +259,27 @@ public class GestaoManutencaoTest {
                 );
     }
 
+    // o segredo pra entender tudo certinho é pensar no caminho das camadas
+    @Test
+    void listarManutencoesCanceladas_deveConsultarStatusCancelada() {
 
+        List<Manutencao> manutencoes = List.of(
+                ManutencaoBuilder.builder()
+                        .cancelada()
+                        .build()
+        );
+
+        when(manutencaoDAO.listarPorStatus(Manutencao.Status.CANCELADA)).
+                thenReturn(manutencoes);
+
+        List<Manutencao> resultado = gestaoManutencao.listarManutencoesCanceladas();
+
+        assertSame(manutencoes, resultado);
+
+        verify(manutencaoDAO)
+                .listarPorStatus(
+                        Manutencao.Status.CANCELADA
+                );
+    }
 
 }
