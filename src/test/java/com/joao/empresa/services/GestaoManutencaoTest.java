@@ -216,6 +216,26 @@ public class GestaoManutencaoTest {
         verify(manutencaoDAO).listar();
     }
 
+    @Test
+    void listarManutencoesAtivas_deveConsultarStatusAndamento() {
+
+        List<Manutencao> manutencoes = List.of(
+                ManutencaoBuilder.builder()
+                        .build()
+        );
+
+        when(manutencaoDAO.listarPorStatus(Manutencao.Status.ANDAMENTO))
+                .thenReturn(manutencoes);
+
+        List<Manutencao> resultado = gestaoManutencao.listarManutencoesAtivas();
+
+        assertSame(manutencoes, resultado);
+
+        verify(manutencaoDAO)
+                .listarPorStatus(
+                        Manutencao.Status.ANDAMENTO
+                );
+    }
 
 
 
