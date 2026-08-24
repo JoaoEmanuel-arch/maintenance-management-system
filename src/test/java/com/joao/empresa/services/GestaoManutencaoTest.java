@@ -1,20 +1,24 @@
 package com.joao.empresa.services;
 
+import com.joao.empresa.builders.EquipamentoBuilder;
 import com.joao.empresa.builders.ManutencaoBuilder;
+import com.joao.empresa.builders.TecnicoBuilder;
 import com.joao.empresa.dao.ManutencaoDAO;
 import com.joao.empresa.exceptions.IntegridadeReferencialException;
 import com.joao.empresa.exceptions.ManutencaoNaoEncontradaException;
+import com.joao.empresa.model.Equipamento;
 import com.joao.empresa.model.Manutencao;
+import com.joao.empresa.model.Tecnico;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDate;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -328,6 +332,81 @@ public class GestaoManutencaoTest {
         verify(manutencaoDAO).buscarPorId(1);
 
         verify(manutencaoDAO, never()).atualizar(any());
+    }
+
+    @Test
+    void atualizarManutencao_quandoDadosForemValidos_deveAtualizarObjetoExistente() {
+
+        Tecnico tecnicoNovo =
+                TecnicoBuilder.builder()
+                        .comId(2)
+                        .comEmail("tecnico2@email.com")
+                        .build();
+
+        Equipamento equipamentoNovo =
+                EquipamentoBuilder.builder()
+                        .comId(2)
+                        .comCodigoPatrimonio("PAT-002")
+                        .build();
+
+        Manutencao existente =
+                ManutencaoBuilder.builder()
+                        .comId(1)
+                        .build();
+
+        Manutencao alterada =
+                ManutencaoBuilder.builder()
+                        .comId(1)
+                        .comTipoManutencao(
+                                Manutencao.TipoManutencao.PREVENTIVA
+                        )
+                        .comDescricao("Manutenção preventiva geral")
+                        .comDataInicio(
+                                LocalDate.of(2026, 2, 10)
+                        )
+                        .comTecnicoResponsavel(tecnicoNovo)
+                        .comEquipamento(equipamentoNovo)
+                        .build();
+
+        when(manutencaoDAO.buscarPorId(1)).thenReturn(existente);
+
+        gestaoManutencao.atualizarManutencao(alterada);
+
+        assertAll(
+                () -> assertEquals(
+                        Manutencao.TipoManutencao.PREVENTIVA,
+                        existente.getTipoManutencao()
+                ),
+
+                () -> assertEquals(
+                        "Manutenção preventiva geral",
+                        existente.getDescricao()
+                ),
+
+                () -> assertEquals(
+                        LocalDate.of(2026, 2, 10),
+                        existente.getDataInicio()
+                ),
+
+                () -> assertSame(
+                        tecnicoNovo,
+                        existente.getTecnicoResponsavel()
+                ),
+
+                () -> assertSame(
+                        equipamentoNovo,
+                        existente.getEquipamento()
+                ),
+
+                () -> assertEquals(
+                        Manutencao.Status.ANDAMENTO,
+                        existente.getStatus()
+                )
+        );
+
+        verify(manutencaoDAO).buscarPorId(1);
+
+        verify(manutencaoDAO).atualizar(existente);
     }
 
 
