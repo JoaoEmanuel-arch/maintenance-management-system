@@ -12,8 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class GestaoManutencaoTest {
@@ -134,6 +133,17 @@ public class GestaoManutencaoTest {
         );
 
         verify(manutencaoDAO).buscarPorId(1);
+    }
+
+    @Test
+    void cadastrarManutencao_quandoManutencaoForNula_deveLancarExcecao() {
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> gestaoManutencao.cadastrarManutencao(null)
+        );
+
+        verifyNoInteractions(manutencaoDAO);
     }
 
 
