@@ -309,5 +309,26 @@ public class GestaoManutencaoTest {
         verifyNoInteractions(manutencaoDAO);
     }
 
+    @Test
+    void atualizarManutencao_quandoManutencaoNaoExistir_deveLancarExcecaoENaoAtualizar() {
+
+        Manutencao alterada =
+                ManutencaoBuilder.builder()
+                        .comId(1)
+                        .build();
+
+        when(manutencaoDAO.buscarPorId(1))
+                .thenReturn(null);
+
+        assertThrows(
+                ManutencaoNaoEncontradaException.class,
+                () -> gestaoManutencao.atualizarManutencao(alterada)
+        );
+
+        verify(manutencaoDAO).buscarPorId(1);
+
+        verify(manutencaoDAO, never()).atualizar(any());
+    }
+
 
 }
