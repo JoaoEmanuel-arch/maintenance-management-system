@@ -78,6 +78,26 @@ public class GestaoManutencaoTest {
         verify(manutencaoDAO).buscarPorId(1);
     }
 
+    @Test
+    void buscarAtivasPorId_quandoManutencaoNaoEstiverEmAndamento_deveLancarExcecao() {
+
+        Manutencao manutencao =
+                ManutencaoBuilder.builder()
+                        .comId(1)
+                        .concluida()
+                        .build();
+
+        when(manutencaoDAO.buscarPorId(1))
+                .thenReturn(manutencao);
+
+        assertThrows(
+                ManutencaoNaoEncontradaException.class,
+                () -> gestaoManutencao.buscarAtivasPorId(1)
+        );
+
+        verify(manutencaoDAO).buscarPorId(1);
+    }
+
 
 
 }
