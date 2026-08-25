@@ -508,6 +508,28 @@ public class GestaoManutencaoTest {
         verify(manutencaoDAO).atualizar(manutencao);
     }
 
+    @Test
+    void cancelarManutencao_quandoJaEstiverFinalizada_deveLancarExcecaoENaoAtualizar() {
 
+        Manutencao manutencao =
+                ManutencaoBuilder.builder()
+                        .comId(1)
+                        .concluida()
+                        .build();
+
+        when(manutencaoDAO.buscarPorId(1))
+                .thenReturn(manutencao);
+
+        // exige estar em andamento
+        assertThrows(
+                IllegalStateException.class,
+                () -> gestaoManutencao
+                        .cancelarManutencao(1)
+        );
+
+        verify(manutencaoDAO).buscarPorId(1);
+
+        verify(manutencaoDAO, never()).atualizar(any());
+    }
 
 }
