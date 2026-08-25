@@ -438,6 +438,45 @@ public class GestaoManutencaoTest {
         verify(manutencaoDAO, never()).atualizar(any());
     }
 
+    @Test
+    void atualizarManutencao_quandoEquipamentoOuTecnicoNaoExistir_deveTraduzirExcecao() {
 
+        Manutencao existente =
+                ManutencaoBuilder.builder()
+                        .comId(1)
+                        .build();
+
+        Manutencao alterada =
+                ManutencaoBuilder.builder()
+                        .comId(1)
+                        .comDescricao("Descrição alterada")
+                        .build();
+
+        when(manutencaoDAO.buscarPorId(1))
+                .thenReturn(existente);
+
+        IntegridadeReferencialException causa =
+                new IntegridadeReferencialException(
+                        "Relacionamento inexistente.",
+                        new RuntimeException()
+                );
+
+        doThrow(causa)
+                .when(manutencaoDAO)
+                .atualizar(existente);
+
+        IllegalArgumentException exception =
+                assertThrows(
+                        IllegalArgumentException.class,
+                        () -> gestaoManutencao
+                                .atualizarManutencao(alterada)
+                );
+
+        assertSame(causa, exception.getCause());
+
+        verify(manutencaoDAO).buscarPorId(1);
+
+        verify(manutencaoDAO).atualizar(existente);
+    }
 
 }
