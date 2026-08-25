@@ -590,6 +590,21 @@ public class GestaoManutencaoTest {
         verify(manutencaoDAO, never()).atualizar(any());
     }
 
+    @Test
+    void excluirManutencao_quandoManutencaoNaoExistir_deveLancarExcecaoENaoExcluir() {
+
+        when(manutencaoDAO.buscarPorId(1))
+                .thenReturn(null);
+
+        assertThrows(
+                ManutencaoNaoEncontradaException.class,
+                () -> gestaoManutencao.excluirManutencao(1)
+        );
+
+        verify(manutencaoDAO).buscarPorId(1);
+
+        verify(manutencaoDAO, never()).deletar(anyInt());
+    }
 
 
 }
