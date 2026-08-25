@@ -627,4 +627,23 @@ public class GestaoManutencaoTest {
         verify(manutencaoDAO, never()).deletar(anyInt());
     }
 
+    @Test
+    void excluirManutencao_quandoEstiverFinalizada_deveExcluir() {
+
+        Manutencao manutencao =
+                ManutencaoBuilder.builder()
+                        .comId(1)
+                        .concluida()
+                        .build();
+
+        when(manutencaoDAO.buscarPorId(1))
+                .thenReturn(manutencao);
+
+        gestaoManutencao.excluirManutencao(1);
+
+        verify(manutencaoDAO).buscarPorId(1);
+
+        verify(manutencaoDAO).deletar(1);
+    }
+
 }
