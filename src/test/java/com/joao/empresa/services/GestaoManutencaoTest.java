@@ -606,5 +606,25 @@ public class GestaoManutencaoTest {
         verify(manutencaoDAO, never()).deletar(anyInt());
     }
 
+    @Test
+    void excluirManutencao_quandoEstiverEmAndamento_deveLancarExcecaoENaoExcluir() {
+
+        Manutencao manutencao =
+                ManutencaoBuilder.builder()
+                        .comId(1)
+                        .build();
+
+        when(manutencaoDAO.buscarPorId(1))
+                .thenReturn(manutencao);
+
+        assertThrows(
+                IllegalStateException.class,
+                () -> gestaoManutencao.excluirManutencao(1)
+        );
+
+        verify(manutencaoDAO).buscarPorId(1);
+
+        verify(manutencaoDAO, never()).deletar(anyInt());
+    }
 
 }
