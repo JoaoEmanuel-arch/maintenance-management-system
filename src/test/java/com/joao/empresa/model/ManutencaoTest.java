@@ -11,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class ManutencaoTest {
 
+    // verificar se na hora que criar um nova manutenção inicia com os valores corretos
     @Test
     void criarManutencao_quandoDadosForemValidos_deveIniciarEmAndamento() {
 
