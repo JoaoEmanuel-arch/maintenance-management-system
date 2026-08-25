@@ -569,4 +569,27 @@ public class GestaoManutencaoTest {
         verify(manutencaoDAO).atualizar(manutencao);
     }
 
+    @Test
+    void finalizarManutencao_quandoCustoForNegativo_deveLancarExcecaoENaoAtualizar() {
+
+        Manutencao manutencao =
+                ManutencaoBuilder.builder()
+                        .comId(1)
+                        .build();
+
+        when(manutencaoDAO.buscarPorId(1))
+                .thenReturn(manutencao);
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> gestaoManutencao.finalizarManutencao(1, new BigDecimal("-1.00"))
+        );
+
+        verify(manutencaoDAO).buscarPorId(1);
+
+        verify(manutencaoDAO, never()).atualizar(any());
+    }
+
+
+
 }
