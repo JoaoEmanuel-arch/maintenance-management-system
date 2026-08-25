@@ -409,5 +409,35 @@ public class GestaoManutencaoTest {
         verify(manutencaoDAO).atualizar(existente);
     }
 
+    @Test
+    void atualizarManutencao_quandoManutencaoJaEstiverFinalizada_deveLancarExcecaoENaoAtualizar() {
+
+        Manutencao existente =
+                ManutencaoBuilder.builder()
+                        .comId(1)
+                        .concluida()
+                        .build();
+
+        Manutencao alterada =
+                ManutencaoBuilder.builder()
+                        .comId(1)
+                        .comDescricao("Nova descrição")
+                        .build();
+
+        when(manutencaoDAO.buscarPorId(1))
+                .thenReturn(existente);
+
+        // isso é verificado lá na entidade -> só ir voltando em camadas pra ver
+        assertThrows(
+                IllegalStateException.class,
+                () -> gestaoManutencao.atualizarManutencao(alterada)
+        );
+
+        verify(manutencaoDAO).buscarPorId(1);
+
+        verify(manutencaoDAO, never()).atualizar(any());
+    }
+
+
 
 }
