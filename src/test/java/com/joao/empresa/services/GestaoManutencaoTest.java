@@ -479,4 +479,35 @@ public class GestaoManutencaoTest {
         verify(manutencaoDAO).atualizar(existente);
     }
 
+    @Test
+    void cancelarManutencao_quandoEstiverEmAndamento_deveCancelarEAtualizarNoDao() {
+
+        Manutencao manutencao =
+                ManutencaoBuilder.builder()
+                        .comId(1)
+                        .build();
+
+        when(manutencaoDAO.buscarPorId(1))
+                .thenReturn(manutencao);
+
+        gestaoManutencao.cancelarManutencao(1);
+
+        assertAll(
+                () -> assertEquals(
+                        Manutencao.Status.CANCELADA, // tudo isso muda na entidade mesmo
+                        manutencao.getStatus()
+                ),
+
+                () -> assertNotNull(
+                        manutencao.getDataFim()
+                )
+        );
+
+        verify(manutencaoDAO).buscarPorId(1);
+
+        verify(manutencaoDAO).atualizar(manutencao);
+    }
+
+
+
 }
