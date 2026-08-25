@@ -15,6 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -530,6 +531,42 @@ public class GestaoManutencaoTest {
         verify(manutencaoDAO).buscarPorId(1);
 
         verify(manutencaoDAO, never()).atualizar(any());
+    }
+
+    @Test
+    void finalizarManutencao_quandoDadosForemValidos_deveConcluirEAtualizarNoDao() {
+
+        Manutencao manutencao =
+                ManutencaoBuilder.builder()
+                        .comId(1)
+                        .build();
+
+        BigDecimal custo = new BigDecimal("1500.00");
+
+        when(manutencaoDAO.buscarPorId(1))
+                .thenReturn(manutencao);
+
+        gestaoManutencao.finalizarManutencao(1, custo);
+
+        assertAll(
+                () -> assertEquals(
+                        Manutencao.Status.CONCLUIDA,
+                        manutencao.getStatus()
+                ),
+
+                () -> assertEquals(
+                        custo,
+                        manutencao.getCusto()
+                ),
+
+                () -> assertNotNull(
+                        manutencao.getDataFim()
+                )
+        );
+
+        verify(manutencaoDAO).buscarPorId(1);
+
+        verify(manutencaoDAO).atualizar(manutencao);
     }
 
 }
