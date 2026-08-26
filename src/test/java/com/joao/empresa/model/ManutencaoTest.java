@@ -419,7 +419,26 @@ public class ManutencaoTest {
 
     }
 
+    @Test
+    void atualizarDados_quandoManutencaoJaEstiverFinalizada_deveLancarExcecao() {
 
+        Manutencao manutencao =
+                ManutencaoBuilder.builder()
+                        .concluida()
+                        .build();
+
+        // a entidade manutenção exige estar em andamento, tentar atualizar lança exceção
+        assertThrows(
+                IllegalStateException.class,
+                () -> manutencao.atualizarDados(
+                        Manutencao.TipoManutencao.PREVENTIVA,
+                        "Nova descrição",
+                        LocalDate.of(2026, 8, 21),
+                        EquipamentoBuilder.builder().build(),
+                        TecnicoBuilder.builder().build()
+                )
+        );
+    }
 
 
 }
