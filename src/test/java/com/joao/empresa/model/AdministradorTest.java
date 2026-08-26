@@ -117,6 +117,32 @@ public class AdministradorTest {
         );
     }
 
+    @Test
+    void atualizarEspecifico_quandoDepartamentoForNulo_deveManterDepartamentoAtual() {
 
+        Administrador existente =
+                new Administrador(
+                        1,
+                        "João",
+                        "joao@email.com",
+                        "Tecnologia"
+                );
+
+        Administrador alterado =
+                new Administrador(
+                        1,
+                        "João",
+                        "joao@email.com",
+                        null
+                );
+
+        existente.atualizarEspecifico(alterado);
+
+        assertEquals(
+                "Tecnologia",
+                existente.getDepartamento()
+        );
+    }
 
 }
+
