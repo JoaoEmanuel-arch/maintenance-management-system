@@ -89,6 +89,30 @@ public class GestorTest {
         );
     }
 
+    @Test
+    void atualizarEspecifico_quandoAreaResponsavelForInformada_deveAtualizarArea() {
+
+        Gestor existente =
+                new Gestor(
+                        1,
+                        "João",
+                        "joao@email.com",
+                        "Manutenção"
+                );
+
+        Gestor alterado =
+                new Gestor(
+                        1,
+                        "João",
+                        "joao@email.com",
+                        "Operações"
+                );
+
+        existente.atualizarEspecifico(alterado);
+
+        assertEquals("Operações", existente.getAreaResponsavel());
+    }
+
 
 
 }
