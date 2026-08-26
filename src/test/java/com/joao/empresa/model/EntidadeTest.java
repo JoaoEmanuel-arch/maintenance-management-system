@@ -2,8 +2,7 @@ package com.joao.empresa.model;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class EntidadeTest {
 
@@ -36,5 +35,20 @@ public class EntidadeTest {
         assertEquals(1, empresa.getId());
     }
 
+    @Test
+    void criarEntidade_quandoIdForZero_deveLancarExcecao() {
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new Empresa(
+                        0,
+                        "Empresa Teste",
+                        "123456789",
+                        "Ouro Branco",
+                        "Siderurgia",
+                        Empresa.Status.ATIVADA
+                )
+        );
+    }
 
 }
