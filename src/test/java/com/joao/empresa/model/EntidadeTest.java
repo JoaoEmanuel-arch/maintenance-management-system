@@ -83,4 +83,25 @@ public class EntidadeTest {
         assertEquals(10, empresa.getId());
     }
 
+    @Test
+    void definirId_quandoIdForInvalido_deveLancarExcecao() {
+
+        Empresa empresa = new Empresa(
+                "Empresa Teste",
+                "123456789",
+                "Ouro Branco",
+                "Siderurgia",
+                Empresa.Status.ATIVADA
+        );
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> empresa.definirId(0)
+        );
+
+        assertNull(empresa.getId());
+    }
+
+
+
 }
