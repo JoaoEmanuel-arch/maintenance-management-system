@@ -157,6 +157,7 @@ public class ManutencaoTest {
 
         manutencao.finalizar(custo, dataConclusao);
 
+        // verificar se os atributos foram atualizados corretamente
         assertAll(
                 () -> assertEquals(
                         Manutencao.Status.CONCLUIDA,
@@ -174,6 +175,41 @@ public class ManutencaoTest {
                 )
         );
     }
+
+    @Test
+    void finalizar_quandoCustoForNegativo_deveLancarExcecaoSemAlterarEstado() {
+
+        Manutencao manutencao =
+                ManutencaoBuilder.builder()
+                        .comId(1)
+                        .build();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> manutencao.finalizar(
+                        new BigDecimal("-1.00"),
+                        LocalDate.of(2026, 8, 22)
+                )
+        );
+
+        // ver se os estados não foram alterados
+        assertAll(
+                () -> assertEquals(
+                        Manutencao.Status.ANDAMENTO,
+                        manutencao.getStatus()
+                ),
+
+                () -> assertEquals(
+                        BigDecimal.ZERO,
+                        manutencao.getCusto()
+                ),
+
+                () -> assertNull(
+                        manutencao.getDataFim()
+                )
+        );
+    }
+
 
 
 }
