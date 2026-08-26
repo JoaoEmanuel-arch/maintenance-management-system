@@ -246,6 +246,36 @@ public class ManutencaoTest {
         );
     }
 
+    @Test
+    void cancelar_quandoManutencaoEstiverEmAndamento_deveCancelar() {
+
+        Manutencao manutencao =
+                ManutencaoBuilder.builder()
+                        .comId(1)
+                        .build();
+
+        LocalDate dataCancelamento = LocalDate.of(2026, 8, 22);
+
+        manutencao.cancelar(dataCancelamento);
+
+        assertAll(
+                () -> assertEquals(
+                        Manutencao.Status.CANCELADA,
+                        manutencao.getStatus()
+                ),
+
+                () -> assertEquals(
+                        dataCancelamento,
+                        manutencao.getDataFim()
+                ),
+
+                () -> assertEquals(
+                        BigDecimal.ZERO,
+                        manutencao.getCusto()
+                )
+        );
+    }
+
 
 
 }
