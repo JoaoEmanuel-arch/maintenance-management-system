@@ -102,6 +102,24 @@ public class EntidadeTest {
         assertNull(empresa.getId());
     }
 
+    @Test
+    void definirId_quandoEntidadeJaPossuirId_deveLancarExcecaoSemAlterarId() {
 
+        Empresa empresa = new Empresa(
+                1,
+                "Empresa Teste",
+                "123456789",
+                "Ouro Branco",
+                "Siderurgia",
+                Empresa.Status.ATIVADA
+        );
+
+        assertThrows(
+                IllegalStateException.class,
+                () -> empresa.definirId(2)
+        );
+
+        assertEquals(1, empresa.getId());
+    }
 
 }
