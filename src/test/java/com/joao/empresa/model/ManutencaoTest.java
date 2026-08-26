@@ -94,6 +94,31 @@ public class ManutencaoTest {
         );
     }
 
+    @Test
+    void reconstruirManutencao_quandoEstiverEmAndamentoComDataFim_deveLancarExcecao() {
+
+        Equipamento equipamento =
+                EquipamentoBuilder.builder().build();
+
+        Tecnico tecnico =
+                TecnicoBuilder.builder().build();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new Manutencao(
+                        1,
+                        Manutencao.TipoManutencao.CORRETIVA,
+                        "Troca da correia",
+                        BigDecimal.ZERO,
+                        LocalDate.of(2026, 8, 20),
+                        LocalDate.of(2026, 8, 21),
+                        Manutencao.Status.ANDAMENTO,
+                        equipamento,
+                        tecnico
+                )
+        );
+    }
+
 
 
 
