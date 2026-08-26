@@ -151,9 +151,9 @@ public class GestaoManutencao {
 
     // pra finalizar passa o custo e a data final
     public void finalizarManutencao(int id, BigDecimal custo) { // encerra ativa e joga pra finalizadas
-        Manutencao manutencao = buscarPorId(id);
+        Manutencao manutencao = buscarPorId(id); // vai ser reconstruído o objeto
 
-        manutencao.finalizar(custo, LocalDate.now());
+        manutencao.finalizar(custo, LocalDate.now()); // atualizo os atributos do objeto e jogo pro banco de dados
 
         manutencaoDAO.atualizar(manutencao); // DAO é pra mexer com banco de dados
     }
