@@ -71,6 +71,30 @@ public class ManutencaoTest {
         );
     }
 
+    @Test
+    void reconstruirManutencao_quandoCustoForNegativo_deveLancarExcecao() {
+
+        Equipamento equipamento = EquipamentoBuilder.builder().build();
+
+        Tecnico tecnico = TecnicoBuilder.builder().build();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new Manutencao(
+                        1,
+                        Manutencao.TipoManutencao.CORRETIVA,
+                        "Troca da correia",
+                        new BigDecimal("-100.00"),
+                        LocalDate.of(2026, 8, 20),
+                        null,
+                        Manutencao.Status.ANDAMENTO,
+                        equipamento,
+                        tecnico
+                )
+        );
+    }
+
+
 
 
 }
