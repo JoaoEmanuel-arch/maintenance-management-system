@@ -1,6 +1,7 @@
 package com.joao.empresa.model;
 
 import com.joao.empresa.builders.EquipamentoBuilder;
+import com.joao.empresa.builders.ManutencaoBuilder;
 import com.joao.empresa.builders.TecnicoBuilder;
 import org.junit.jupiter.api.Test;
 
@@ -142,6 +143,37 @@ public class ManutencaoTest {
         );
     }
 
+    @Test
+    void finalizar_quandoDadosForemValidos_deveConcluirManutencao() {
+
+        Manutencao manutencao =
+                ManutencaoBuilder.builder()
+                        .comId(1)
+                        .build();
+
+        BigDecimal custo = new BigDecimal("1500.00");
+
+        LocalDate dataConclusao = LocalDate.of(2026, 8, 22);
+
+        manutencao.finalizar(custo, dataConclusao);
+
+        assertAll(
+                () -> assertEquals(
+                        Manutencao.Status.CONCLUIDA,
+                        manutencao.getStatus()
+                ),
+
+                () -> assertEquals(
+                        custo,
+                        manutencao.getCusto()
+                ),
+
+                () -> assertEquals(
+                        dataConclusao,
+                        manutencao.getDataFim()
+                )
+        );
+    }
 
 
 }
