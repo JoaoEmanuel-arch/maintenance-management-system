@@ -175,6 +175,28 @@ public class EntidadeTest {
         assertNotEquals(empresa1, empresa2);
     }
 
+    @Test
+    void equals_quandoEntidadesNovasNaoPossuiremId_deveRetornarFalse() {
+
+        Empresa empresa1 = new Empresa(
+                "Empresa A",
+                "111",
+                "Ouro Branco",
+                "Siderurgia",
+                Empresa.Status.ATIVADA
+        );
+
+        Empresa empresa2 = new Empresa(
+                "Empresa A",
+                "111",
+                "Ouro Branco",
+                "Siderurgia",
+                Empresa.Status.ATIVADA
+        );
+
+        assertNotEquals(empresa1, empresa2);
+    }
+
 
 
 }
