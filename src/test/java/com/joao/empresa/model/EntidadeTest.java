@@ -51,4 +51,20 @@ public class EntidadeTest {
         );
     }
 
+    @Test
+    void criarEntidade_quandoIdForNegativo_deveLancarExcecao() {
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new Empresa(
+                        -1,
+                        "Empresa Teste",
+                        "123456789",
+                        "Ouro Branco",
+                        "Siderurgia",
+                        Empresa.Status.ATIVADA
+                )
+        );
+    }
+
 }
