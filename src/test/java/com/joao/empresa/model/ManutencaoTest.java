@@ -395,6 +395,31 @@ public class ManutencaoTest {
         );
     }
 
+    @Test
+    void atualizarDados_quandoDadosForemInvalidos_deveLancarExcecaoSemAlterarManutencao() {
+
+        Manutencao manutencao =
+                ManutencaoBuilder.builder()
+                        .comId(1)
+                        .comDescricao("Descrição original")
+                        .build();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> manutencao.atualizarDados(
+                        Manutencao.TipoManutencao.PREVENTIVA,
+                        "   ",
+                        LocalDate.of(2026, 8, 21),
+                        EquipamentoBuilder.builder().build(),
+                        TecnicoBuilder.builder().build()
+                )
+        );
+
+        assertEquals("Descrição original", manutencao.getDescricao());
+
+    }
+
+
 
 
 }
