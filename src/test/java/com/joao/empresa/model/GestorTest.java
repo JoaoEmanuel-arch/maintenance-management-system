@@ -113,6 +113,28 @@ public class GestorTest {
         assertEquals("Operações", existente.getAreaResponsavel());
     }
 
+    @Test
+    void atualizarEspecifico_quandoAreaResponsavelForNula_deveManterAreaAtual() {
 
+        Gestor existente =
+                new Gestor(
+                        1,
+                        "João",
+                        "joao@email.com",
+                        "Operações"
+                );
+
+        Gestor alterado =
+                new Gestor(
+                        1,
+                        "João",
+                        "joao@email.com",
+                        null
+                );
+
+        existente.atualizarEspecifico(alterado);
+
+        assertEquals("Operações", existente.getAreaResponsavel());
+    }
 
 }
