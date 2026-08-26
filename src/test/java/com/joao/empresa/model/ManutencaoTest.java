@@ -322,6 +322,79 @@ public class ManutencaoTest {
         );
     }
 
+    @Test
+    void atualizarDados_quandoManutencaoEstiverEmAndamento_deveAtualizarCamposPermitidos() {
+
+        Manutencao manutencao =
+                ManutencaoBuilder.builder()
+                        .comId(1)
+                        .build();
+
+        Tecnico novoTecnico =
+                TecnicoBuilder.builder()
+                        .comId(2)
+                        .comEmail("novo@email.com")
+                        .build();
+
+        Equipamento novoEquipamento =
+                EquipamentoBuilder.builder()
+                        .comId(2)
+                        .comCodigoPatrimonio("PAT-002")
+                        .build();
+
+        LocalDate novaDataInicio =
+                LocalDate.of(2026, 8, 21);
+
+        manutencao.atualizarDados(
+                Manutencao.TipoManutencao.PREVENTIVA,
+                "Revisão preventiva",
+                novaDataInicio,
+                novoEquipamento,
+                novoTecnico
+        );
+
+        assertAll(
+                () -> assertEquals(
+                        Manutencao.TipoManutencao.PREVENTIVA,
+                        manutencao.getTipoManutencao()
+                ),
+
+                () -> assertEquals(
+                        "Revisão preventiva",
+                        manutencao.getDescricao()
+                ),
+
+                () -> assertEquals(
+                        novaDataInicio,
+                        manutencao.getDataInicio()
+                ),
+
+                () -> assertSame(
+                        novoEquipamento,
+                        manutencao.getEquipamento()
+                ),
+
+                () -> assertSame(
+                        novoTecnico,
+                        manutencao.getTecnicoResponsavel()
+                ),
+
+                () -> assertEquals(
+                        Manutencao.Status.ANDAMENTO,
+                        manutencao.getStatus()
+                ),
+
+                () -> assertEquals(
+                        BigDecimal.ZERO,
+                        manutencao.getCusto()
+                ),
+
+                () -> assertNull(
+                        manutencao.getDataFim()
+                )
+        );
+    }
+
 
 
 }
