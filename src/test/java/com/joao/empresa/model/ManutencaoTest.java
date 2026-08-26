@@ -210,6 +210,42 @@ public class ManutencaoTest {
         );
     }
 
+    @Test
+    void finalizar_quandoDataConclusaoForAnteriorADataInicio_deveLancarExcecaoSemAlterarEstado() {
+
+        Manutencao manutencao =
+                ManutencaoBuilder.builder()
+                        .comId(1)
+                        .comDataInicio(
+                                LocalDate.of(2026, 8, 20)
+                        )
+                        .build();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> manutencao.finalizar(
+                        new BigDecimal("100.00"),
+                        LocalDate.of(2026, 8, 19)
+                )
+        );
+
+        assertAll(
+                () -> assertEquals(
+                        Manutencao.Status.ANDAMENTO,
+                        manutencao.getStatus()
+                ),
+
+                () -> assertEquals(
+                        BigDecimal.ZERO,
+                        manutencao.getCusto()
+                ),
+
+                () -> assertNull(
+                        manutencao.getDataFim()
+                )
+        );
+    }
+
 
 
 }
