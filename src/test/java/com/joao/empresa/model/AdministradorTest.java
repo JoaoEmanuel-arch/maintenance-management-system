@@ -90,4 +90,33 @@ public class AdministradorTest {
         );
     }
 
+    @Test
+    void atualizarEspecifico_quandoDepartamentoForInformado_deveAtualizarDepartamento() {
+
+        Administrador existente =
+                new Administrador(
+                        1,
+                        "João",
+                        "joao@email.com",
+                        "Financeiro"
+                );
+
+        Administrador alterado =
+                new Administrador(
+                        1,
+                        "João",
+                        "joao@email.com",
+                        "Tecnologia"
+                );
+
+        existente.atualizarEspecifico(alterado);
+
+        assertEquals(
+                "Tecnologia",
+                existente.getDepartamento()
+        );
+    }
+
+
+
 }
