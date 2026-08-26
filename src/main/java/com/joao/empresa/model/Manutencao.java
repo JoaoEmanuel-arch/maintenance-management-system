@@ -65,8 +65,8 @@ public class Manutencao extends Entidade {
             Equipamento equipamento,
             Tecnico tecnicoResponsavel
     ) {
-        this(
-                null,
+        this( // chama o segundo para reaproveitar a lógica de validação e criar o objeto
+                null, // preenche automaticamente
                 tipoManutencao,
                 descricao,
                 BigDecimal.ZERO,
@@ -80,7 +80,7 @@ public class Manutencao extends Entidade {
 
     // Construtor para o DAO reconstruir manuntenção que já existe no banco
     public Manutencao(
-            Integer id,
+            Integer id, // veio nulo do de cima, mas depois tem um método que preenche com o DAO
             TipoManutencao tipoManutencao,
             String descricao,
             BigDecimal custo,
