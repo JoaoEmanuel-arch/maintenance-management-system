@@ -305,6 +305,23 @@ public class ManutencaoTest {
         );
     }
 
+    @Test
+    void cancelar_quandoManutencaoJaEstiverFinalizada_deveLancarExcecao() {
+
+        Manutencao manutencao =
+                ManutencaoBuilder.builder()
+                        .concluida()
+                        .build();
+
+        // dentro da própria entidade manutenção ele exige que está em andamento
+        assertThrows(
+                IllegalStateException.class,
+                () -> manutencao.cancelar(
+                        LocalDate.of(2026, 8, 23)
+                )
+        );
+    }
+
 
 
 }
