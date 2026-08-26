@@ -5,6 +5,18 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+/*
+    Usuario.atualizarDados()
+            ↓
+    nome/email
+
+    Administrador.atualizarEspecifico()
+            ↓
+    departamento
+
+    Sem GestaoUsuario. Sem DAO. Sem banco. Testando somente a entidade.
+*/
+
 public class AdministradorTest {
 
     @Test
