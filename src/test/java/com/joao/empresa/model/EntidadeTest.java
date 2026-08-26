@@ -2,6 +2,7 @@ package com.joao.empresa.model;
 
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class EntidadeTest {
@@ -20,6 +21,20 @@ public class EntidadeTest {
         assertNull(empresa.getId());
     }
 
+    @Test
+    void criarEntidade_quandoIdForPositivo_deveManterId() {
+
+        Empresa empresa = new Empresa(
+                1,
+                "Empresa Teste",
+                "123456789",
+                "Ouro Branco",
+                "Siderurgia",
+                Empresa.Status.ATIVADA
+        );
+
+        assertEquals(1, empresa.getId());
+    }
 
 
 }
