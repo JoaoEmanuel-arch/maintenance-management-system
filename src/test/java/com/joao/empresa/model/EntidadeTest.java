@@ -122,4 +122,32 @@ public class EntidadeTest {
         assertEquals(1, empresa.getId());
     }
 
+    @Test
+    void equals_quandoMesmaClasseEMesmoId_deveRetornarTrue() {
+
+        // oq importa aqui é só a classe e o id pra dizer que são iguais
+        // estou testando se os atributos não fazem diferença
+        Empresa empresa1 = new Empresa(
+                1,
+                "Empresa A",
+                "111",
+                "Ouro Branco",
+                "Siderurgia",
+                Empresa.Status.ATIVADA
+        );
+
+        Empresa empresa2 = new Empresa(
+                1,
+                "Empresa completamente diferente",
+                "999",
+                "São João del-Rei",
+                "Tecnologia",
+                Empresa.Status.DESATIVADA
+        );
+
+        assertEquals(empresa1, empresa2);
+
+        assertEquals(empresa1.hashCode(), empresa2.hashCode());
+    }
+
 }
