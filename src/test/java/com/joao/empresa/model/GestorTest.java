@@ -55,4 +55,40 @@ public class GestorTest {
         );
     }
 
+    @Test
+    void atualizarDados_quandoNovoNomeEEmailForemNulos_deveManterDadosAtuais() {
+
+        Gestor existente =
+                new Gestor(
+                        1,
+                        "João Emanuel",
+                        "joao@email.com",
+                        "Manutenção"
+                );
+
+        Gestor alterado =
+                new Gestor(
+                        1,
+                        null,
+                        null,
+                        "Operações"
+                );
+
+        existente.atualizarDados(alterado);
+
+        assertAll(
+                () -> assertEquals(
+                        "João Emanuel",
+                        existente.getNome()
+                ),
+
+                () -> assertEquals(
+                        "joao@email.com",
+                        existente.getEmail()
+                )
+        );
+    }
+
+
+
 }
