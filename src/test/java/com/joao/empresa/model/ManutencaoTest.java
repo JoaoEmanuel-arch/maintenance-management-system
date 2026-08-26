@@ -11,7 +11,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class ManutencaoTest {
 
-    // verificar se na hora que criar um nova manutenção inicia com os valores corretos
     @Test
     void criarManutencao_quandoDadosForemValidos_deveIniciarEmAndamento() {
 
@@ -49,6 +48,25 @@ public class ManutencaoTest {
 
                 () -> assertNull(
                         manutencao.getDataFim() // não pode possui data final ainda
+                )
+        );
+    }
+
+    @Test
+    void criarManutencao_quandoDescricaoForVazia_deveLancarExcecao() {
+
+        Equipamento equipamento = EquipamentoBuilder.builder().build();
+
+        Tecnico tecnico = TecnicoBuilder.builder().build();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new Manutencao(
+                        Manutencao.TipoManutencao.CORRETIVA,
+                        "   ",
+                        LocalDate.of(2026, 8, 20),
+                        equipamento,
+                        tecnico
                 )
         );
     }
