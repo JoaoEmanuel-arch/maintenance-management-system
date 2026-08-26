@@ -56,4 +56,38 @@ public class AdministradorTest {
         );
     }
 
+    @Test
+    void atualizarDados_quandoNovoNomeEEmailForemNulos_deveManterDadosAtuais() {
+
+        Administrador existente =
+                new Administrador(
+                        1,
+                        "João Emanuel",
+                        "joao@email.com",
+                        "Tecnologia"
+                );
+
+        Administrador alterado =
+                new Administrador(
+                        1,
+                        null,
+                        null,
+                        "Financeiro"
+                );
+
+        existente.atualizarDados(alterado);
+
+        assertAll(
+                () -> assertEquals(
+                        "João Emanuel",
+                        existente.getNome()
+                ),
+
+                () -> assertEquals(
+                        "joao@email.com",
+                        existente.getEmail()
+                )
+        );
+    }
+
 }
