@@ -276,6 +276,35 @@ public class ManutencaoTest {
         );
     }
 
+    @Test
+    void cancelar_quandoDataCancelamentoForAnteriorADataInicio_deveLancarExcecaoSemAlterarEstado() {
+
+        Manutencao manutencao =
+                ManutencaoBuilder.builder()
+                        .comDataInicio(
+                                LocalDate.of(2026, 8, 20)
+                        )
+                        .build();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> manutencao.cancelar(
+                        LocalDate.of(2026, 8, 19)
+                )
+        );
+
+        assertAll(
+                () -> assertEquals(
+                        Manutencao.Status.ANDAMENTO,
+                        manutencao.getStatus()
+                ),
+
+                () -> assertNull(
+                        manutencao.getDataFim()
+                )
+        );
+    }
+
 
 
 }
