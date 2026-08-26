@@ -67,6 +67,20 @@ public class EntidadeTest {
         );
     }
 
+    @Test
+    void definirId_quandoEntidadeAindaNaoPossuirId_deveDefinirId() {
 
+        Empresa empresa = new Empresa(
+                "Empresa Teste",
+                "123456789",
+                "Ouro Branco",
+                "Siderurgia",
+                Empresa.Status.ATIVADA
+        );
+
+        empresa.definirId(10);
+
+        assertEquals(10, empresa.getId());
+    }
 
 }
