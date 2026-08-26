@@ -150,4 +150,31 @@ public class EntidadeTest {
         assertEquals(empresa1.hashCode(), empresa2.hashCode());
     }
 
+    @Test
+    void equals_quandoIdsForemDiferentes_deveRetornarFalse() {
+
+        // mesmo que os atributos sejam iguais, oq importa é a classe e o id
+        Empresa empresa1 = new Empresa(
+                1,
+                "Empresa A",
+                "111",
+                "Ouro Branco",
+                "Siderurgia",
+                Empresa.Status.ATIVADA
+        );
+
+        Empresa empresa2 = new Empresa(
+                2,
+                "Empresa A",
+                "111",
+                "Ouro Branco",
+                "Siderurgia",
+                Empresa.Status.ATIVADA
+        );
+
+        assertNotEquals(empresa1, empresa2);
+    }
+
+
+
 }
