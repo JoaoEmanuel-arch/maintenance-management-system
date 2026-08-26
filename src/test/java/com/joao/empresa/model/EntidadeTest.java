@@ -197,6 +197,26 @@ public class EntidadeTest {
         assertNotEquals(empresa1, empresa2);
     }
 
+    @Test
+    void equals_quandoClassesForemDiferentesMesmoComMesmoId_deveRetornarFalse() {
 
+        Empresa empresa = new Empresa(
+                1,
+                "Empresa Teste",
+                "111",
+                "Ouro Branco",
+                "Siderurgia",
+                Empresa.Status.ATIVADA
+        );
+
+        Equipamento equipamento = new Equipamento(
+                1,
+                "Laminadora",
+                "PAT-001",
+                null
+        );
+
+        assertNotEquals(empresa, equipamento);
+    }
 
 }
