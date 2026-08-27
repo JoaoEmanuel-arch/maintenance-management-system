@@ -1,5 +1,6 @@
 package com.joao.empresa.model;
 
+import com.joao.empresa.builders.ManutencaoBuilder;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -149,6 +150,37 @@ public class TecnicoTest {
         existente.atualizarEspecifico(alterado);
 
         assertEquals("Mecânica", existente.getEspecialidade());
+    }
+
+    @Test
+    void adicionarManutencao_deveAdicionarManutencaoAoTecnico() {
+
+        Tecnico tecnico =
+                new Tecnico(
+                        1,
+                        "João",
+                        "joao@email.com",
+                        "Mecânica"
+                );
+
+        Manutencao manutencao =
+                ManutencaoBuilder.builder()
+                        .comId(1)
+                        .comTecnicoResponsavel(tecnico)
+                        .build();
+
+        tecnico.adicionarManutencao(manutencao);
+
+        assertAll(
+                () -> assertEquals(
+                        1,
+                        tecnico.getManutencoesResponsaveis().size()
+                ),
+
+                () -> assertTrue(
+                        tecnico.getManutencoesResponsaveis().contains(manutencao)
+                )
+        );
     }
 
 }
