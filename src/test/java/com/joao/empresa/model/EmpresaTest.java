@@ -121,5 +121,21 @@ public class EmpresaTest {
         );
     }
 
+    @Test
+    void alterarStatus_quandoEmpresaForDesativada_deveAtualizarStatus() {
+
+        Empresa empresa = new Empresa(
+                1,
+                "Gerdau Açominas",
+                "123456789",
+                "Ouro Branco",
+                "Siderurgia",
+                Empresa.Status.ATIVADA
+        );
+
+        empresa.setStatus(Empresa.Status.DESATIVADA);
+
+        assertEquals(Empresa.Status.DESATIVADA, empresa.getStatus());
+    }
 
 }
