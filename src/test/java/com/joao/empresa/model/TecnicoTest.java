@@ -127,4 +127,28 @@ public class TecnicoTest {
         assertEquals("Elétrica", existente.getEspecialidade());
     }
 
+    @Test
+    void atualizarEspecifico_quandoEspecialidadeForNula_deveManterEspecialidadeAtual() {
+
+        Tecnico existente =
+                new Tecnico(
+                        1,
+                        "João",
+                        "joao@email.com",
+                        "Mecânica"
+                );
+
+        Tecnico alterado =
+                new Tecnico(
+                        1,
+                        "João",
+                        "joao@email.com",
+                        null
+                );
+
+        existente.atualizarEspecifico(alterado);
+
+        assertEquals("Mecânica", existente.getEspecialidade());
+    }
+
 }
