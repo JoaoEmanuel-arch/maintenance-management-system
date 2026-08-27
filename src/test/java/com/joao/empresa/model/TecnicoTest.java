@@ -103,6 +103,28 @@ public class TecnicoTest {
         );
     }
 
+    @Test
+    void atualizarEspecifico_quandoEspecialidadeForInformada_deveAtualizarEspecialidade() {
 
+        Tecnico existente =
+                new Tecnico(
+                        1,
+                        "João",
+                        "joao@email.com",
+                        "Mecânica"
+                );
+
+        Tecnico alterado =
+                new Tecnico(
+                        1,
+                        "João",
+                        "joao@email.com",
+                        "Elétrica"
+                );
+
+        existente.atualizarEspecifico(alterado);
+
+        assertEquals("Elétrica", existente.getEspecialidade());
+    }
 
 }
