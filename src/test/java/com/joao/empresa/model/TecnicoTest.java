@@ -2,8 +2,7 @@ package com.joao.empresa.model;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TecnicoTest {
 
@@ -35,5 +34,41 @@ public class TecnicoTest {
 
         assertTrue(tecnico.getManutencoesResponsaveis().isEmpty());
     }
+
+    @Test
+    void atualizarDados_quandoDadosForemInformados_deveAtualizarNomeEEmail() {
+
+        Tecnico existente =
+                new Tecnico(
+                        1,
+                        "João",
+                        "antigo@email.com",
+                        "Mecânica"
+                );
+
+        Tecnico alterado =
+                new Tecnico(
+                        1,
+                        "João Emanuel",
+                        "novo@email.com",
+                        "Elétrica"
+                );
+
+        existente.atualizarDados(alterado);
+
+        assertAll(
+                () -> assertEquals(
+                        "João Emanuel",
+                        existente.getNome()
+                ),
+
+                () -> assertEquals(
+                        "novo@email.com",
+                        existente.getEmail()
+                )
+        );
+    }
+
+
 
 }
