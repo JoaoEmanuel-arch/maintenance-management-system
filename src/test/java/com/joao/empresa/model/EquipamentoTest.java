@@ -97,4 +97,32 @@ public class EquipamentoTest {
         );
     }
 
+    @Test
+    void adicionarManutencao_quandoManutencaoJaEstiverNoHistorico_naoDeveDuplicar() {
+
+        Equipamento equipamento =
+                new Equipamento(
+                        1,
+                        "Laminadora",
+                        "PAT-001",
+                        LocalDate.of(2020, 5, 15)
+                );
+
+        Manutencao manutencao =
+                ManutencaoBuilder.builder()
+                        .comId(1)
+                        .build();
+
+        equipamento.adicionarManutencao(manutencao);
+
+        equipamento.adicionarManutencao(manutencao);
+
+        assertEquals(
+                1,
+                equipamento
+                        .getHistoricoManutencoes()
+                        .size() // o tamanho deve ser 1
+        );
+    }
+
 }
