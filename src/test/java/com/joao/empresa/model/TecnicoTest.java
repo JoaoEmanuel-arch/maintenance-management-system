@@ -183,4 +183,29 @@ public class TecnicoTest {
         );
     }
 
+    @Test
+    void adicionarManutencao_quandoManutencaoJaEstiverAdicionada_naoDeveDuplicar() {
+
+        Tecnico tecnico =
+                new Tecnico(
+                        1,
+                        "João",
+                        "joao@email.com",
+                        "Mecânica"
+                );
+
+        Manutencao manutencao =
+                ManutencaoBuilder.builder()
+                        .comId(1)
+                        .comTecnicoResponsavel(tecnico)
+                        .build();
+
+        tecnico.adicionarManutencao(manutencao);
+        tecnico.adicionarManutencao(manutencao);
+
+        assertEquals(1, tecnico.getManutencoesResponsaveis().size());
+    }
+
+
+
 }
