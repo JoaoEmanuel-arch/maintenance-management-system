@@ -48,4 +48,18 @@ public class EquipamentoTest {
         );
     }
 
+    @Test
+    void reconstruirEquipamento_quandoVierDoBanco_deveManterId() {
+
+        Equipamento equipamento =
+                new Equipamento(
+                        5,
+                        "Laminadora",
+                        "PAT-001",
+                        LocalDate.of(2020, 5, 15)
+                );
+
+        assertEquals(5, equipamento.getId());
+    }
+
 }
