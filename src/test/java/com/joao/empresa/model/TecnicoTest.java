@@ -69,6 +69,40 @@ public class TecnicoTest {
         );
     }
 
+    @Test
+    void atualizarDados_quandoNovoNomeEEmailForemNulos_deveManterDadosAtuais() {
+
+        Tecnico existente =
+                new Tecnico(
+                        1,
+                        "João Emanuel",
+                        "joao@email.com",
+                        "Mecânica"
+                );
+
+        Tecnico alterado =
+                new Tecnico(
+                        1,
+                        null,
+                        null,
+                        "Elétrica"
+                );
+
+        existente.atualizarDados(alterado);
+
+        assertAll(
+                () -> assertEquals(
+                        "João Emanuel",
+                        existente.getNome()
+                ),
+
+                () -> assertEquals(
+                        "joao@email.com",
+                        existente.getEmail()
+                )
+        );
+    }
+
 
 
 }
