@@ -206,6 +206,4 @@ public class TecnicoTest {
         assertEquals(1, tecnico.getManutencoesResponsaveis().size());
     }
 
-
-
 }
