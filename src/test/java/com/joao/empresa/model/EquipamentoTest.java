@@ -1,5 +1,6 @@
 package com.joao.empresa.model;
 
+import com.joao.empresa.builders.ManutencaoBuilder;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
@@ -60,6 +61,40 @@ public class EquipamentoTest {
                 );
 
         assertEquals(5, equipamento.getId());
+    }
+
+    @Test
+    void adicionarManutencao_deveAdicionarAoHistorico() {
+
+        Equipamento equipamento =
+                new Equipamento(
+                        1,
+                        "Laminadora",
+                        "PAT-001",
+                        LocalDate.of(2020, 5, 15)
+                );
+
+        Manutencao manutencao =
+                ManutencaoBuilder.builder()
+                        .comId(1)
+                        .build();
+
+        equipamento.adicionarManutencao(manutencao);
+
+        assertAll(
+                () -> assertEquals(
+                        1,
+                        equipamento
+                                .getHistoricoManutencoes()
+                                .size()
+                ),
+
+                () -> assertTrue(
+                        equipamento
+                                .getHistoricoManutencoes()
+                                .contains(manutencao)
+                )
+        );
     }
 
 }
