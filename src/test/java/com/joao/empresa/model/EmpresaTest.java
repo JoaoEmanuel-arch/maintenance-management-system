@@ -47,6 +47,19 @@ public class EmpresaTest {
         );
     }
 
+    @Test
+    void reconstruirEmpresa_quandoVierDoBanco_deveManterId() {
 
+        Empresa empresa = new Empresa(
+                10,
+                "Gerdau Açominas",
+                "123456789",
+                "Ouro Branco",
+                "Siderurgia",
+                Empresa.Status.ATIVADA
+        );
+
+        assertEquals(10, empresa.getId());
+    }
 
 }
