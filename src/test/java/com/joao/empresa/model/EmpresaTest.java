@@ -95,4 +95,31 @@ public class EmpresaTest {
         );
     }
 
+    @Test
+    void adicionarEquipamento_quandoEquipamentoJaEstiverAdicionado_naoDeveDuplicar() {
+
+        Empresa empresa = new Empresa(
+                1,
+                "Gerdau Açominas",
+                "123456789",
+                "Ouro Branco",
+                "Siderurgia",
+                Empresa.Status.ATIVADA
+        );
+
+        Equipamento equipamento =
+                EquipamentoBuilder.builder()
+                        .comId(1)
+                        .build();
+
+        empresa.adicionarEquipamento(equipamento);
+        empresa.adicionarEquipamento(equipamento);
+
+        assertEquals(
+                1,
+                empresa.getEquipamentos().size()
+        );
+    }
+
+
 }
