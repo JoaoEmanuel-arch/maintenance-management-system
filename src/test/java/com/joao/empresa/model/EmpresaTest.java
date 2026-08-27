@@ -1,5 +1,6 @@
 package com.joao.empresa.model;
 
+import com.joao.empresa.builders.EquipamentoBuilder;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -60,6 +61,38 @@ public class EmpresaTest {
         );
 
         assertEquals(10, empresa.getId());
+    }
+
+    @Test
+    void adicionarEquipamento_deveAdicionarEquipamentoNaEmpresa() {
+
+        Empresa empresa = new Empresa(
+                1,
+                "Gerdau Açominas",
+                "123456789",
+                "Ouro Branco",
+                "Siderurgia",
+                Empresa.Status.ATIVADA
+        );
+
+        Equipamento equipamento =
+                EquipamentoBuilder.builder()
+                        .comId(1)
+                        .build();
+
+        empresa.adicionarEquipamento(equipamento);
+
+        assertAll(
+                () -> assertEquals(
+                        1,
+                        empresa.getEquipamentos().size()
+                ),
+
+                () -> assertTrue(
+                        empresa.getEquipamentos()
+                                .contains(equipamento)
+                )
+        );
     }
 
 }
