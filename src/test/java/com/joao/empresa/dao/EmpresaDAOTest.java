@@ -193,6 +193,40 @@ public class EmpresaDAOTest {
         );
     }
 
+    @Test
+    void buscarPorId_quandoEmpresaPossuirEquipamentos_deveCarregarEquipamentos() throws Exception {
+
+        int empresaId =
+                inserirEmpresaDiretamente(
+                        "Empresa A",
+                        "44444444444444",
+                        Empresa.Status.ATIVADA
+                );
+
+        inserirEquipamentoDiretamente(
+                empresaId,
+                "Laminadora",
+                "PAT-001"
+        );
+
+        inserirEquipamentoDiretamente(
+                empresaId,
+                "Empilhadeira",
+                "PAT-002"
+        );
+
+        Empresa resultado = empresaDAO.buscarPorId(empresaId);
+
+        assertNotNull(resultado);
+
+        assertEquals(
+                2,
+                resultado
+                        .getEquipamentos()
+                        .size()
+        );
+    }
+
 
 
 }
