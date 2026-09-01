@@ -240,4 +240,15 @@ public class EquipamentoDAOTest {
         );
     }
 
+    @Test
+    void buscarPorId_quandoEquipamentoNaoExistir_deveRetornarNull() {
+
+        Equipamento resultado =
+                equipamentoDAO.buscarPorId(
+                        999999
+                );
+
+        assertNull(resultado);
+    }
+
 }
