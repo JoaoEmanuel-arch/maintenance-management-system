@@ -399,4 +399,37 @@ public class EmpresaDAOTest {
         );
     }
 
+    @Test
+    void deletar_quandoEmpresaExistir_deveRemoverRegistro() throws Exception {
+
+        int id = inserirEmpresaDiretamente(
+                "Empresa a remover",
+                "10101010101010",
+                Empresa.Status.ATIVADA
+        );
+
+        empresaDAO.deletar(id);
+
+        // na hora que eu buscar, não pode ter nada no resultado
+        try (Connection conn = ConnectionFactory.getConnection();
+
+                PreparedStatement stmt =
+                        conn.prepareStatement(
+                                """
+                                SELECT id
+                                FROM empresa
+                                WHERE id = ?
+                                """
+                        )
+        ) {
+
+            stmt.setInt(1, id);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+
+                assertFalse(rs.next());
+            }
+        }
+    }
+
 }
