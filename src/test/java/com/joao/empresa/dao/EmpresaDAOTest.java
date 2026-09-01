@@ -348,6 +348,36 @@ public class EmpresaDAOTest {
         }
     }
 
+    @Test
+    void atualizar_quandoNovoCnpjJaPertencerAOutraEmpresa_deveLancarRegistroDuplicadoException()
+            throws Exception {
 
+        int primeiraId =
+                inserirEmpresaDiretamente(
+                        "Empresa A",
+                        "99999999999991",
+                        Empresa.Status.ATIVADA
+                );
+
+        inserirEmpresaDiretamente(
+                "Empresa B",
+                "99999999999992",
+                Empresa.Status.ATIVADA
+        );
+
+        Empresa alterada = new Empresa(
+                primeiraId,
+                "Empresa A",
+                "99999999999992",
+                "Ouro Branco",
+                "Siderurgia",
+                Empresa.Status.ATIVADA
+        );
+
+        assertThrows(
+                RegistroDuplicadoException.class,
+                () -> empresaDAO.atualizar(alterada)
+        );
+    }
 
 }
