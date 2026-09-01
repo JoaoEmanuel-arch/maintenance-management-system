@@ -1,6 +1,7 @@
 package com.joao.empresa.dao;
 
 import com.joao.empresa.database.ConnectionFactory;
+import com.joao.empresa.exceptions.IntegridadeReferencialException;
 import com.joao.empresa.exceptions.RegistroDuplicadoException;
 import com.joao.empresa.model.Equipamento;
 import org.junit.jupiter.api.BeforeAll;
@@ -165,6 +166,29 @@ public class EquipamentoDAOTest {
         assertNull(duplicado.getId());
     }
 
+    @Test
+    void salvar_quandoEmpresaNaoExistir_deveLancarIntegridadeReferencialException() {
 
+        Equipamento equipamento =
+                new Equipamento(
+                        "Laminadora",
+                        "PAT-002",
+                        LocalDate.of(
+                                2020,
+                                5,
+                                10
+                        )
+                );
+
+        assertThrows(
+                IntegridadeReferencialException.class,
+                () -> equipamentoDAO.salvar(
+                        equipamento,
+                        999999
+                )
+        );
+
+        assertNull(equipamento.getId());
+    }
 
 }
