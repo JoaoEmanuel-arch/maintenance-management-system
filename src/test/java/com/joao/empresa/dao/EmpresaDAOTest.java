@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -455,6 +456,14 @@ public class EmpresaDAOTest {
         );
     }
 
+    @Test
+    void deletar_quandoEmpresaNaoExistir_deveLancarPersistenciaException() {
+
+        assertThrows(
+                PersistenciaException.class,
+                () -> empresaDAO.deletar(999999)
+        );
+    }
 
 
 }
