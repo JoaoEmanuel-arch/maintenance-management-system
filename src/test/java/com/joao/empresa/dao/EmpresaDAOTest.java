@@ -274,4 +274,80 @@ public class EmpresaDAOTest {
         assertEquals(2, primeira.getEquipamentos().size());
     }
 
+    @Test
+    void atualizar_quandoEmpresaExistir_devePersistirAlteracoes()
+            throws Exception {
+
+        int id = inserirEmpresaDiretamente(
+                "Nome antigo",
+                "77777777777777",
+                Empresa.Status.ATIVADA
+        );
+
+        Empresa alterada = new Empresa(
+                id,
+                "Nome atualizado",
+                "88888888888888",
+                "Belo Horizonte",
+                "Tecnologia",
+                Empresa.Status.DESATIVADA
+        );
+
+        empresaDAO.atualizar(alterada);
+
+        // ver lá no banco se alterou mesmo
+        try (Connection conn = ConnectionFactory.getConnection();
+
+                PreparedStatement stmt =
+                        conn.prepareStatement(
+                                """
+                                SELECT nome,
+                                       cnpj,
+                                       endereco,
+                                       segmento,
+                                       status
+                                FROM empresa
+                                WHERE id = ?
+                                """
+                        )
+        ) {
+
+            stmt.setInt(1, id);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+
+                assertTrue(rs.next());
+
+                assertAll(
+                        () -> assertEquals(
+                                "Nome atualizado",
+                                rs.getString("nome")
+                        ),
+
+                        () -> assertEquals(
+                                "88888888888888",
+                                rs.getString("cnpj")
+                        ),
+
+                        () -> assertEquals(
+                                "Belo Horizonte",
+                                rs.getString("endereco")
+                        ),
+
+                        () -> assertEquals(
+                                "Tecnologia",
+                                rs.getString("segmento")
+                        ),
+
+                        () -> assertEquals(
+                                "DESATIVADA",
+                                rs.getString("status")
+                        )
+                );
+            }
+        }
+    }
+
+
+
 }
