@@ -13,6 +13,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -501,6 +502,44 @@ public class EmpresaDAOTest {
 
                 return rs.getInt(1); // retorna o id
             }
+        }
+    }
+
+    private void inserirEquipamentoDiretamente(
+            int empresaId,
+            String nome,
+            String codigoPatrimonio
+    ) throws Exception {
+
+        String sql = """
+                INSERT INTO equipamento
+                    (
+                        nome,
+                        codigo_patrimonio,
+                        data_aquisicao,
+                        empresa_id
+                    )
+                VALUES
+                    (?, ?, ?, ?)
+                """;
+
+        try (Connection conn = ConnectionFactory.getConnection();
+
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, nome);
+            stmt.setString(2, codigoPatrimonio);
+            stmt.setDate(3, java.sql.Date.valueOf(LocalDate.of(
+                                    2020,
+                                    1,
+                                    1
+                            )
+                    )
+            );
+
+            stmt.setInt(4, empresaId);
+
+            stmt.executeUpdate();
         }
     }
 
