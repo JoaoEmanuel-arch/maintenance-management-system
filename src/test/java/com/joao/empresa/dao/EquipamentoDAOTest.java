@@ -387,6 +387,47 @@ public class EquipamentoDAOTest {
         }
     }
 
+    @Test
+    void atualizar_quandoNovoCodigoPatrimonioJaPertencerAOutroEquipamento_deveLancarRegistroDuplicadoException()
+            throws Exception {
+
+        int empresaId =
+                inserirEmpresaDiretamente(
+                        "Empresa Teste",
+                        "66666666666666"
+                );
+
+        int primeiroId =
+                inserirEquipamentoDiretamente(
+                        empresaId,
+                        "Equipamento A",
+                        "PAT-008"
+                );
+
+        inserirEquipamentoDiretamente(
+                empresaId,
+                "Equipamento B",
+                "PAT-009"
+        );
+
+        Equipamento alterado =
+                new Equipamento(
+                        primeiroId,
+                        "Equipamento A",
+                        "PAT-009",
+                        LocalDate.of(
+                                2020,
+                                1,
+                                1
+                        )
+                );
+
+        assertThrows(
+                RegistroDuplicadoException.class,
+                () -> equipamentoDAO.atualizar(alterado)
+        );
+    }
+
 
 
 }
