@@ -12,6 +12,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.time.LocalDate;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -249,6 +250,54 @@ public class EquipamentoDAOTest {
                 );
 
         assertNull(resultado);
+    }
+
+    @Test
+    void listar_quandoExistiremEquipamentos_deveRetornarTodos() throws Exception {
+
+        int empresaId =
+                inserirEmpresaDiretamente(
+                        "Empresa Teste",
+                        "44444444444444"
+                );
+
+        inserirEquipamentoDiretamente(
+                empresaId,
+                "Laminadora",
+                "PAT-004"
+        );
+
+        inserirEquipamentoDiretamente(
+                empresaId,
+                "Empilhadeira",
+                "PAT-005"
+        );
+
+        List<Equipamento> equipamentos = equipamentoDAO.listar();
+
+        assertEquals(2, equipamentos.size());
+
+        // passe por todos os equipamentos da lista, existe pelo menos um cujo
+        // patrimônio seja PAT-004, anyMatch retorna true. Ver se eles estão lá na lista mesmo
+        assertTrue(
+                equipamentos.stream()
+                        .anyMatch(
+                                equipamento ->
+                                        equipamento
+                                                .getCodigoPatrimonio()
+                                                .equals("PAT-004")
+                        )
+        );
+
+        assertTrue(
+                equipamentos.stream()
+                        .anyMatch(
+                                equipamento ->
+                                        equipamento
+                                                .getCodigoPatrimonio()
+                                                .equals("PAT-005")
+                        )
+        );
     }
 
 }
