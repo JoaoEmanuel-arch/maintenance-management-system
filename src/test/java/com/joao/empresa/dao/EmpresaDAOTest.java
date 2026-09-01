@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -227,6 +228,50 @@ public class EmpresaDAOTest {
         );
     }
 
+    @Test
+    void listar_quandoExistiremEmpresas_deveRetornarEmpresasComSeusEquipamentos()
+            throws Exception {
 
+        int empresaComEquipamentos =
+                inserirEmpresaDiretamente(
+                        "Empresa A",
+                        "55555555555555",
+                        Empresa.Status.ATIVADA
+                );
+
+        inserirEquipamentoDiretamente(
+                empresaComEquipamentos, // esse é o id
+                "Laminadora",
+                "PAT-003"
+        );
+
+        inserirEquipamentoDiretamente(
+                empresaComEquipamentos,
+                "Empilhadeira",
+                "PAT-004"
+        );
+
+        inserirEmpresaDiretamente(
+                "Empresa B",
+                "66666666666666",
+                Empresa.Status.DESATIVADA
+        );
+
+        List<Empresa> empresas = empresaDAO.listar();
+
+        assertEquals(2, empresas.size());
+
+        Empresa primeira =
+                empresas.stream()
+                        .filter(empresa -> empresa.getId().equals(empresaComEquipamentos))
+                        .findFirst()
+                        .orElseThrow();
+
+        // pega a lista de empresas, passe um por uma, onde o id é igual a empresaComEquipamentos
+        // pegue a primeira encontrada, se n encontrar nenhuma lança exceção
+
+        // a empresa que deveria ter dois equipamentos veio com dois?
+        assertEquals(2, primeira.getEquipamentos().size());
+    }
 
 }
