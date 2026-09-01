@@ -1,6 +1,7 @@
 package com.joao.empresa.dao;
 
 import com.joao.empresa.database.ConnectionFactory;
+import com.joao.empresa.exceptions.RegistroDuplicadoException;
 import com.joao.empresa.model.Equipamento;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -129,6 +130,40 @@ public class EquipamentoDAOTest {
         }
     }
 
+    @Test
+    void salvar_quandoCodigoPatrimonioJaExistir_deveLancarRegistroDuplicadoException()
+            throws Exception {
+
+        int empresaId =
+                inserirEmpresaDiretamente(
+                        "Empresa Teste",
+                        "22222222222222"
+                );
+
+        inserirEquipamentoDiretamente(
+                empresaId,
+                "Equipamento existente",
+                "PAT-DUPLICADO"
+        );
+
+        Equipamento duplicado =
+                new Equipamento(
+                        "Outro equipamento",
+                        "PAT-DUPLICADO",
+                        LocalDate.of(
+                                2021,
+                                1,
+                                1
+                        )
+                );
+
+        assertThrows(
+                RegistroDuplicadoException.class,
+                () -> equipamentoDAO.salvar(duplicado, empresaId)
+        );
+
+        assertNull(duplicado.getId());
+    }
 
 
 
