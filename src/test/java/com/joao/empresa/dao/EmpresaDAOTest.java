@@ -543,5 +543,22 @@ public class EmpresaDAOTest {
         }
     }
 
+    // apaga tudo antes de cada teste para não dar problemas de integridades referenciais
+    private void limparBanco() throws Exception {
+
+        try (Connection conn = ConnectionFactory.getConnection();
+
+                Statement stmt = conn.createStatement()) {
+
+            stmt.executeUpdate("DELETE FROM manutencao");
+
+            stmt.executeUpdate("DELETE FROM equipamento");
+
+            // Os subtipos de usuário possuem ON DELETE CASCADE.
+            stmt.executeUpdate("DELETE FROM usuario");
+
+            stmt.executeUpdate("DELETE FROM empresa");
+        }
+    }
 
 }
