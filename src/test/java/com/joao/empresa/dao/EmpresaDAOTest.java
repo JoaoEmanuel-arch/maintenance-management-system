@@ -145,6 +145,54 @@ public class EmpresaDAOTest {
         // o objeto não pode ter recebido um ID falso
     }
 
+    @Test
+    void buscarPorId_quandoEmpresaExistir_deveReconstruirEmpresa()
+            throws Exception {
+
+        int id = inserirEmpresaDiretamente(
+                "Empresa A",
+                "33333333333333",
+                Empresa.Status.DESATIVADA
+        );
+
+        Empresa resultado = empresaDAO.buscarPorId(id);
+
+        assertNotNull(resultado); // encontrou alguma coisa?
+
+        // compara todos os campos para ver se reconstruiu corretamente
+        assertAll(
+                () -> assertEquals(
+                        id,
+                        resultado.getId()
+                ),
+
+                () -> assertEquals(
+                        "Empresa A",
+                        resultado.getNome()
+                ),
+
+                () -> assertEquals(
+                        "33333333333333",
+                        resultado.getCnpj()
+                ),
+
+                () -> assertEquals(
+                        "Ouro Branco",
+                        resultado.getEndereco()
+                ),
+
+                () -> assertEquals(
+                        "Siderurgia",
+                        resultado.getSegmento()
+                ),
+
+                () -> assertEquals(
+                        Empresa.Status.DESATIVADA,
+                        resultado.getStatus()
+                )
+        );
+    }
+
 
 
 }
