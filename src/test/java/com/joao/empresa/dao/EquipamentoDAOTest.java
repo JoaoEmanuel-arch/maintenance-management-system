@@ -2,6 +2,7 @@ package com.joao.empresa.dao;
 
 import com.joao.empresa.database.ConnectionFactory;
 import com.joao.empresa.exceptions.IntegridadeReferencialException;
+import com.joao.empresa.exceptions.PersistenciaException;
 import com.joao.empresa.exceptions.RegistroDuplicadoException;
 import com.joao.empresa.model.Equipamento;
 import org.junit.jupiter.api.BeforeAll;
@@ -428,6 +429,25 @@ public class EquipamentoDAOTest {
         );
     }
 
+    @Test
+    void atualizar_quandoEquipamentoNaoExistir_deveLancarPersistenciaException() {
 
+        Equipamento inexistente =
+                new Equipamento(
+                        999999,
+                        "Inexistente",
+                        "PAT-INEXISTENTE",
+                        LocalDate.of(
+                                2020,
+                                1,
+                                1
+                        )
+                );
+
+        assertThrows(
+                PersistenciaException.class,
+                () -> equipamentoDAO.atualizar(inexistente)
+        );
+    }
 
 }
