@@ -309,6 +309,84 @@ public class EquipamentoDAOTest {
         assertTrue(equipamentos.isEmpty()); // e sim uma lista vazia
     }
 
+    @Test
+    void atualizar_quandoEquipamentoExistir_devePersistirAlteracoes() throws Exception {
+
+        int empresaId =
+                inserirEmpresaDiretamente(
+                        "Empresa Teste",
+                        "55555555555555"
+                );
+
+        int equipamentoId =
+                inserirEquipamentoDiretamente(
+                        empresaId,
+                        "Nome antigo",
+                        "PAT-006"
+                );
+
+        Equipamento alterado =
+                new Equipamento(
+                        equipamentoId,
+                        "Nome atualizado",
+                        "PAT-007",
+                        LocalDate.of(
+                                2025,
+                                8,
+                                15
+                        )
+                );
+
+        equipamentoDAO.atualizar(alterado);
+
+        try (Connection conn = ConnectionFactory.getConnection();
+
+                PreparedStatement stmt =
+                        conn.prepareStatement(
+                                """
+                                SELECT nome,
+                                       codigo_patrimonio,
+                                       data_aquisicao
+                                FROM equipamento
+                                WHERE id = ?
+                                """
+                        )
+        ) {
+
+            stmt.setInt(1, equipamentoId);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+
+                assertTrue(rs.next());
+
+                assertAll(
+                        () -> assertEquals(
+                                "Nome atualizado",
+                                rs.getString("nome")
+                        ),
+
+                        () -> assertEquals(
+                                "PAT-007",
+                                rs.getString(
+                                        "codigo_patrimonio"
+                                )
+                        ),
+
+                        () -> assertEquals(
+                                LocalDate.of(
+                                        2025,
+                                        8,
+                                        15
+                                ),
+                                rs.getDate(
+                                        "data_aquisicao"
+                                ).toLocalDate()
+                        )
+                );
+            }
+        }
+    }
+
 
 
 }
