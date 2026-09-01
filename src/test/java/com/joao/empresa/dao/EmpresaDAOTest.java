@@ -1,6 +1,7 @@
 package com.joao.empresa.dao;
 
 import com.joao.empresa.database.ConnectionFactory;
+import com.joao.empresa.exceptions.IntegridadeReferencialException;
 import com.joao.empresa.exceptions.PersistenciaException;
 import com.joao.empresa.exceptions.RegistroDuplicadoException;
 import com.joao.empresa.model.Empresa;
@@ -431,5 +432,29 @@ public class EmpresaDAOTest {
             }
         }
     }
+
+    @Test
+    void deletar_quandoEmpresaPossuirEquipamento_deveLancarIntegridadeReferencialException() throws Exception {
+
+        int empresaId =
+                inserirEmpresaDiretamente(
+                        "Empresa em uso",
+                        "12121212121212",
+                        Empresa.Status.ATIVADA
+                );
+
+        inserirEquipamentoDiretamente(
+                empresaId,
+                "Laminadora",
+                "PAT-005"
+        );
+
+        assertThrows(
+                IntegridadeReferencialException.class,
+                () -> empresaDAO.deletar(empresaId)
+        );
+    }
+
+
 
 }
