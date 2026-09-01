@@ -465,5 +465,44 @@ public class EmpresaDAOTest {
         );
     }
 
+    // é um salvar (não usa o salvar pq vai q ele tá quebrado) -> falar diretamente com o banco
+    private int inserirEmpresaDiretamente(
+            String nome,
+            String cnpj,
+            Empresa.Status status
+    ) throws Exception {
+
+        String sql = """
+                INSERT INTO empresa
+                    (nome, cnpj, endereco, segmento, status)
+                VALUES
+                    (?, ?, ?, ?, ?)
+                """;
+
+        try (Connection conn = ConnectionFactory.getConnection();
+
+                PreparedStatement stmt = conn.prepareStatement(
+                                sql,
+                                Statement.RETURN_GENERATED_KEYS
+                        )
+        ) {
+
+            stmt.setString(1, nome);
+            stmt.setString(2, cnpj);
+            stmt.setString(3, "Ouro Branco");
+            stmt.setString(4, "Siderurgia");
+            stmt.setString(5, status.name());
+
+            stmt.executeUpdate();
+
+            try (ResultSet rs = stmt.getGeneratedKeys()) {
+
+                assertTrue(rs.next());
+
+                return rs.getInt(1); // retorna o id
+            }
+        }
+    }
+
 
 }
