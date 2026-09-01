@@ -1,6 +1,7 @@
 package com.joao.empresa.dao;
 
 import com.joao.empresa.database.ConnectionFactory;
+import com.joao.empresa.exceptions.RegistroDuplicadoException;
 import com.joao.empresa.model.Empresa;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -116,6 +117,32 @@ public class EmpresaDAOTest {
                 );
             }
         }
+    }
+
+    @Test
+    void salvar_quandoCnpjJaExistir_deveLancarRegistroDuplicadoException() throws Exception {
+
+        inserirEmpresaDiretamente( // imaginar que a empresa já exista
+                "Empresa existente",
+                "22222222222222",
+                Empresa.Status.ATIVADA
+        );
+
+        Empresa duplicada = new Empresa(
+                "Outra empresa",
+                "22222222222222",
+                "São João del-Rei",
+                "Tecnologia",
+                Empresa.Status.ATIVADA
+        );
+
+        assertThrows(
+                RegistroDuplicadoException.class,
+                () -> empresaDAO.salvar(duplicada)
+        );
+
+        assertNull(duplicada.getId()); // se o insert falhou por causar do registro duplicado
+        // o objeto não pode ter recebido um ID falso
     }
 
 
