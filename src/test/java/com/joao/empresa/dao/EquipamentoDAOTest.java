@@ -132,8 +132,7 @@ public class EquipamentoDAOTest {
     }
 
     @Test
-    void salvar_quandoCodigoPatrimonioJaExistir_deveLancarRegistroDuplicadoException()
-            throws Exception {
+    void salvar_quandoCodigoPatrimonioJaExistir_deveLancarRegistroDuplicadoException() throws Exception {
 
         int empresaId =
                 inserirEmpresaDiretamente(
@@ -189,6 +188,56 @@ public class EquipamentoDAOTest {
         );
 
         assertNull(equipamento.getId());
+    }
+
+    @Test
+    void buscarPorId_quandoEquipamentoExistir_deveReconstruirEquipamento() throws Exception {
+
+        int empresaId =
+                inserirEmpresaDiretamente(
+                        "Empresa Teste",
+                        "33333333333333"
+                );
+
+        int equipamentoId =
+                inserirEquipamentoDiretamente(
+                        empresaId,
+                        "Empilhadeira",
+                        "PAT-003"
+                );
+
+        Equipamento resultado =
+                equipamentoDAO.buscarPorId(
+                        equipamentoId
+                );
+
+        assertNotNull(resultado);
+
+        assertAll(
+                () -> assertEquals(
+                        equipamentoId,
+                        resultado.getId()
+                ),
+
+                () -> assertEquals(
+                        "Empilhadeira",
+                        resultado.getNome()
+                ),
+
+                () -> assertEquals(
+                        "PAT-003",
+                        resultado.getCodigoPatrimonio()
+                ),
+
+                () -> assertEquals(
+                        LocalDate.of(
+                                2020,
+                                1,
+                                1
+                        ),
+                        resultado.getDataAquisicao()
+                )
+        );
     }
 
 }
