@@ -300,4 +300,15 @@ public class EquipamentoDAOTest {
         );
     }
 
+    @Test
+    void listar_quandoNaoExistiremEquipamentos_deveRetornarListaVazia() {
+
+        List<Equipamento> equipamentos = equipamentoDAO.listar();
+
+        assertNotNull(equipamentos); // não deve retornar null
+        assertTrue(equipamentos.isEmpty()); // e sim uma lista vazia
+    }
+
+
+
 }
