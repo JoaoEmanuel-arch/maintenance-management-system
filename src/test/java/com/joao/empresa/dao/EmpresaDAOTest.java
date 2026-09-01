@@ -1,6 +1,7 @@
 package com.joao.empresa.dao;
 
 import com.joao.empresa.database.ConnectionFactory;
+import com.joao.empresa.exceptions.PersistenciaException;
 import com.joao.empresa.exceptions.RegistroDuplicadoException;
 import com.joao.empresa.model.Empresa;
 import org.junit.jupiter.api.BeforeAll;
@@ -377,6 +378,24 @@ public class EmpresaDAOTest {
         assertThrows(
                 RegistroDuplicadoException.class,
                 () -> empresaDAO.atualizar(alterada)
+        );
+    }
+
+    @Test
+    void atualizar_quandoEmpresaNaoExistir_deveLancarPersistenciaException() {
+
+        Empresa empresa = new Empresa(
+                999999,
+                "Inexistente",
+                "12312312312312",
+                "Ouro Branco",
+                "Siderurgia",
+                Empresa.Status.ATIVADA
+        );
+
+        assertThrows(
+                PersistenciaException.class,
+                () -> empresaDAO.atualizar(empresa)
         );
     }
 
