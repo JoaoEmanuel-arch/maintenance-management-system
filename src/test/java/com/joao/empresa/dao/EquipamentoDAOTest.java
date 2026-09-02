@@ -519,4 +519,15 @@ public class EquipamentoDAOTest {
         );
     }
 
+    @Test
+    void deletar_quandoEquipamentoNaoExistir_deveLancarPersistenciaException() {
+
+        assertThrows(
+                PersistenciaException.class,
+                () -> equipamentoDAO.deletar(
+                        999999
+                )
+        );
+    }
+
 }
