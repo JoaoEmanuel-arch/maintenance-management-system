@@ -597,9 +597,7 @@ public class EquipamentoDAOTest {
                     (?, ?, ?, ?)
                 """;
 
-        try (
-                Connection conn =
-                        ConnectionFactory.getConnection();
+        try (Connection conn = ConnectionFactory.getConnection();
 
                 PreparedStatement stmt =
                         conn.prepareStatement(
@@ -641,6 +639,86 @@ public class EquipamentoDAOTest {
                 return rs.getInt(1);
             }
         }
+    }
+
+    private int inserirTecnicoDiretamente()
+            throws Exception {
+
+        String inserirUsuario = """
+                INSERT INTO usuario
+                    (nome, email, tipo_usuario)
+                VALUES
+                    (?, ?, ?)
+                """;
+
+        int usuarioId;
+
+        try (Connection conn = ConnectionFactory.getConnection();
+
+                PreparedStatement stmt =
+                        conn.prepareStatement(
+                                inserirUsuario,
+                                Statement.RETURN_GENERATED_KEYS
+                        )
+        ) {
+
+            stmt.setString(
+                    1,
+                    "Técnico Teste"
+            );
+
+            stmt.setString(
+                    2,
+                    "tecnico@test.com"
+            );
+
+            stmt.setString(
+                    3,
+                    "TECNICO"
+            );
+
+            stmt.executeUpdate();
+
+            try (ResultSet rs =
+                         stmt.getGeneratedKeys()) {
+
+                assertTrue(rs.next());
+
+                usuarioId = rs.getInt(1);
+            }
+        }
+
+        String inserirTecnico = """
+                INSERT INTO tecnico
+                    (usuario_id, especialidade)
+                VALUES
+                    (?, ?)
+                """;
+
+        try (
+                Connection conn =
+                        ConnectionFactory.getConnection();
+
+                PreparedStatement stmt =
+                        conn.prepareStatement(
+                                inserirTecnico
+                        )
+        ) {
+
+            stmt.setInt(
+                    1,
+                    usuarioId
+            );
+
+            stmt.setString(
+                    2,
+                    "Mecânica"
+            );
+
+            stmt.executeUpdate();
+        }
+
+        return usuarioId;
     }
 
 
