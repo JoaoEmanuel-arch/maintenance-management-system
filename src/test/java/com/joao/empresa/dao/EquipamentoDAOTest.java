@@ -450,4 +450,43 @@ public class EquipamentoDAOTest {
         );
     }
 
+    @Test
+    void deletar_quandoEquipamentoExistir_deveRemoverRegistro() throws Exception {
+
+        int empresaId =
+                inserirEmpresaDiretamente(
+                        "Empresa Teste",
+                        "77777777777777"
+                );
+
+        int equipamentoId =
+                inserirEquipamentoDiretamente(
+                        empresaId,
+                        "Equipamento a remover",
+                        "PAT-010"
+                );
+
+        equipamentoDAO.deletar(equipamentoId);
+
+        try (Connection conn = ConnectionFactory.getConnection();
+
+                PreparedStatement stmt =
+                        conn.prepareStatement(
+                                """
+                                SELECT id
+                                FROM equipamento
+                                WHERE id = ?
+                                """
+                        )
+        ) {
+
+            stmt.setInt(1, equipamentoId);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+
+                assertFalse(rs.next());
+            }
+        }
+    }
+
 }
