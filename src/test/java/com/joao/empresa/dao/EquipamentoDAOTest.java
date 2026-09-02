@@ -721,6 +721,80 @@ public class EquipamentoDAOTest {
         return usuarioId;
     }
 
+    private void inserirManutencaoDiretamente(
+            int equipamentoId,
+            int tecnicoId
+    ) throws Exception {
+
+        String sql = """
+                INSERT INTO manutencao
+                    (
+                        tipo_manutencao,
+                        data_inicio,
+                        descricao,
+                        custo,
+                        status,
+                        equipamento_id,
+                        tecnico_id
+                    )
+                VALUES
+                    (?, ?, ?, ?, ?, ?, ?)
+                """;
+
+        try (
+                Connection conn =
+                        ConnectionFactory.getConnection();
+
+                PreparedStatement stmt =
+                        conn.prepareStatement(sql)
+        ) {
+
+            stmt.setString(
+                    1,
+                    "CORRETIVA"
+            );
+
+            stmt.setDate(
+                    2,
+                    java.sql.Date.valueOf(
+                            LocalDate.of(
+                                    2026,
+                                    8,
+                                    20
+                            )
+                    )
+            );
+
+            stmt.setString(
+                    3,
+                    "Manutenção de teste"
+            );
+
+            stmt.setBigDecimal(
+                    4,
+                    new java.math.BigDecimal(
+                            "100.00"
+                    )
+            );
+
+            stmt.setString(
+                    5,
+                    "ANDAMENTO"
+            );
+
+            stmt.setInt(
+                    6,
+                    equipamentoId
+            );
+
+            stmt.setInt(
+                    7,
+                    tecnicoId
+            );
+
+            stmt.executeUpdate();
+        }
+    }
 
 
 }
