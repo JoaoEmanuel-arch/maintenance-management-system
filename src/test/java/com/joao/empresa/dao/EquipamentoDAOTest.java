@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -528,6 +529,54 @@ public class EquipamentoDAOTest {
                         999999
                 )
         );
+    }
+
+    // poderia usar o salvar, mas não estou interessado em testar o DAO aqui
+    private int inserirEmpresaDiretamente(
+            String nome,
+            String cnpj
+    ) throws Exception {
+
+        String sql = """
+                INSERT INTO empresa
+                    (nome, cnpj, endereco, segmento, status)
+                VALUES
+                    (?, ?, ?, ?, ?)
+                """;
+
+        try (Connection conn = ConnectionFactory.getConnection();
+
+                PreparedStatement stmt =
+                        conn.prepareStatement(
+                                sql,
+                                Statement.RETURN_GENERATED_KEYS
+                        )
+        ) {
+
+            stmt.setString(1, nome);
+            stmt.setString(2, cnpj);
+            stmt.setString(
+                    3,
+                    "Ouro Branco"
+            );
+            stmt.setString(
+                    4,
+                    "Siderurgia"
+            );
+            stmt.setString(
+                    5,
+                    "ATIVADA"
+            );
+
+            stmt.executeUpdate();
+
+            try (ResultSet rs = stmt.getGeneratedKeys()) {
+
+                assertTrue(rs.next());
+
+                return rs.getInt(1);
+            }
+        }
     }
 
 }
