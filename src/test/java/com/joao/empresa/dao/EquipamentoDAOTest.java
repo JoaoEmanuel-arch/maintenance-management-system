@@ -489,4 +489,34 @@ public class EquipamentoDAOTest {
         }
     }
 
+    @Test
+    void deletar_quandoEquipamentoPossuirManutencao_deveLancarIntegridadeReferencialException()
+            throws Exception {
+
+        int empresaId =
+                inserirEmpresaDiretamente(
+                        "Empresa Teste",
+                        "88888888888888"
+                );
+
+        int equipamentoId =
+                inserirEquipamentoDiretamente(
+                        empresaId,
+                        "Laminadora",
+                        "PAT-011"
+                );
+
+        int tecnicoId = inserirTecnicoDiretamente();
+
+        inserirManutencaoDiretamente(
+                equipamentoId,
+                tecnicoId
+        );
+
+        assertThrows(
+                IntegridadeReferencialException.class,
+                () -> equipamentoDAO.deletar(equipamentoId)
+        );
+    }
+
 }
