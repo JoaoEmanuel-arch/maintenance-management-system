@@ -796,5 +796,41 @@ public class EquipamentoDAOTest {
         }
     }
 
+    private void limparBanco() throws Exception {
+
+        try (Connection conn = ConnectionFactory.getConnection();
+
+                Statement stmt = conn.createStatement()
+        ) {
+
+            stmt.executeUpdate(
+                    "DELETE FROM manutencao"
+            );
+
+            stmt.executeUpdate(
+                    "DELETE FROM equipamento"
+            );
+
+            stmt.executeUpdate(
+                    "DELETE FROM administrador"
+            );
+
+            stmt.executeUpdate(
+                    "DELETE FROM gestor"
+            );
+
+            stmt.executeUpdate(
+                    "DELETE FROM tecnico"
+            );
+
+            stmt.executeUpdate(
+                    "DELETE FROM usuario"
+            );
+
+            stmt.executeUpdate(
+                    "DELETE FROM empresa"
+            );
+        }
+    }
 
 }
