@@ -1139,4 +1139,31 @@ public class ManutencaoDAOTest {
         );
     }
 
+    @Test
+    void existeManutencaoDoEquipamento_quandoNaoExistir_deveRetornarFalse()
+            throws Exception {
+
+        int empresaId =
+                inserirEmpresaDiretamente(
+                        "Empresa Teste",
+                        "14141414141414"
+                );
+
+        int equipamentoId =
+                inserirEquipamentoDiretamente(
+                        empresaId,
+                        "Sem manutenção",
+                        "PAT-016"
+                );
+
+        assertFalse(
+                manutencaoDAO
+                        .existeManutencaoDoEquipamento(
+                                equipamentoId
+                        )
+        );
+    }
+
+
+
 }
