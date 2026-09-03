@@ -384,4 +384,44 @@ class UsuarioDAOTest {
         );
     }
 
+    @Test
+    void buscarPorId_quandoForTecnico_deveReconstruirTecnico()
+            throws Exception {
+
+        int id =
+                inserirTecnicoDiretamente(
+                        "Carlos",
+                        "tecnico@email.com",
+                        "Elétrica"
+                );
+
+        Usuario resultado =
+                usuarioDAO.buscarPorId(id);
+
+        assertInstanceOf(
+                Tecnico.class,
+                resultado
+        );
+
+        Tecnico tecnico =
+                (Tecnico) resultado;
+
+        assertAll(
+                () -> assertEquals(
+                        id,
+                        tecnico.getId()
+                ),
+
+                () -> assertEquals(
+                        "Carlos",
+                        tecnico.getNome()
+                ),
+
+                () -> assertEquals(
+                        "Elétrica",
+                        tecnico.getEspecialidade()
+                )
+        );
+    }
+
 }
