@@ -2,6 +2,7 @@ package com.joao.empresa.model;
 
 import com.joao.empresa.dao.ManutencaoDAO;
 import com.joao.empresa.database.ConnectionFactory;
+import com.joao.empresa.exceptions.IntegridadeReferencialException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -247,6 +248,50 @@ public class ManutencaoDAOTest {
                 () -> manutencaoDAO.salvar(
                         manutencao
                 )
+        );
+
+        assertNull(manutencao.getId());
+    }
+
+    @Test
+    void salvar_quandoEquipamentoNaoExistirNoBanco_deveLancarIntegridadeReferencialException()
+            throws Exception {
+
+        int tecnicoId =
+                inserirTecnicoDiretamente(
+                        "Carlos",
+                        "carlos@email.com",
+                        "Mecânica"
+                );
+
+        Equipamento equipamentoInexistente =
+                new Equipamento(
+                        999999,
+                        "Inexistente",
+                        "PAT-INEXISTENTE",
+                        LocalDate.of(2020, 1, 1)
+                );
+
+        Tecnico tecnico =
+                new Tecnico(
+                        tecnicoId,
+                        "Carlos",
+                        "carlos@email.com",
+                        "Mecânica"
+                );
+
+        Manutencao manutencao =
+                new Manutencao(
+                        Manutencao.TipoManutencao.CORRETIVA,
+                        "Teste",
+                        LocalDate.of(2026, 8, 20),
+                        equipamentoInexistente,
+                        tecnico
+                );
+
+        assertThrows(
+                IntegridadeReferencialException.class,
+                () -> manutencaoDAO.salvar(manutencao)
         );
 
         assertNull(manutencao.getId());
