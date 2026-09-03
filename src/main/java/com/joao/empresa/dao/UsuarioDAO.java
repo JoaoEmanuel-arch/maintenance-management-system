@@ -117,7 +117,7 @@ public class UsuarioDAO {
         }
 
         else if (usuario instanceof Administrador administrador) {
-            String sql = "INSERT INTO administrador (usuario_id, nivel_acesso, departamento) VALUES (?, ?)";
+            String sql = "INSERT INTO administrador (usuario_id, departamento) VALUES (?, ?)";
 
             try (PreparedStatement stmt = conn.prepareStatement(sql)) {
 
@@ -496,7 +496,14 @@ public class UsuarioDAO {
 
             stmt.setInt(1, id);
 
-            stmt.executeUpdate();
+            // não dá erro quando o ID não existe, ele simplesmente  executa e afeta 0 linhas
+            int linhasAfetadas = stmt.executeUpdate();
+
+            if (linhasAfetadas == 0) {
+                throw new PersistenciaException(
+                        "Usuário não encontrado para exclusão."
+                );
+            }
 
             System.out.println("Usuário deletado!");
 

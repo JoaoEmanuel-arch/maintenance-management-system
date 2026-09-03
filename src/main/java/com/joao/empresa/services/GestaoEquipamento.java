@@ -8,18 +8,19 @@ import java.util.List;
 
 public class GestaoEquipamento {
 
-    private EquipamentoDAO equipamentoDAO = new EquipamentoDAO();
-    private ManutencaoDAO manutencaoDAO = new ManutencaoDAO();
-    private GestaoManutencao gestaoManutencao;
+    private final EquipamentoDAO equipamentoDAO;
+    private final ManutencaoDAO manutencaoDAO;
 
     public GestaoEquipamento() {
-        this.gestaoManutencao = new GestaoManutencao();
+        this(
+                new EquipamentoDAO(),
+                new ManutencaoDAO()
+        );
     }
 
-    // Injeção de dependência: construtor recebe a referência para eu acessar
-    // os métodos da manutenção (aqui, acessar as listas de equipamento em manutenção).
-    public GestaoEquipamento(GestaoManutencao gestaoManutencao) {
-        this.gestaoManutencao = gestaoManutencao;
+    public GestaoEquipamento(EquipamentoDAO equipamentoDAO, ManutencaoDAO manutencaoDAO) {
+        this.equipamentoDAO = equipamentoDAO;
+        this.manutencaoDAO = manutencaoDAO;
     }
 
     public Equipamento buscarPorId(int id){
@@ -57,7 +58,8 @@ public class GestaoEquipamento {
                 throw new EmpresaNaoEncontradaException(
                         "Empresa com ID "
                                 + idEmpresaDona
-                                + " não encontrada."
+                                + " não encontrada.",
+                        e
                 );
         }
 

@@ -1,0 +1,836 @@
+package com.joao.empresa.dao;
+
+import com.joao.empresa.database.ConnectionFactory;
+import com.joao.empresa.exceptions.IntegridadeReferencialException;
+import com.joao.empresa.exceptions.PersistenciaException;
+import com.joao.empresa.exceptions.RegistroDuplicadoException;
+import com.joao.empresa.model.Equipamento;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.time.LocalDate;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+public class EquipamentoDAOTest {
+
+    // qualquer coisa olha a explicação no EquipamentoDAOTest
+    private EquipamentoDAO equipamentoDAO;
+
+    @BeforeAll
+    static void configurarBancoDeTeste() {
+
+        System.setProperty(
+                "db.url",
+                "jdbc:mysql://localhost:3306/manutencao_test_db"
+        );
+
+        System.setProperty(
+                "db.user",
+                "root"
+        );
+
+        System.setProperty(
+                "db.password",
+                "root"
+        );
+    }
+
+    @BeforeEach
+    void setUp() throws Exception {
+
+        equipamentoDAO = new EquipamentoDAO();
+
+        limparBanco();
+    }
+
+    @Test
+    void salvar_quandoDadosForemValidos_devePersistirEquipamentoEGerarId()
+            throws Exception {
+
+        int empresaId =
+                inserirEmpresaDiretamente(
+                        "Empresa Teste",
+                        "11111111111111"
+                );
+
+        Equipamento equipamento =
+                new Equipamento(
+                        "Laminadora",
+                        "PAT-001",
+                        LocalDate.of(2020, 5, 10)
+                );
+
+        assertNull(equipamento.getId());
+
+        equipamentoDAO.salvar(
+                equipamento,
+                empresaId
+        );
+
+        assertNotNull(equipamento.getId());
+        assertTrue(equipamento.getId() > 0);
+
+        try (Connection conn = ConnectionFactory.getConnection();
+
+             PreparedStatement stmt =
+                        conn.prepareStatement(
+                                """
+                                SELECT nome,
+                                       codigo_patrimonio,
+                                       data_aquisicao,
+                                       empresa_id
+                                FROM equipamento
+                                WHERE id = ?
+                                """
+                        )
+        ) {
+
+            stmt.setInt(
+                    1,
+                    equipamento.getId()
+            );
+
+            try (ResultSet rs = stmt.executeQuery()) {
+
+                assertTrue(rs.next());
+
+                assertAll(
+                        () -> assertEquals(
+                                "Laminadora",
+                                rs.getString("nome")
+                        ),
+
+                        () -> assertEquals(
+                                "PAT-001",
+                                rs.getString(
+                                        "codigo_patrimonio"
+                                )
+                        ),
+
+                        () -> assertEquals(
+                                LocalDate.of(
+                                        2020,
+                                        5,
+                                        10
+                                ),
+                                rs.getDate(
+                                        "data_aquisicao"
+                                ).toLocalDate()
+                        ),
+
+                        () -> assertEquals(
+                                empresaId,
+                                rs.getInt("empresa_id")
+                        )
+                );
+            }
+        }
+    }
+
+    @Test
+    void salvar_quandoCodigoPatrimonioJaExistir_deveLancarRegistroDuplicadoException() throws Exception {
+
+        int empresaId =
+                inserirEmpresaDiretamente(
+                        "Empresa Teste",
+                        "22222222222222"
+                );
+
+        inserirEquipamentoDiretamente(
+                empresaId,
+                "Equipamento existente",
+                "PAT-DUPLICADO"
+        );
+
+        Equipamento duplicado =
+                new Equipamento(
+                        "Outro equipamento",
+                        "PAT-DUPLICADO",
+                        LocalDate.of(
+                                2021,
+                                1,
+                                1
+                        )
+                );
+
+        assertThrows(
+                RegistroDuplicadoException.class,
+                () -> equipamentoDAO.salvar(duplicado, empresaId)
+        );
+
+        assertNull(duplicado.getId());
+    }
+
+    @Test
+    void salvar_quandoEmpresaNaoExistir_deveLancarIntegridadeReferencialException() {
+
+        Equipamento equipamento =
+                new Equipamento(
+                        "Laminadora",
+                        "PAT-002",
+                        LocalDate.of(
+                                2020,
+                                5,
+                                10
+                        )
+                );
+
+        assertThrows(
+                IntegridadeReferencialException.class,
+                () -> equipamentoDAO.salvar(
+                        equipamento,
+                        999999
+                )
+        );
+
+        assertNull(equipamento.getId());
+    }
+
+    @Test
+    void buscarPorId_quandoEquipamentoExistir_deveReconstruirEquipamento() throws Exception {
+
+        int empresaId =
+                inserirEmpresaDiretamente(
+                        "Empresa Teste",
+                        "33333333333333"
+                );
+
+        int equipamentoId =
+                inserirEquipamentoDiretamente(
+                        empresaId,
+                        "Empilhadeira",
+                        "PAT-003"
+                );
+
+        Equipamento resultado =
+                equipamentoDAO.buscarPorId(
+                        equipamentoId
+                );
+
+        assertNotNull(resultado);
+
+        assertAll(
+                () -> assertEquals(
+                        equipamentoId,
+                        resultado.getId()
+                ),
+
+                () -> assertEquals(
+                        "Empilhadeira",
+                        resultado.getNome()
+                ),
+
+                () -> assertEquals(
+                        "PAT-003",
+                        resultado.getCodigoPatrimonio()
+                ),
+
+                () -> assertEquals(
+                        LocalDate.of(
+                                2020,
+                                1,
+                                1
+                        ),
+                        resultado.getDataAquisicao()
+                )
+        );
+    }
+
+    @Test
+    void buscarPorId_quandoEquipamentoNaoExistir_deveRetornarNull() {
+
+        Equipamento resultado =
+                equipamentoDAO.buscarPorId(
+                        999999
+                );
+
+        assertNull(resultado);
+    }
+
+    @Test
+    void listar_quandoExistiremEquipamentos_deveRetornarTodos() throws Exception {
+
+        int empresaId =
+                inserirEmpresaDiretamente(
+                        "Empresa Teste",
+                        "44444444444444"
+                );
+
+        inserirEquipamentoDiretamente(
+                empresaId,
+                "Laminadora",
+                "PAT-004"
+        );
+
+        inserirEquipamentoDiretamente(
+                empresaId,
+                "Empilhadeira",
+                "PAT-005"
+        );
+
+        List<Equipamento> equipamentos = equipamentoDAO.listar();
+
+        assertEquals(2, equipamentos.size());
+
+        // passe por todos os equipamentos da lista, existe pelo menos um cujo
+        // patrimônio seja PAT-004, anyMatch retorna true. Ver se eles estão lá na lista mesmo
+        assertTrue(
+                equipamentos.stream()
+                        .anyMatch(
+                                equipamento ->
+                                        equipamento
+                                                .getCodigoPatrimonio()
+                                                .equals("PAT-004")
+                        )
+        );
+
+        assertTrue(
+                equipamentos.stream()
+                        .anyMatch(
+                                equipamento ->
+                                        equipamento
+                                                .getCodigoPatrimonio()
+                                                .equals("PAT-005")
+                        )
+        );
+    }
+
+    @Test
+    void listar_quandoNaoExistiremEquipamentos_deveRetornarListaVazia() {
+
+        List<Equipamento> equipamentos = equipamentoDAO.listar();
+
+        assertNotNull(equipamentos); // não deve retornar null
+        assertTrue(equipamentos.isEmpty()); // e sim uma lista vazia
+    }
+
+    @Test
+    void atualizar_quandoEquipamentoExistir_devePersistirAlteracoes() throws Exception {
+
+        int empresaId =
+                inserirEmpresaDiretamente(
+                        "Empresa Teste",
+                        "55555555555555"
+                );
+
+        int equipamentoId =
+                inserirEquipamentoDiretamente(
+                        empresaId,
+                        "Nome antigo",
+                        "PAT-006"
+                );
+
+        Equipamento alterado =
+                new Equipamento(
+                        equipamentoId,
+                        "Nome atualizado",
+                        "PAT-007",
+                        LocalDate.of(
+                                2025,
+                                8,
+                                15
+                        )
+                );
+
+        equipamentoDAO.atualizar(alterado);
+
+        try (Connection conn = ConnectionFactory.getConnection();
+
+                PreparedStatement stmt =
+                        conn.prepareStatement(
+                                """
+                                SELECT nome,
+                                       codigo_patrimonio,
+                                       data_aquisicao
+                                FROM equipamento
+                                WHERE id = ?
+                                """
+                        )
+        ) {
+
+            stmt.setInt(1, equipamentoId);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+
+                assertTrue(rs.next());
+
+                assertAll(
+                        () -> assertEquals(
+                                "Nome atualizado",
+                                rs.getString("nome")
+                        ),
+
+                        () -> assertEquals(
+                                "PAT-007",
+                                rs.getString(
+                                        "codigo_patrimonio"
+                                )
+                        ),
+
+                        () -> assertEquals(
+                                LocalDate.of(
+                                        2025,
+                                        8,
+                                        15
+                                ),
+                                rs.getDate(
+                                        "data_aquisicao"
+                                ).toLocalDate()
+                        )
+                );
+            }
+        }
+    }
+
+    @Test
+    void atualizar_quandoNovoCodigoPatrimonioJaPertencerAOutroEquipamento_deveLancarRegistroDuplicadoException()
+            throws Exception {
+
+        int empresaId =
+                inserirEmpresaDiretamente(
+                        "Empresa Teste",
+                        "66666666666666"
+                );
+
+        int primeiroId =
+                inserirEquipamentoDiretamente(
+                        empresaId,
+                        "Equipamento A",
+                        "PAT-008"
+                );
+
+        inserirEquipamentoDiretamente(
+                empresaId,
+                "Equipamento B",
+                "PAT-009"
+        );
+
+        Equipamento alterado =
+                new Equipamento(
+                        primeiroId,
+                        "Equipamento A",
+                        "PAT-009",
+                        LocalDate.of(
+                                2020,
+                                1,
+                                1
+                        )
+                );
+
+        assertThrows(
+                RegistroDuplicadoException.class,
+                () -> equipamentoDAO.atualizar(alterado)
+        );
+    }
+
+    @Test
+    void atualizar_quandoEquipamentoNaoExistir_deveLancarPersistenciaException() {
+
+        Equipamento inexistente =
+                new Equipamento(
+                        999999,
+                        "Inexistente",
+                        "PAT-INEXISTENTE",
+                        LocalDate.of(
+                                2020,
+                                1,
+                                1
+                        )
+                );
+
+        assertThrows(
+                PersistenciaException.class,
+                () -> equipamentoDAO.atualizar(inexistente)
+        );
+    }
+
+    @Test
+    void deletar_quandoEquipamentoExistir_deveRemoverRegistro() throws Exception {
+
+        int empresaId =
+                inserirEmpresaDiretamente(
+                        "Empresa Teste",
+                        "77777777777777"
+                );
+
+        int equipamentoId =
+                inserirEquipamentoDiretamente(
+                        empresaId,
+                        "Equipamento a remover",
+                        "PAT-010"
+                );
+
+        equipamentoDAO.deletar(equipamentoId);
+
+        try (Connection conn = ConnectionFactory.getConnection();
+
+                PreparedStatement stmt =
+                        conn.prepareStatement(
+                                """
+                                SELECT id
+                                FROM equipamento
+                                WHERE id = ?
+                                """
+                        )
+        ) {
+
+            stmt.setInt(1, equipamentoId);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+
+                assertFalse(rs.next());
+            }
+        }
+    }
+
+    @Test
+    void deletar_quandoEquipamentoPossuirManutencao_deveLancarIntegridadeReferencialException()
+            throws Exception {
+
+        int empresaId =
+                inserirEmpresaDiretamente(
+                        "Empresa Teste",
+                        "88888888888888"
+                );
+
+        int equipamentoId =
+                inserirEquipamentoDiretamente(
+                        empresaId,
+                        "Laminadora",
+                        "PAT-011"
+                );
+
+        int tecnicoId = inserirTecnicoDiretamente();
+
+        inserirManutencaoDiretamente(
+                equipamentoId,
+                tecnicoId
+        );
+
+        assertThrows(
+                IntegridadeReferencialException.class,
+                () -> equipamentoDAO.deletar(equipamentoId)
+        );
+    }
+
+    @Test
+    void deletar_quandoEquipamentoNaoExistir_deveLancarPersistenciaException() {
+
+        assertThrows(
+                PersistenciaException.class,
+                () -> equipamentoDAO.deletar(
+                        999999
+                )
+        );
+    }
+
+    // poderia usar o salvar, mas não estou interessado em testar o DAO aqui
+    private int inserirEmpresaDiretamente(
+            String nome,
+            String cnpj
+    ) throws Exception {
+
+        String sql = """
+                INSERT INTO empresa
+                    (nome, cnpj, endereco, segmento, status)
+                VALUES
+                    (?, ?, ?, ?, ?)
+                """;
+
+        try (Connection conn = ConnectionFactory.getConnection();
+
+                PreparedStatement stmt =
+                        conn.prepareStatement(
+                                sql,
+                                Statement.RETURN_GENERATED_KEYS
+                        )
+        ) {
+
+            stmt.setString(1, nome);
+            stmt.setString(2, cnpj);
+            stmt.setString(
+                    3,
+                    "Ouro Branco"
+            );
+            stmt.setString(
+                    4,
+                    "Siderurgia"
+            );
+            stmt.setString(
+                    5,
+                    "ATIVADA"
+            );
+
+            stmt.executeUpdate();
+
+            try (ResultSet rs = stmt.getGeneratedKeys()) {
+
+                assertTrue(rs.next());
+
+                return rs.getInt(1);
+            }
+        }
+    }
+
+    private int inserirEquipamentoDiretamente(
+            int empresaId,
+            String nome,
+            String codigoPatrimonio
+    ) throws Exception {
+
+        String sql = """
+                INSERT INTO equipamento
+                    (
+                        nome,
+                        codigo_patrimonio,
+                        data_aquisicao,
+                        empresa_id
+                    )
+                VALUES
+                    (?, ?, ?, ?)
+                """;
+
+        try (Connection conn = ConnectionFactory.getConnection();
+
+                PreparedStatement stmt =
+                        conn.prepareStatement(
+                                sql,
+                                Statement.RETURN_GENERATED_KEYS
+                        )
+        ) {
+
+            stmt.setString(1, nome);
+
+            stmt.setString(
+                    2,
+                    codigoPatrimonio
+            );
+
+            stmt.setDate(
+                    3,
+                    java.sql.Date.valueOf(
+                            LocalDate.of(
+                                    2020,
+                                    1,
+                                    1
+                            )
+                    )
+            );
+
+            stmt.setInt(
+                    4,
+                    empresaId
+            );
+
+            stmt.executeUpdate();
+
+            try (ResultSet rs =
+                         stmt.getGeneratedKeys()) {
+
+                assertTrue(rs.next());
+
+                return rs.getInt(1);
+            }
+        }
+    }
+
+    private int inserirTecnicoDiretamente()
+            throws Exception {
+
+        String inserirUsuario = """
+                INSERT INTO usuario
+                    (nome, email, tipo_usuario)
+                VALUES
+                    (?, ?, ?)
+                """;
+
+        int usuarioId;
+
+        try (Connection conn = ConnectionFactory.getConnection();
+
+                PreparedStatement stmt =
+                        conn.prepareStatement(
+                                inserirUsuario,
+                                Statement.RETURN_GENERATED_KEYS
+                        )
+        ) {
+
+            stmt.setString(
+                    1,
+                    "Técnico Teste"
+            );
+
+            stmt.setString(
+                    2,
+                    "tecnico@test.com"
+            );
+
+            stmt.setString(
+                    3,
+                    "TECNICO"
+            );
+
+            stmt.executeUpdate();
+
+            try (ResultSet rs =
+                         stmt.getGeneratedKeys()) {
+
+                assertTrue(rs.next());
+
+                usuarioId = rs.getInt(1);
+            }
+        }
+
+        String inserirTecnico = """
+                INSERT INTO tecnico
+                    (usuario_id, especialidade)
+                VALUES
+                    (?, ?)
+                """;
+
+        try (
+                Connection conn =
+                        ConnectionFactory.getConnection();
+
+                PreparedStatement stmt =
+                        conn.prepareStatement(
+                                inserirTecnico
+                        )
+        ) {
+
+            stmt.setInt(
+                    1,
+                    usuarioId
+            );
+
+            stmt.setString(
+                    2,
+                    "Mecânica"
+            );
+
+            stmt.executeUpdate();
+        }
+
+        return usuarioId;
+    }
+
+    private void inserirManutencaoDiretamente(
+            int equipamentoId,
+            int tecnicoId
+    ) throws Exception {
+
+        String sql = """
+                INSERT INTO manutencao
+                    (
+                        tipo_manutencao,
+                        data_inicio,
+                        descricao,
+                        custo,
+                        status,
+                        equipamento_id,
+                        tecnico_id
+                    )
+                VALUES
+                    (?, ?, ?, ?, ?, ?, ?)
+                """;
+
+        try (
+                Connection conn =
+                        ConnectionFactory.getConnection();
+
+                PreparedStatement stmt =
+                        conn.prepareStatement(sql)
+        ) {
+
+            stmt.setString(
+                    1,
+                    "CORRETIVA"
+            );
+
+            stmt.setDate(
+                    2,
+                    java.sql.Date.valueOf(
+                            LocalDate.of(
+                                    2026,
+                                    8,
+                                    20
+                            )
+                    )
+            );
+
+            stmt.setString(
+                    3,
+                    "Manutenção de teste"
+            );
+
+            stmt.setBigDecimal(
+                    4,
+                    new java.math.BigDecimal(
+                            "100.00"
+                    )
+            );
+
+            stmt.setString(
+                    5,
+                    "ANDAMENTO"
+            );
+
+            stmt.setInt(
+                    6,
+                    equipamentoId
+            );
+
+            stmt.setInt(
+                    7,
+                    tecnicoId
+            );
+
+            stmt.executeUpdate();
+        }
+    }
+
+    private void limparBanco() throws Exception {
+
+        try (Connection conn = ConnectionFactory.getConnection();
+
+                Statement stmt = conn.createStatement()
+        ) {
+
+            stmt.executeUpdate(
+                    "DELETE FROM manutencao"
+            );
+
+            stmt.executeUpdate(
+                    "DELETE FROM equipamento"
+            );
+
+            stmt.executeUpdate(
+                    "DELETE FROM administrador"
+            );
+
+            stmt.executeUpdate(
+                    "DELETE FROM gestor"
+            );
+
+            stmt.executeUpdate(
+                    "DELETE FROM tecnico"
+            );
+
+            stmt.executeUpdate(
+                    "DELETE FROM usuario"
+            );
+
+            stmt.executeUpdate(
+                    "DELETE FROM empresa"
+            );
+        }
+    }
+
+}

@@ -7,7 +7,18 @@ import java.util.List;
 
 public class GestaoEmpresa {
 
-    EmpresaDAO empresaDAO = new EmpresaDAO(); //faço isso aqui só pra usar os métodos dessa classe
+    // o teste não conseguia falar: "GestaoEmpresa, finja que o DAO encontrou essa empresa"
+    // porque a própria classe criava o DAO -> Injeção de dependência por construtor
+    // Serve muito pra fazer um DAO falso nos testes (mockar)
+    private final EmpresaDAO empresaDAO;
+
+    public GestaoEmpresa() {
+        this(new EmpresaDAO());
+    }
+
+    public GestaoEmpresa(EmpresaDAO empresaDAO) {
+        this.empresaDAO = empresaDAO;
+    }
 
     public Empresa buscarPorId(int id) {
         Empresa empresa = empresaDAO.buscarPorId(id);

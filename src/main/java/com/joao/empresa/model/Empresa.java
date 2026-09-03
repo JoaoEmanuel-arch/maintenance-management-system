@@ -40,7 +40,7 @@ public class Empresa extends Entidade {
                 segmento,
                 status
         );
-    }
+    } // depois chama o de baixo para construir
 
     // esse é pra reconstruir o objeto
     public Empresa(Integer id, String nome, String cnpj, String endereco, String segmento, Status status){

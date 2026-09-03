@@ -1,136 +1,397 @@
 package com.joao.empresa.services;
 
 import com.joao.empresa.builders.EquipamentoBuilder;
+import com.joao.empresa.dao.EquipamentoDAO;
+import com.joao.empresa.dao.ManutencaoDAO;
 import com.joao.empresa.exceptions.*;
 import com.joao.empresa.model.Equipamento;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import java.time.LocalDate;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
+// a explicação do basicão está tudo no GestaoEmpresaTest
+@ExtendWith(MockitoExtension.class)
 public class GestaoEquipamentoTest {
 
+    @Mock
+    private EquipamentoDAO equipamentoDAO;
+
+    @Mock
+    private ManutencaoDAO manutencaoDAO;
+
     private GestaoEquipamento gestaoEquipamento;
-    private Equipamento equipamentoNovo;
 
     @BeforeEach
-    public void antesDeCadaMetodoInstanciaOObjeto(){
-        gestaoEquipamento = new GestaoEquipamento();
-        equipamentoNovo = EquipamentoBuilder.builder().comId(1).comCodigoPatrimonio("12345678").build();
+    void setUp() {
+        gestaoEquipamento = // cria a gestão equipamento e injeta os daos nela
+                new GestaoEquipamento(
+                        equipamentoDAO,
+                        manutencaoDAO
+                );
     }
 
     @Test
-    public void quandoMetodoBuscarPorIdForChamadoEExistirEquipamentoComIdBuscadoDeveRetornarEsseEquipamento(){
+    void buscarPorId_quandoEquipamentoExistir_deveRetornarEquipamento() {
 
-        gestaoEquipamento.cadastrarEquipamento(equipamentoNovo);
+        Equipamento equipamento =
+                EquipamentoBuilder.builder()
+                        .comId(1)
+                        .build();
 
-        Equipamento equipamento = gestaoEquipamento.buscarPorId(1);
+        when(equipamentoDAO.buscarPorId(1))
+                .thenReturn(equipamento);
 
-        assertEquals(1, equipamento.getId());
+        Equipamento resultado = gestaoEquipamento.buscarPorId(1);
+
+        assertSame(equipamento, resultado);
+
+        verify(equipamentoDAO).buscarPorId(1);
     }
 
     @Test
-    public void quandoMetodoBuscarPorIdForChamadoENaoExistirEquipamentoComOIdBuscadoDeveLancarExcecao(){
-        assertThrows(EquipamentoNaoEncontradoException.class, () -> gestaoEquipamento.buscarPorId(2));
-    }
+    void buscarPorId_quandoEquipamentoNaoExistir_deveLancarExcecao() {
 
-    @Test
-    public void quandoOMetodoCadastrarEquipamentoForChamadoSeJaExistirUmEquipamentoComOMesmoIdDeveLancarExcecao(){
+        when(equipamentoDAO.buscarPorId(1))
+                .thenReturn(null);
 
-        Equipamento equipamentoNovo2 = EquipamentoBuilder.builder().
-                comId(1).comNome("Rolamento da empilhadeira").
-                comCodigoPatrimonio("7272721278").
-                comDataAquisicao(LocalDate.of(2013, 05, 02)).
-                build();
-
-        gestaoEquipamento.cadastrarEquipamento(equipamentoNovo2);
-
-        assertThrows(EquipamentoJaCadastradoException.class, () -> gestaoEquipamento.cadastrarEquipamento(equipamentoNovo2));
-    }
-
-    @Test
-    public void quandochamarCadastrarEquipamentoSeJaExistirUmEquipamentoComOMesmoCodigoPatrimonioDeveLancarExcecao(){
-
-        Equipamento equipamentoNovo2 = EquipamentoBuilder.builder().
-                comId(2).comNome("Rolamento da empilhadeira").
-                comCodigoPatrimonio("12345678").
-                comDataAquisicao(LocalDate.of(2013, 05, 02)).
-                build();
-
-        gestaoEquipamento.cadastrarEquipamento(equipamentoNovo);
-        gestaoEquipamento.cadastrarEquipamento(equipamentoNovo2);
-
-        assertThrows(EquipamentoJaCadastradoException.class, () -> gestaoEquipamento.cadastrarEquipamento(equipamentoNovo2));
-    }
-
-    @Test
-    public void quandoCadastrarEquipamentoForChamadoSemConflitosDeIdECodigoDeveAdicionarEquipamentoAoSistema(){
-
-        gestaoEquipamento.cadastrarEquipamento(equipamentoNovo);
-
-        assertTrue(gestaoEquipamento.listarEquipamentos().contains(equipamentoNovo));
-    }
-
-    @Test
-    public void quandoAtualizarEquipamentoForChamadoDeveAtualizarOsDadosDaEquipamentoCadastrada(){
-
-        gestaoEquipamento.cadastrarEquipamento(equipamentoNovo);
-        Equipamento equipamentoAlterado = EquipamentoBuilder.builder().
-                comId(1).comNome("Rolamento da empilhadeira").
-                comCodigoPatrimonio("12345678").
-                comDataAquisicao(LocalDate.of(2013, 05, 02)).
-                build();
-
-        gestaoEquipamento.atualizarEquipamento(equipamentoAlterado);
-
-        assertAll(
-                () -> assertEquals(equipamentoAlterado.getNome(), equipamentoNovo.getNome()),
-                () -> assertEquals(equipamentoAlterado.getCodigoPatrimonio(), equipamentoAlterado.getCodigoPatrimonio()),
-                () -> assertEquals(equipamentoAlterado.getDataAquisicao(), equipamentoNovo.getDataAquisicao())
+        assertThrows(
+                EquipamentoNaoEncontradoException.class,
+                () -> gestaoEquipamento.buscarPorId(1)
         );
+
+        verify(equipamentoDAO).buscarPorId(1);
     }
 
-    @Nested // agrupar os testes em uma hierarquia de classes alinhadas
-    @ExtendWith(MockitoExtension.class)
-    class GestaoEquipamentoComMockTest{
+    @Test
+    void cadastrarEquipamento_quandoEquipamentoForNulo_deveLancarExcecao() {
 
-        @Mock
-        GestaoManutencao gestaoManutencao; // aqui eu quero mockar, ou seja fingir que existe
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> gestaoEquipamento
+                        .cadastrarEquipamento(null, 10)
+        );
 
-        @InjectMocks // onde eu quero colocar o mock
-        GestaoEquipamento gestaoEquipamento; // injeção de dependência (Manutencao dentro do construtor de Equipamento)
+        verifyNoInteractions(equipamentoDAO, manutencaoDAO);
+    }
 
-        @Test
-        public void quandoExcluirEquipamentoENaoTiverManutencaoAssociadaDeveRemoverDoSistema() {
+    @Test
+    void cadastrarEquipamento_quandoDadosForemValidos_deveSalvarEquipamento() {
 
-            gestaoEquipamento.cadastrarEquipamento(equipamentoNovo);
+        Equipamento equipamento =
+                EquipamentoBuilder.builder()
+                        .semId()
+                        .build();
 
-            when(gestaoManutencao.existeManutencaoDoEquipamento(1))
-                    .thenReturn(false); // finge que deu certo e retorna falso (eu decido a realidade do método da outra classa)
-            // quando eu chamar a função ela deve retornar falso
+        gestaoEquipamento.cadastrarEquipamento(equipamento, 10);
 
-            gestaoEquipamento.excluirEquipamento(1);
+        verify(equipamentoDAO).salvar(equipamento, 10);
 
-            assertFalse(gestaoEquipamento.listarEquipamentos().contains(equipamentoNovo));
-        }
+        verifyNoInteractions(manutencaoDAO);
+    }
 
-        @Test
-        public void quandoExcluirEquipamentoETiverManutencaoAssociadaDeveLancarExcecao(){
+    @Test
+    void cadastrarEquipamento_quandoCodigoPatrimonioForDuplicado_deveTraduzirExcecao() {
 
-            gestaoEquipamento.cadastrarEquipamento(equipamentoNovo);
+        Equipamento equipamento =
+                EquipamentoBuilder.builder()
+                        .semId()
+                        .build();
 
-            when(gestaoManutencao.existeManutencaoDoEquipamento(1)).
-                    thenReturn(true);
+        RegistroDuplicadoException causa =
+                new RegistroDuplicadoException(
+                        "Registro duplicado.",
+                        new RuntimeException()
+                );
 
-            assertThrows(EquipamentoNaManutencaoException.class, () -> gestaoEquipamento.excluirEquipamento(1));
+        doThrow(causa)
+                .when(equipamentoDAO)
+                .salvar(equipamento, 10);
 
-        }
+        EquipamentoJaCadastradoException exception =
+                assertThrows(
+                        EquipamentoJaCadastradoException.class,
+                        () -> gestaoEquipamento
+                                .cadastrarEquipamento(equipamento, 10)
+                );
 
+        assertSame(causa, exception.getCause());
+
+        verify(equipamentoDAO).salvar(equipamento, 10);
+    }
+
+    @Test
+    void cadastrarEquipamento_quandoEmpresaNaoExistir_deveTraduzirExcecao() {
+
+        Equipamento equipamento =
+                EquipamentoBuilder.builder()
+                        .semId()
+                        .build();
+
+        IntegridadeReferencialException causa =
+                new IntegridadeReferencialException(
+                        "Empresa inexistente.",
+                        new RuntimeException()
+                );
+
+        doThrow(causa)
+                .when(equipamentoDAO)
+                .salvar(equipamento, 99);
+
+        EmpresaNaoEncontradaException exception =
+                assertThrows(
+                        EmpresaNaoEncontradaException.class,
+                        () -> gestaoEquipamento
+                                .cadastrarEquipamento(equipamento, 99)
+                );
+
+        assertSame(causa, exception.getCause());
+
+        verify(equipamentoDAO).salvar(equipamento, 99);
+    }
+
+    @Test
+    void listarEquipamentos_deveRetornarEquipamentosFornecidosPeloDao() {
+
+        List<Equipamento> equipamentos =
+                List.of(
+                        EquipamentoBuilder.builder()
+                                .comId(1)
+                                .build(),
+
+                        EquipamentoBuilder.builder()
+                                .comId(2)
+                                .comCodigoPatrimonio("PAT-002")
+                                .build()
+                );
+
+        when(equipamentoDAO.listar())
+                .thenReturn(equipamentos);
+
+        List<Equipamento> resultado = gestaoEquipamento.listarEquipamentos();
+
+        assertSame(equipamentos, resultado);
+
+        verify(equipamentoDAO).listar();
+    }
+
+    @Test
+    void atualizarEquipamento_quandoEquipamentoForNulo_deveLancarExcecao() {
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> gestaoEquipamento
+                        .atualizarEquipamento(null)
+        );
+
+        verifyNoInteractions(equipamentoDAO, manutencaoDAO);
+    }
+
+    @Test
+    void atualizarEquipamento_quandoEquipamentoNaoPossuirId_deveLancarExcecao() {
+
+        Equipamento equipamento =
+                EquipamentoBuilder.builder()
+                        .semId()
+                        .build();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> gestaoEquipamento
+                        .atualizarEquipamento(equipamento)
+        );
+
+        verifyNoInteractions(equipamentoDAO, manutencaoDAO);
+    }
+
+    @Test
+    void atualizarEquipamento_quandoEquipamentoNaoExistir_deveLancarExcecaoENaoAtualizar() {
+
+        Equipamento equipamento =
+                EquipamentoBuilder.builder()
+                        .comId(1)
+                        .build();
+
+        when(equipamentoDAO.buscarPorId(1))
+                .thenReturn(null);
+
+        assertThrows(
+                EquipamentoNaoEncontradoException.class,
+                () -> gestaoEquipamento
+                        .atualizarEquipamento(equipamento)
+        );
+
+        verify(equipamentoDAO).buscarPorId(1);
+
+        verify(equipamentoDAO, never()).atualizar(any()); // não pode ter sido chamado com nenhum objeto
+    }
+
+    @Test
+    void atualizarEquipamento_quandoEquipamentoExistir_deveAtualizar() {
+
+        Equipamento equipamento =
+                EquipamentoBuilder.builder()
+                        .comId(1)
+                        .build();
+
+        when(equipamentoDAO.buscarPorId(1))
+                .thenReturn(equipamento);
+
+        gestaoEquipamento.atualizarEquipamento(equipamento);
+
+        verify(equipamentoDAO).buscarPorId(1);
+
+        verify(equipamentoDAO).atualizar(equipamento);
+    }
+
+    @Test
+    void atualizarEquipamento_quandoNovoCodigoPatrimonioForDuplicado_deveTraduzirExcecao() {
+
+        Equipamento equipamento =
+                EquipamentoBuilder.builder()
+                        .comId(1)
+                        .build();
+
+        when(equipamentoDAO.buscarPorId(1))
+                .thenReturn(equipamento);
+
+        RegistroDuplicadoException causa =
+                new RegistroDuplicadoException(
+                        "Registro duplicado.",
+                        new RuntimeException()
+                );
+
+        doThrow(causa)
+                .when(equipamentoDAO)
+                .atualizar(equipamento);
+
+        EquipamentoJaCadastradoException exception =
+                assertThrows(
+                        EquipamentoJaCadastradoException.class,
+                        () -> gestaoEquipamento
+                                .atualizarEquipamento(equipamento)
+                );
+
+        assertSame(causa, exception.getCause());
+
+        verify(equipamentoDAO).buscarPorId(1);
+
+        verify(equipamentoDAO).atualizar(equipamento);
+    }
+
+    @Test
+    void excluirEquipamento_quandoEquipamentoNaoExistir_deveLancarExcecaoENaoConsultarManutencoes() {
+
+        when(equipamentoDAO.buscarPorId(1))
+                .thenReturn(null);
+
+        assertThrows(
+                EquipamentoNaoEncontradoException.class,
+                () -> gestaoEquipamento
+                        .excluirEquipamento(1)
+        );
+
+        verify(equipamentoDAO).buscarPorId(1);
+
+        verifyNoInteractions(manutencaoDAO);
+
+        verify(equipamentoDAO, never()).deletar(anyInt());
+    }
+
+    @Test
+    void excluirEquipamento_quandoNaoPossuirManutencoes_deveExcluir() {
+
+        Equipamento equipamento =
+                EquipamentoBuilder.builder()
+                        .comId(1)
+                        .build();
+
+        when(equipamentoDAO.buscarPorId(1))
+                .thenReturn(equipamento);
+
+        when(manutencaoDAO.existeManutencaoDoEquipamento(1)).
+                thenReturn(false);
+
+        gestaoEquipamento.excluirEquipamento(1);
+
+        verify(equipamentoDAO).buscarPorId(1);
+
+        verify(manutencaoDAO).existeManutencaoDoEquipamento(1);
+
+        verify(equipamentoDAO).deletar(1);
+    }
+
+    @Test
+    void excluirEquipamento_quandoPossuirManutencoes_deveLancarExcecaoENaoExcluir() {
+
+        Equipamento equipamento =
+                EquipamentoBuilder.builder()
+                        .comId(1)
+                        .build();
+
+        when(equipamentoDAO.buscarPorId(1))
+                .thenReturn(equipamento);
+
+        when(manutencaoDAO.existeManutencaoDoEquipamento(1)).
+                thenReturn(true);
+
+        assertThrows(
+                EntidadeEmUsoException.class,
+                () -> gestaoEquipamento
+                        .excluirEquipamento(1)
+        );
+
+        verify(equipamentoDAO).buscarPorId(1);
+
+        verify(manutencaoDAO).existeManutencaoDoEquipamento(1);
+
+        verify(equipamentoDAO, never()).deletar(anyInt());
+
+    }
+
+    @Test
+    void excluirEquipamento_quandoBancoDetectarIntegridadeReferencial_deveTraduzirExcecao() {
+
+        Equipamento equipamento =
+                EquipamentoBuilder.builder()
+                        .comId(1)
+                        .build();
+
+        when(equipamentoDAO.buscarPorId(1))
+                .thenReturn(equipamento);
+
+        when(manutencaoDAO.existeManutencaoDoEquipamento(1)).
+                thenReturn(false);
+
+        IntegridadeReferencialException causa =
+                new IntegridadeReferencialException(
+                        "Registro em uso.",
+                        new RuntimeException()
+                );
+
+        doThrow(causa)
+                .when(equipamentoDAO)
+                .deletar(1);
+
+        EntidadeEmUsoException exception =
+                assertThrows(
+                        EntidadeEmUsoException.class,
+                        () -> gestaoEquipamento
+                                .excluirEquipamento(1)
+                );
+
+        assertSame(causa, exception.getCause());
+
+        verify(equipamentoDAO).buscarPorId(1);
+
+        verify(manutencaoDAO).existeManutencaoDoEquipamento(1);
+
+        verify(equipamentoDAO).deletar(1);
     }
 
 }
