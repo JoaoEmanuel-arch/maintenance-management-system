@@ -662,6 +662,40 @@ class UsuarioDAOTest {
         );
     }
 
+    @Test
+    void deletar_quandoAdministradorExistir_deveRemoverUsuarioESubtipoPorCascade()
+            throws Exception {
+
+        int id =
+                inserirAdministradorDiretamente(
+                        "Administrador",
+                        "admin@email.com",
+                        "Tecnologia"
+                );
+
+        usuarioDAO.deletar(id);
+
+        assertAll(
+                () -> assertEquals(
+                        0,
+                        contarPorId(
+                                "usuario",
+                                "id",
+                                id
+                        )
+                ),
+
+                () -> assertEquals(
+                        0,
+                        contarPorId(
+                                "administrador",
+                                "usuario_id",
+                                id
+                        )
+                )
+        );
+    }
+
 
 
 }
