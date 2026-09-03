@@ -349,4 +349,117 @@ public class ManutencaoDAOTest {
         assertNull(manutencao.getId());
     }
 
+    @Test
+    void buscarPorId_quandoManutencaoEmAndamentoExistir_deveReconstruirComDataFimNulaERelacionamentos()
+            throws Exception {
+
+        int empresaId =
+                inserirEmpresaDiretamente(
+                        "Empresa Teste",
+                        "33333333333333"
+                );
+
+        int equipamentoId =
+                inserirEquipamentoDiretamente(
+                        empresaId,
+                        "Empilhadeira",
+                        "PAT-003"
+                );
+
+        int tecnicoId =
+                inserirTecnicoDiretamente(
+                        "Carlos",
+                        "carlos@email.com",
+                        "Mecânica"
+                );
+
+        int manutencaoId =
+                inserirManutencaoDiretamente(
+                        equipamentoId,
+                        tecnicoId,
+                        "CORRETIVA",
+                        "Problema hidráulico",
+                        new BigDecimal("0.00"),
+                        "ANDAMENTO",
+                        LocalDate.of(2026, 8, 20),
+                        null
+                );
+
+        Manutencao resultado =
+                manutencaoDAO.buscarPorId(
+                        manutencaoId
+                );
+
+        assertNotNull(resultado);
+
+        assertAll(
+                () -> assertEquals(
+                        manutencaoId,
+                        resultado.getId()
+                ),
+
+                () -> assertEquals(
+                        Manutencao.TipoManutencao.CORRETIVA,
+                        resultado.getTipoManutencao()
+                ),
+
+                () -> assertEquals(
+                        "Problema hidráulico",
+                        resultado.getDescricao()
+                ),
+
+                () -> assertEquals(
+                        BigDecimal.ZERO,
+                        resultado.getCusto()
+                ),
+
+                () -> assertEquals(
+                        Manutencao.Status.ANDAMENTO,
+                        resultado.getStatus()
+                ),
+
+                () -> assertEquals(
+                        LocalDate.of(
+                                2026,
+                                8,
+                                20
+                        ),
+                        resultado.getDataInicio()
+                ),
+
+                () -> assertNull(
+                        resultado.getDataFim()
+                ),
+
+                () -> assertEquals(
+                        equipamentoId,
+                        resultado
+                                .getEquipamento()
+                                .getId()
+                ),
+
+                () -> assertEquals(
+                        "PAT-003",
+                        resultado
+                                .getEquipamento()
+                                .getCodigoPatrimonio()
+                ),
+
+                () -> assertEquals(
+                        tecnicoId,
+                        resultado
+                                .getTecnicoResponsavel()
+                                .getId()
+                ),
+
+                () -> assertEquals(
+                        "Mecânica",
+                        resultado
+                                .getTecnicoResponsavel()
+                                .getEspecialidade()
+                )
+        );
+    }
+
+
 }
