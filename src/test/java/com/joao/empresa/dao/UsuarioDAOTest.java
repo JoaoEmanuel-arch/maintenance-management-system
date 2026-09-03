@@ -294,6 +294,56 @@ class UsuarioDAOTest {
         assertEquals(0, contarUsuarios());
     }
 
+    @Test
+    void buscarPorId_quandoForAdministrador_deveReconstruirAdministrador()
+            throws Exception {
+
+        int id =
+                inserirAdministradorDiretamente(
+                        "João",
+                        "admin@email.com",
+                        "Tecnologia"
+                );
+
+        Usuario resultado =
+                usuarioDAO.buscarPorId(id);
+
+        assertInstanceOf(
+                Administrador.class,
+                resultado
+        );
+
+        Administrador administrador =
+                (Administrador) resultado;
+
+        assertAll(
+                () -> assertEquals(
+                        id,
+                        administrador.getId()
+                ),
+
+                () -> assertEquals(
+                        "João",
+                        administrador.getNome()
+                ),
+
+                () -> assertEquals(
+                        "admin@email.com",
+                        administrador.getEmail()
+                ),
+
+                () -> assertEquals(
+                        Usuario.TipoUsuario.ADMINISTRADOR,
+                        administrador.getTipo()
+                ),
+
+                () -> assertEquals(
+                        "Tecnologia",
+                        administrador.getDepartamento()
+                )
+        );
+    }
+
 
 
 }
