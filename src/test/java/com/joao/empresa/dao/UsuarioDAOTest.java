@@ -424,4 +424,15 @@ class UsuarioDAOTest {
         );
     }
 
+    @Test
+    void buscarPorId_quandoUsuarioNaoExistir_deveRetornarNull() {
+
+        Usuario resultado =
+                usuarioDAO.buscarPorId(
+                        999999
+                );
+
+        assertNull(resultado);
+    }
+
 }
