@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -739,6 +740,48 @@ class UsuarioDAOTest {
                 )
         );
     }
+
+    private int inserirUsuarioDiretamente(
+            String nome,
+            String email,
+            String tipo
+    ) throws Exception {
+
+        try (Connection conn = ConnectionFactory.getConnection();
+
+                PreparedStatement stmt =
+                        conn.prepareStatement(
+                                """
+                                INSERT INTO usuario
+                                    (
+                                        nome,
+                                        email,
+                                        tipo_usuario
+                                    )
+                                VALUES
+                                    (?, ?, ?)
+                                """,
+                                Statement.RETURN_GENERATED_KEYS
+                        )
+        ) {
+
+            stmt.setString(1, nome);
+            stmt.setString(2, email);
+            stmt.setString(3, tipo);
+
+            stmt.executeUpdate();
+
+            try (ResultSet rs = stmt.getGeneratedKeys()
+            ) {
+
+                assertTrue(rs.next());
+
+                return rs.getInt(1);
+            }
+        }
+    }
+
+
 
 
 
