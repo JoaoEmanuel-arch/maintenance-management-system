@@ -526,6 +526,15 @@ public class ManutencaoDAOTest {
         );
     }
 
+    @Test
+    void buscarPorId_quandoManutencaoNaoExistir_deveRetornarNull() {
 
+        Manutencao resultado =
+                manutencaoDAO.buscarPorId(
+                        999999
+                );
+
+        assertNull(resultado);
+    }
 
 }
