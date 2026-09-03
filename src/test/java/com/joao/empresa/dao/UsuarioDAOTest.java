@@ -494,6 +494,51 @@ class UsuarioDAOTest {
         assertTrue(usuarios.isEmpty());
     }
 
+    @Test
+    void atualizar_quandoForAdministrador_deveAtualizarDadosComunsEEspecificos()
+            throws Exception {
+
+        int id =
+                inserirAdministradorDiretamente(
+                        "Nome antigo",
+                        "antigo@email.com",
+                        "Financeiro"
+                );
+
+        Administrador alterado =
+                new Administrador(
+                        id,
+                        "Nome atualizado",
+                        "novo@email.com",
+                        "Tecnologia"
+                );
+
+        usuarioDAO.atualizar(
+                alterado
+        );
+
+        Administrador resultado =
+                (Administrador)
+                        usuarioDAO.buscarPorId(id);
+
+        assertAll(
+                () -> assertEquals(
+                        "Nome atualizado",
+                        resultado.getNome()
+                ),
+
+                () -> assertEquals(
+                        "novo@email.com",
+                        resultado.getEmail()
+                ),
+
+                () -> assertEquals(
+                        "Tecnologia",
+                        resultado.getDepartamento()
+                )
+        );
+    }
+
 
 
 }
