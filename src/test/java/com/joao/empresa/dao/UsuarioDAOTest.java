@@ -629,4 +629,39 @@ class UsuarioDAOTest {
         );
     }
 
+    @Test
+    void atualizar_quandoNovoEmailJaPertencerAOutroUsuario_deveLancarRegistroDuplicadoException()
+            throws Exception {
+
+        int primeiroId =
+                inserirAdministradorDiretamente(
+                        "Usuário A",
+                        "usuarioA@email.com",
+                        "Tecnologia"
+                );
+
+        inserirGestorDiretamente(
+                "Usuário B",
+                "usuarioB@email.com",
+                "Operações"
+        );
+
+        Administrador alterado =
+                new Administrador(
+                        primeiroId,
+                        "Usuário A",
+                        "usuarioB@email.com",
+                        "Tecnologia"
+                );
+
+        assertThrows(
+                RegistroDuplicadoException.class,
+                () -> usuarioDAO.atualizar(
+                        alterado
+                )
+        );
+    }
+
+
+
 }
