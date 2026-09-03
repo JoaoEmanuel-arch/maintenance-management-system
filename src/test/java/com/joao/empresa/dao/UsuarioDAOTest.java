@@ -584,6 +584,49 @@ class UsuarioDAOTest {
         );
     }
 
+    @Test
+    void atualizar_quandoForTecnico_deveAtualizarDadosComunsEEspecificos()
+            throws Exception {
 
+        int id =
+                inserirTecnicoDiretamente(
+                        "Nome antigo",
+                        "tec-antigo@email.com",
+                        "Mecânica"
+                );
+
+        Tecnico alterado =
+                new Tecnico(
+                        id,
+                        "Nome atualizado",
+                        "tec-novo@email.com",
+                        "Elétrica"
+                );
+
+        usuarioDAO.atualizar(
+                alterado
+        );
+
+        Tecnico resultado =
+                (Tecnico)
+                        usuarioDAO.buscarPorId(id);
+
+        assertAll(
+                () -> assertEquals(
+                        "Nome atualizado",
+                        resultado.getNome()
+                ),
+
+                () -> assertEquals(
+                        "tec-novo@email.com",
+                        resultado.getEmail()
+                ),
+
+                () -> assertEquals(
+                        "Elétrica",
+                        resultado.getEspecialidade()
+                )
+        );
+    }
 
 }
