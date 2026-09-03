@@ -1,6 +1,7 @@
 package com.joao.empresa.dao;
 
 import com.joao.empresa.database.ConnectionFactory;
+import com.joao.empresa.exceptions.IntegridadeReferencialException;
 import com.joao.empresa.exceptions.RegistroDuplicadoException;
 import com.joao.empresa.model.Administrador;
 import com.joao.empresa.model.Gestor;
@@ -692,6 +693,37 @@ class UsuarioDAOTest {
                                 "usuario_id",
                                 id
                         )
+                )
+        );
+    }
+
+    @Test
+    void deletar_quandoTecnicoPossuirManutencao_deveLancarIntegridadeReferencialException()
+            throws Exception {
+
+        int tecnicoId =
+                inserirTecnicoDiretamente(
+                        "Técnico",
+                        "tecnico@email.com",
+                        "Mecânica"
+                );
+
+        int empresaId = inserirEmpresaDiretamente();
+
+        int equipamentoId =
+                inserirEquipamentoDiretamente(
+                        empresaId
+                );
+
+        inserirManutencaoDiretamente(
+                equipamentoId,
+                tecnicoId
+        );
+
+        assertThrows( // lá no schema tem o delete restrict que protege a chave estrangeira
+                IntegridadeReferencialException.class,
+                () -> usuarioDAO.deletar(
+                        tecnicoId
                 )
         );
     }
