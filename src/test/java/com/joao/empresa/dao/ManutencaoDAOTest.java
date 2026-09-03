@@ -414,8 +414,10 @@ public class ManutencaoDAOTest {
                 ),
 
                 () -> assertEquals(
-                        BigDecimal.ZERO,
-                        resultado.getCusto()
+                        0,
+                        resultado
+                                .getCusto()
+                                .compareTo(BigDecimal.ZERO)
                 ),
 
                 () -> assertEquals(
