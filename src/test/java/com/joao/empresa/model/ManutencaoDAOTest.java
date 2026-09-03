@@ -746,6 +746,66 @@ public class ManutencaoDAOTest {
         );
     }
 
+    @Test
+    void listarPorStatus_deveRetornarSomenteManutencoesComStatusInformado()
+            throws Exception {
+
+        DadosRelacionamento dados =
+                criarRelacionamentosPadrao(
+                        "88888888888888",
+                        "PAT-009",
+                        "tecnico@email.com"
+                );
+
+        inserirManutencaoDiretamente(
+                dados.equipamentoId(),
+                dados.tecnicoId(),
+                "CORRETIVA",
+                "Em andamento",
+                BigDecimal.ZERO,
+                "ANDAMENTO",
+                LocalDate.of(2026, 8, 20),
+                null
+        );
+
+        inserirManutencaoDiretamente(
+                dados.equipamentoId(),
+                dados.tecnicoId(),
+                "PREVENTIVA",
+                "Concluída",
+                new BigDecimal("200.00"),
+                "CONCLUIDA",
+                LocalDate.of(2026, 8, 20),
+                LocalDate.of(2026, 8, 21)
+        );
+
+        inserirManutencaoDiretamente(
+                dados.equipamentoId(),
+                dados.tecnicoId(),
+                "CORRETIVA",
+                "Cancelada",
+                BigDecimal.ZERO,
+                "CANCELADA",
+                LocalDate.of(2026, 8, 20),
+                LocalDate.of(2026, 8, 21)
+        );
+
+        List<Manutencao> resultado =
+                manutencaoDAO.listarPorStatus(
+                        Manutencao.Status.CONCLUIDA
+                );
+
+        assertEquals(
+                1,
+                resultado.size()
+        );
+
+        assertEquals(
+                Manutencao.Status.CONCLUIDA,
+                resultado.get(0).getStatus()
+        );
+    }
+
 
 
 }
