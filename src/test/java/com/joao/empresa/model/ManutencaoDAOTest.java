@@ -3,6 +3,7 @@ package com.joao.empresa.model;
 import com.joao.empresa.dao.ManutencaoDAO;
 import com.joao.empresa.database.ConnectionFactory;
 import com.joao.empresa.exceptions.IntegridadeReferencialException;
+import com.joao.empresa.exceptions.PersistenciaException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -986,6 +987,52 @@ public class ManutencaoDAOTest {
         }
     }
 
+    @Test
+    void atualizar_quandoManutencaoNaoExistir_deveLancarPersistenciaException()
+            throws Exception {
 
+        DadosRelacionamento dados =
+                criarRelacionamentosPadrao(
+                        "10101010101010",
+                        "PAT-012",
+                        "tecnico@email.com"
+                );
+
+        Equipamento equipamento =
+                new Equipamento(
+                        dados.equipamentoId(),
+                        "Laminadora",
+                        "PAT-012",
+                        LocalDate.of(2020, 1, 1)
+                );
+
+        Tecnico tecnico =
+                new Tecnico(
+                        dados.tecnicoId(),
+                        "Técnico Teste",
+                        "tecnico@email.com",
+                        "Mecânica"
+                );
+
+        Manutencao inexistente =
+                new Manutencao(
+                        999999,
+                        Manutencao.TipoManutencao.CORRETIVA,
+                        "Inexistente",
+                        BigDecimal.ZERO,
+                        LocalDate.of(2026, 8, 20),
+                        null,
+                        Manutencao.Status.ANDAMENTO,
+                        equipamento,
+                        tecnico
+                );
+
+        assertThrows(
+                PersistenciaException.class,
+                () -> manutencaoDAO.atualizar(
+                        inexistente
+                )
+        );
+    }
 
 }
