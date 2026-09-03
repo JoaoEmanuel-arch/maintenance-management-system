@@ -12,6 +12,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.time.LocalDate;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -536,5 +537,62 @@ public class ManutencaoDAOTest {
 
         assertNull(resultado);
     }
+
+    @Test
+    void listar_quandoExistiremManutencoes_deveRetornarTodasOrdenadasPorId()
+            throws Exception {
+
+        DadosRelacionamento dados =
+                criarRelacionamentosPadrao(
+                        "55555555555555",
+                        "PAT-005",
+                        "tecnico1@email.com"
+                );
+
+        int primeiroId =
+                inserirManutencaoDiretamente(
+                        dados.equipamentoId(),
+                        dados.tecnicoId(),
+                        "CORRETIVA",
+                        "Primeira",
+                        BigDecimal.ZERO,
+                        "ANDAMENTO",
+                        LocalDate.of(2026, 8, 20),
+                        null
+                );
+
+        int segundoId =
+                inserirManutencaoDiretamente(
+                        dados.equipamentoId(),
+                        dados.tecnicoId(),
+                        "PREVENTIVA",
+                        "Segunda",
+                        new BigDecimal("500.00"),
+                        "CONCLUIDA",
+                        LocalDate.of(2026, 8, 21),
+                        LocalDate.of(2026, 8, 22)
+                );
+
+        List<Manutencao> resultado = manutencaoDAO.listar();
+
+        assertAll(
+                () -> assertEquals(
+                        2,
+                        resultado.size()
+                ),
+
+                () -> assertEquals(
+                        primeiroId,
+                        resultado.get(0).getId()
+                ),
+
+                () -> assertEquals(
+                        segundoId,
+                        resultado.get(1).getId()
+                )
+        );
+    }
+
+
 
 }
