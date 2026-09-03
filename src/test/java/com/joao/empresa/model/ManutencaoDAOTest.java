@@ -1128,6 +1128,15 @@ public class ManutencaoDAOTest {
         );
     }
 
+    @Test
+    void deletar_quandoManutencaoNaoExistir_deveLancarPersistenciaException() {
 
+        assertThrows(
+                PersistenciaException.class,
+                () -> manutencaoDAO.deletar(
+                        999999
+                )
+        );
+    }
 
 }
