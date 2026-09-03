@@ -602,6 +602,78 @@ public class ManutencaoDAOTest {
         assertTrue(resultado.isEmpty());
     }
 
+    @Test
+    void listarPorEquipamento_deveRetornarSomenteManutencoesDoEquipamentoInformado()
+            throws Exception {
+
+        int empresaId =
+                inserirEmpresaDiretamente(
+                        "Empresa Teste",
+                        "66666666666666"
+                );
+
+        int equipamento1 =
+                inserirEquipamentoDiretamente(
+                        empresaId,
+                        "Laminadora",
+                        "PAT-006"
+                );
+
+        int equipamento2 =
+                inserirEquipamentoDiretamente(
+                        empresaId,
+                        "Empilhadeira",
+                        "PAT-007"
+                );
+
+        int tecnicoId =
+                inserirTecnicoDiretamente(
+                        "Carlos",
+                        "carlos@email.com",
+                        "Mecânica"
+                );
+
+        inserirManutencaoDiretamente(
+                equipamento1,
+                tecnicoId,
+                "CORRETIVA",
+                "Manutenção equipamento 1",
+                BigDecimal.ZERO,
+                "ANDAMENTO",
+                LocalDate.of(2026, 8, 20),
+                null
+        );
+
+        inserirManutencaoDiretamente(
+                equipamento2,
+                tecnicoId,
+                "CORRETIVA",
+                "Manutenção equipamento 2",
+                BigDecimal.ZERO,
+                "ANDAMENTO",
+                LocalDate.of(2026, 8, 20),
+                null
+        );
+
+        List<Manutencao> resultado =
+                manutencaoDAO.listarPorEquipamento(
+                        equipamento1
+                );
+
+        assertEquals(
+                1,
+                resultado.size()
+        );
+
+        assertEquals(
+                equipamento1,
+                resultado
+                        .get(0)
+                        .getEquipamento()
+                        .getId()
+        );
+    }
+
 
 
 }
