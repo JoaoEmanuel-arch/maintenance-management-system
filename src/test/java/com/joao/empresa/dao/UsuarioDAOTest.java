@@ -344,6 +344,44 @@ class UsuarioDAOTest {
         );
     }
 
+    @Test
+    void buscarPorId_quandoForGestor_deveReconstruirGestor()
+            throws Exception {
 
+        int id =
+                inserirGestorDiretamente(
+                        "Maria",
+                        "gestor@email.com",
+                        "Operações"
+                );
+
+        Usuario resultado =
+                usuarioDAO.buscarPorId(id);
+
+        assertInstanceOf(
+                Gestor.class,
+                resultado
+        );
+
+        Gestor gestor =
+                (Gestor) resultado;
+
+        assertAll(
+                () -> assertEquals(
+                        id,
+                        gestor.getId()
+                ),
+
+                () -> assertEquals(
+                        "Maria",
+                        gestor.getNome()
+                ),
+
+                () -> assertEquals(
+                        "Operações",
+                        gestor.getAreaResponsavel()
+                )
+        );
+    }
 
 }
