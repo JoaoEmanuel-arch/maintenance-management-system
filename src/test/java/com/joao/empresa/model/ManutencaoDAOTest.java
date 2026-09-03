@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -1164,6 +1165,434 @@ public class ManutencaoDAOTest {
         );
     }
 
+    private DadosRelacionamento criarRelacionamentosPadrao(
+            String cnpj,
+            String patrimonio,
+            String email
+    ) throws Exception {
 
+        int empresaId =
+                inserirEmpresaDiretamente(
+                        "Empresa Teste",
+                        cnpj
+                );
+
+        int equipamentoId =
+                inserirEquipamentoDiretamente(
+                        empresaId,
+                        "Laminadora",
+                        patrimonio
+                );
+
+        int tecnicoId =
+                inserirTecnicoDiretamente(
+                        "Técnico Teste",
+                        email,
+                        "Mecânica"
+                );
+
+        return new DadosRelacionamento(
+                equipamentoId,
+                tecnicoId
+        );
+    }
+
+    private int inserirEmpresaDiretamente(
+            String nome,
+            String cnpj
+    ) throws Exception {
+
+        String sql = """
+                INSERT INTO empresa
+                    (
+                        nome,
+                        cnpj,
+                        endereco,
+                        segmento,
+                        status
+                    )
+                VALUES
+                    (?, ?, ?, ?, ?)
+                """;
+
+        try (
+                Connection conn =
+                        ConnectionFactory.getConnection();
+
+                PreparedStatement stmt =
+                        conn.prepareStatement(
+                                sql,
+                                Statement.RETURN_GENERATED_KEYS
+                        )
+        ) {
+
+            stmt.setString(1, nome);
+            stmt.setString(2, cnpj);
+            stmt.setString(
+                    3,
+                    "Ouro Branco"
+            );
+            stmt.setString(
+                    4,
+                    "Siderurgia"
+            );
+            stmt.setString(
+                    5,
+                    "ATIVADA"
+            );
+
+            stmt.executeUpdate();
+
+            try (
+                    ResultSet rs =
+                            stmt.getGeneratedKeys()
+            ) {
+
+                assertTrue(rs.next());
+
+                return rs.getInt(1);
+            }
+        }
+    }
+
+    private int inserirEquipamentoDiretamente(
+            int empresaId,
+            String nome,
+            String codigoPatrimonio
+    ) throws Exception {
+
+        String sql = """
+                INSERT INTO equipamento
+                    (
+                        nome,
+                        codigo_patrimonio,
+                        data_aquisicao,
+                        empresa_id
+                    )
+                VALUES
+                    (?, ?, ?, ?)
+                """;
+
+        try (
+                Connection conn =
+                        ConnectionFactory.getConnection();
+
+                PreparedStatement stmt =
+                        conn.prepareStatement(
+                                sql,
+                                Statement.RETURN_GENERATED_KEYS
+                        )
+        ) {
+
+            stmt.setString(
+                    1,
+                    nome
+            );
+
+            stmt.setString(
+                    2,
+                    codigoPatrimonio
+            );
+
+            stmt.setDate(
+                    3,
+                    java.sql.Date.valueOf(
+                            LocalDate.of(
+                                    2020,
+                                    1,
+                                    1
+                            )
+                    )
+            );
+
+            stmt.setInt(
+                    4,
+                    empresaId
+            );
+
+            stmt.executeUpdate();
+
+            try (
+                    ResultSet rs =
+                            stmt.getGeneratedKeys()
+            ) {
+
+                assertTrue(rs.next());
+
+                return rs.getInt(1);
+            }
+        }
+    }
+
+    private int inserirTecnicoDiretamente(
+            String nome,
+            String email,
+            String especialidade
+    ) throws Exception {
+
+        int usuarioId;
+
+        String sqlUsuario = """
+                INSERT INTO usuario
+                    (
+                        nome,
+                        email,
+                        tipo_usuario
+                    )
+                VALUES
+                    (?, ?, ?)
+                """;
+
+        try (
+                Connection conn =
+                        ConnectionFactory.getConnection();
+
+                PreparedStatement stmt =
+                        conn.prepareStatement(
+                                sqlUsuario,
+                                Statement.RETURN_GENERATED_KEYS
+                        )
+        ) {
+
+            stmt.setString(1, nome);
+            stmt.setString(2, email);
+            stmt.setString(
+                    3,
+                    "TECNICO"
+            );
+
+            stmt.executeUpdate();
+
+            try (
+                    ResultSet rs =
+                            stmt.getGeneratedKeys()
+            ) {
+
+                assertTrue(rs.next());
+
+                usuarioId = rs.getInt(1);
+            }
+        }
+
+        String sqlTecnico = """
+                INSERT INTO tecnico
+                    (
+                        usuario_id,
+                        especialidade
+                    )
+                VALUES
+                    (?, ?)
+                """;
+
+        try (
+                Connection conn =
+                        ConnectionFactory.getConnection();
+
+                PreparedStatement stmt =
+                        conn.prepareStatement(
+                                sqlTecnico
+                        )
+        ) {
+
+            stmt.setInt(
+                    1,
+                    usuarioId
+            );
+
+            stmt.setString(
+                    2,
+                    especialidade
+            );
+
+            stmt.executeUpdate();
+        }
+
+        return usuarioId;
+    }
+
+    private int inserirManutencaoDiretamente(
+            int equipamentoId,
+            int tecnicoId,
+            String tipo,
+            String descricao,
+            BigDecimal custo,
+            String status,
+            LocalDate dataInicio,
+            LocalDate dataFim
+    ) throws Exception {
+
+        String sql = """
+                INSERT INTO manutencao
+                    (
+                        tipo_manutencao,
+                        data_inicio,
+                        data_fim,
+                        descricao,
+                        custo,
+                        status,
+                        equipamento_id,
+                        tecnico_id
+                    )
+                VALUES
+                    (?, ?, ?, ?, ?, ?, ?, ?)
+                """;
+
+        try (
+                Connection conn =
+                        ConnectionFactory.getConnection();
+
+                PreparedStatement stmt =
+                        conn.prepareStatement(
+                                sql,
+                                Statement.RETURN_GENERATED_KEYS
+                        )
+        ) {
+
+            stmt.setString(
+                    1,
+                    tipo
+            );
+
+            stmt.setDate(
+                    2,
+                    java.sql.Date.valueOf(
+                            dataInicio
+                    )
+            );
+
+            if (dataFim != null) {
+
+                stmt.setDate(
+                        3,
+                        java.sql.Date.valueOf(
+                                dataFim
+                        )
+                );
+
+            } else {
+
+                stmt.setNull(
+                        3,
+                        java.sql.Types.DATE
+                );
+            }
+
+            stmt.setString(
+                    4,
+                    descricao
+            );
+
+            stmt.setBigDecimal(
+                    5,
+                    custo
+            );
+
+            stmt.setString(
+                    6,
+                    status
+            );
+
+            stmt.setInt(
+                    7,
+                    equipamentoId
+            );
+
+            stmt.setInt(
+                    8,
+                    tecnicoId
+            );
+
+            stmt.executeUpdate();
+
+            try (
+                    ResultSet rs =
+                            stmt.getGeneratedKeys()
+            ) {
+
+                assertTrue(rs.next());
+
+                return rs.getInt(1);
+            }
+        }
+    }
+
+    private int contarManutencaoPorId(
+            int id
+    ) throws Exception {
+
+        try (
+                Connection conn =
+                        ConnectionFactory.getConnection();
+
+                PreparedStatement stmt =
+                        conn.prepareStatement(
+                                """
+                                SELECT COUNT(*)
+                                FROM manutencao
+                                WHERE id = ?
+                                """
+                        )
+        ) {
+
+            stmt.setInt(1, id);
+
+            try (
+                    ResultSet rs =
+                            stmt.executeQuery()
+            ) {
+
+                assertTrue(rs.next());
+
+                return rs.getInt(1);
+            }
+        }
+    }
+
+    private void limparBanco()
+            throws Exception {
+
+        try (
+                Connection conn =
+                        ConnectionFactory.getConnection();
+
+                Statement stmt =
+                        conn.createStatement()
+        ) {
+
+            stmt.executeUpdate(
+                    "DELETE FROM manutencao"
+            );
+
+            stmt.executeUpdate(
+                    "DELETE FROM equipamento"
+            );
+
+            stmt.executeUpdate(
+                    "DELETE FROM administrador"
+            );
+
+            stmt.executeUpdate(
+                    "DELETE FROM gestor"
+            );
+
+            stmt.executeUpdate(
+                    "DELETE FROM tecnico"
+            );
+
+            stmt.executeUpdate(
+                    "DELETE FROM usuario"
+            );
+
+            stmt.executeUpdate(
+                    "DELETE FROM empresa"
+            );
+        }
+    }
+
+    private record DadosRelacionamento(
+            int equipamentoId,
+            int tecnicoId
+    ) {
+    }
 
 }
