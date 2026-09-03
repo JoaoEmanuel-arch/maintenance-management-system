@@ -852,8 +852,42 @@ class UsuarioDAOTest {
         return id;
     }
 
+    private int inserirTecnicoDiretamente(
+            String nome,
+            String email,
+            String especialidade
+    ) throws Exception {
 
+        int id = inserirUsuarioDiretamente(
+                nome,
+                email,
+                "TECNICO"
+        );
 
+        try (Connection conn = ConnectionFactory.getConnection();
+
+                PreparedStatement stmt =
+                        conn.prepareStatement(
+                                """
+                                INSERT INTO tecnico
+                                    (
+                                        usuario_id,
+                                        especialidade
+                                    )
+                                VALUES
+                                    (?, ?)
+                                """
+                        )
+        ) {
+
+            stmt.setInt(1, id);
+            stmt.setString(2, especialidade);
+
+            stmt.executeUpdate();
+        }
+
+        return id;
+    }
 
 
 }
