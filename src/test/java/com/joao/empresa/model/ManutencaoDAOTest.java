@@ -180,6 +180,41 @@ public class ManutencaoDAOTest {
         }
     }
 
+    @Test
+    void salvar_quandoEquipamentoNaoPossuirId_deveLancarExcecaoSemAcessarPersistencia() {
+
+        Equipamento equipamento =
+                new Equipamento(
+                        "Laminadora",
+                        "PAT-001",
+                        LocalDate.of(2020, 1, 1)
+                );
+
+        Tecnico tecnico =
+                new Tecnico(
+                        1,
+                        "Carlos",
+                        "carlos@email.com",
+                        "Mecânica"
+                );
+
+        Manutencao manutencao =
+                new Manutencao(
+                        Manutencao.TipoManutencao.CORRETIVA,
+                        "Troca da correia",
+                        LocalDate.of(2026, 8, 20),
+                        equipamento,
+                        tecnico
+                );
+
+        assertThrows(
+                IllegalStateException.class,
+                () -> manutencaoDAO.salvar(manutencao)
+        );
+
+        assertNull(manutencao.getId());
+    }
+
 
 
 }
