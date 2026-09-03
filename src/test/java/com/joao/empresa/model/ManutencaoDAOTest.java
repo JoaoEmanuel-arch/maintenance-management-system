@@ -816,6 +816,176 @@ public class ManutencaoDAOTest {
         );
     }
 
+    @Test
+    void atualizar_quandoDadosForemValidos_devePersistirTodasAsAlteracoes()
+            throws Exception {
+
+        int empresaId =
+                inserirEmpresaDiretamente(
+                        "Empresa Teste",
+                        "99999999999999"
+                );
+
+        int equipamentoAntigoId =
+                inserirEquipamentoDiretamente(
+                        empresaId,
+                        "Equipamento antigo",
+                        "PAT-010"
+                );
+
+        int equipamentoNovoId =
+                inserirEquipamentoDiretamente(
+                        empresaId,
+                        "Equipamento novo",
+                        "PAT-011"
+                );
+
+        int tecnicoAntigoId =
+                inserirTecnicoDiretamente(
+                        "Carlos",
+                        "carlos@email.com",
+                        "Mecânica"
+                );
+
+        int tecnicoNovoId =
+                inserirTecnicoDiretamente(
+                        "Pedro",
+                        "pedro@email.com",
+                        "Elétrica"
+                );
+
+        int manutencaoId =
+                inserirManutencaoDiretamente(
+                        equipamentoAntigoId,
+                        tecnicoAntigoId,
+                        "CORRETIVA",
+                        "Descrição antiga",
+                        BigDecimal.ZERO,
+                        "ANDAMENTO",
+                        LocalDate.of(2026, 8, 20),
+                        null
+                );
+
+        Equipamento equipamentoNovo =
+                new Equipamento(
+                        equipamentoNovoId,
+                        "Equipamento novo",
+                        "PAT-011",
+                        LocalDate.of(2020, 1, 1)
+                );
+
+        Tecnico tecnicoNovo =
+                new Tecnico(
+                        tecnicoNovoId,
+                        "Pedro",
+                        "pedro@email.com",
+                        "Elétrica"
+                );
+
+        Manutencao alterada =
+                new Manutencao(
+                        manutencaoId,
+                        Manutencao.TipoManutencao.PREVENTIVA,
+                        "Descrição atualizada",
+                        new BigDecimal("2500.00"),
+                        LocalDate.of(2026, 8, 21),
+                        LocalDate.of(2026, 8, 25),
+                        Manutencao.Status.CONCLUIDA,
+                        equipamentoNovo,
+                        tecnicoNovo
+                );
+
+        manutencaoDAO.atualizar(alterada);
+
+        try (Connection conn = ConnectionFactory.getConnection();
+
+                PreparedStatement stmt =
+                        conn.prepareStatement(
+                                """
+                                SELECT
+                                    tipo_manutencao,
+                                    data_inicio,
+                                    data_fim,
+                                    descricao,
+                                    custo,
+                                    status,
+                                    equipamento_id,
+                                    tecnico_id
+                                FROM manutencao
+                                WHERE id = ?
+                                """
+                        )
+        ) {
+
+            stmt.setInt(1, manutencaoId);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+
+                assertTrue(rs.next());
+
+                assertAll(
+                        () -> assertEquals(
+                                "PREVENTIVA",
+                                rs.getString(
+                                        "tipo_manutencao"
+                                )
+                        ),
+
+                        () -> assertEquals(
+                                LocalDate.of(
+                                        2026,
+                                        8,
+                                        21
+                                ),
+                                rs.getDate(
+                                        "data_inicio"
+                                ).toLocalDate()
+                        ),
+
+                        () -> assertEquals(
+                                LocalDate.of(
+                                        2026,
+                                        8,
+                                        25
+                                ),
+                                rs.getDate(
+                                        "data_fim"
+                                ).toLocalDate()
+                        ),
+
+                        () -> assertEquals(
+                                "Descrição atualizada",
+                                rs.getString("descricao")
+                        ),
+
+                        () -> assertEquals(
+                                new BigDecimal("2500.00"),
+                                rs.getBigDecimal("custo")
+                        ),
+
+                        () -> assertEquals(
+                                "CONCLUIDA",
+                                rs.getString("status")
+                        ),
+
+                        () -> assertEquals(
+                                equipamentoNovoId,
+                                rs.getInt(
+                                        "equipamento_id"
+                                )
+                        ),
+
+                        () -> assertEquals(
+                                tecnicoNovoId,
+                                rs.getInt(
+                                        "tecnico_id"
+                                )
+                        )
+                );
+            }
+        }
+    }
+
 
 
 }
