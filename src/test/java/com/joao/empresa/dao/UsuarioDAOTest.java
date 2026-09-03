@@ -909,4 +909,37 @@ class UsuarioDAOTest {
         }
     }
 
+    private int contarPorId(
+            String tabela,
+            String coluna,
+            int id
+    ) throws Exception {
+
+        String sql =
+                "SELECT COUNT(*) FROM "
+                        + tabela
+                        + " WHERE "
+                        + coluna
+                        + " = ?";
+
+        try (Connection conn = ConnectionFactory.getConnection();
+
+                PreparedStatement stmt = conn.prepareStatement(sql)
+        ) {
+
+            stmt.setInt(1, id);
+
+            try (ResultSet rs =
+                            stmt.executeQuery()
+            ) {
+
+                assertTrue(rs.next());
+
+                return rs.getInt(1);
+            }
+        }
+    }
+
+
+
 }
