@@ -297,6 +297,56 @@ public class ManutencaoDAOTest {
         assertNull(manutencao.getId());
     }
 
+    @Test
+    void salvar_quandoTecnicoNaoExistirNoBanco_deveLancarIntegridadeReferencialException()
+            throws Exception {
 
+        int empresaId =
+                inserirEmpresaDiretamente(
+                        "Empresa Teste",
+                        "22222222222222"
+                );
+
+        int equipamentoId =
+                inserirEquipamentoDiretamente(
+                        empresaId,
+                        "Laminadora",
+                        "PAT-002"
+                );
+
+        Equipamento equipamento =
+                new Equipamento(
+                        equipamentoId,
+                        "Laminadora",
+                        "PAT-002",
+                        LocalDate.of(2020, 1, 1)
+                );
+
+        Tecnico tecnicoInexistente =
+                new Tecnico(
+                        999999,
+                        "Inexistente",
+                        "inexistente@email.com",
+                        "Mecânica"
+                );
+
+        Manutencao manutencao =
+                new Manutencao(
+                        Manutencao.TipoManutencao.CORRETIVA,
+                        "Teste",
+                        LocalDate.of(2026, 8, 20),
+                        equipamento,
+                        tecnicoInexistente
+                );
+
+        assertThrows(
+                IntegridadeReferencialException.class,
+                () -> manutencaoDAO.salvar(
+                        manutencao
+                )
+        );
+
+        assertNull(manutencao.getId());
+    }
 
 }
