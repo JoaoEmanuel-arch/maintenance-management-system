@@ -781,6 +781,40 @@ class UsuarioDAOTest {
         }
     }
 
+    private int inserirAdministradorDiretamente(
+            String nome,
+            String email,
+            String departamento
+    ) throws Exception {
+
+        int id = inserirUsuarioDiretamente(
+                nome,
+                email,
+                "ADMINISTRADOR"
+        );
+
+        try (Connection conn = ConnectionFactory.getConnection();
+
+                PreparedStatement stmt =
+                        conn.prepareStatement(
+                                """
+                                INSERT INTO administrador
+                                    (usuario_id, departamento)
+                                VALUES
+                                    (?, ?)
+                                """
+                        )
+        ) {
+
+            stmt.setInt(1, id);
+            stmt.setString(2, departamento);
+
+            stmt.executeUpdate();
+        }
+
+        return id;
+    }
+
 
 
 
