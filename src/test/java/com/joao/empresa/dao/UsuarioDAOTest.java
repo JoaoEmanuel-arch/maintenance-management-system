@@ -3,6 +3,7 @@ package com.joao.empresa.dao;
 import com.joao.empresa.database.ConnectionFactory;
 import com.joao.empresa.model.Administrador;
 import com.joao.empresa.model.Gestor;
+import com.joao.empresa.model.Tecnico;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -177,7 +178,61 @@ class UsuarioDAOTest {
         }
     }
 
+    @Test
+    void salvar_quandoForTecnico_devePersistirUsuarioEDadosEspecificos()
+            throws Exception {
 
+        Tecnico tecnico =
+                new Tecnico(
+                        "Carlos",
+                        "tecnico@email.com",
+                        "Mecânica"
+                );
+
+        usuarioDAO.salvar(tecnico);
+
+        assertNotNull(tecnico.getId());
+
+        try (Connection conn = ConnectionFactory.getConnection();
+
+                PreparedStatement stmt =
+                        conn.prepareStatement(
+                                """
+                                SELECT
+                                    u.tipo_usuario,
+                                    t.especialidade
+                                FROM usuario u
+                                JOIN tecnico t
+                                    ON t.usuario_id = u.id
+                                WHERE u.id = ?
+                                """
+                        )
+        ) {
+
+            stmt.setInt(1, tecnico.getId());
+
+            try (ResultSet rs = stmt.executeQuery()) {
+
+                assertTrue(rs.next());
+
+                assertAll(
+                        () -> assertEquals(
+                                "TECNICO",
+                                rs.getString(
+                                        "tipo_usuario"
+                                )
+                        ),
+
+                        () -> assertEquals(
+                                "Mecânica",
+                                rs.getString(
+                                        "especialidade"
+                                )
+                        )
+                );
+            }
+        }
+    }
 
 
 
