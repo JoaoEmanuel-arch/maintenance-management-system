@@ -940,6 +940,66 @@ class UsuarioDAOTest {
         }
     }
 
+    private int inserirEmpresaDiretamente()
+            throws Exception {
 
+        try (Connection conn = ConnectionFactory.getConnection();
+
+                PreparedStatement stmt =
+                        conn.prepareStatement(
+                                """
+                                INSERT INTO empresa
+                                    (
+                                        nome,
+                                        cnpj,
+                                        endereco,
+                                        segmento,
+                                        status
+                                    )
+                                VALUES
+                                    (?, ?, ?, ?, ?)
+                                """,
+                                Statement.RETURN_GENERATED_KEYS
+                        )
+        ) {
+
+            stmt.setString(
+                    1,
+                    "Empresa Teste"
+            );
+
+            stmt.setString(
+                    2,
+                    "12345678901234"
+            );
+
+            stmt.setString(
+                    3,
+                    "Ouro Branco"
+            );
+
+            stmt.setString(
+                    4,
+                    "Siderurgia"
+            );
+
+            stmt.setString(
+                    5,
+                    "ATIVADA"
+            );
+
+            stmt.executeUpdate();
+
+            try (
+                    ResultSet rs =
+                            stmt.getGeneratedKeys()
+            ) {
+
+                assertTrue(rs.next());
+
+                return rs.getInt(1);
+            }
+        }
+    }
 
 }
