@@ -1,9 +1,11 @@
-package com.joao.empresa.model;
+package com.joao.empresa.dao;
 
-import com.joao.empresa.dao.ManutencaoDAO;
 import com.joao.empresa.database.ConnectionFactory;
 import com.joao.empresa.exceptions.IntegridadeReferencialException;
 import com.joao.empresa.exceptions.PersistenciaException;
+import com.joao.empresa.model.Equipamento;
+import com.joao.empresa.model.Manutencao;
+import com.joao.empresa.model.Tecnico;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
