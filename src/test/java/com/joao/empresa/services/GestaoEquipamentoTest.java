@@ -6,14 +6,17 @@ import com.joao.empresa.dao.ManutencaoDAO;
 import com.joao.empresa.exceptions.*;
 import com.joao.empresa.model.Equipamento;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 // a explicação do basicão está tudo no GestaoEmpresaTest
-
+@ExtendWith(MockitoExtension.class)
 public class GestaoEquipamentoTest {
 
     @Mock
