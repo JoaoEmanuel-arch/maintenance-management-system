@@ -1,6 +1,7 @@
 package com.joao.empresa.dao;
 
 import com.joao.empresa.database.ConnectionFactory;
+import com.joao.empresa.exceptions.RegistroDuplicadoException;
 import com.joao.empresa.model.Administrador;
 import com.joao.empresa.model.Gestor;
 import com.joao.empresa.model.Tecnico;
@@ -234,6 +235,31 @@ class UsuarioDAOTest {
         }
     }
 
+    @Test
+    void salvar_quandoEmailJaExistir_deveLancarRegistroDuplicadoException()
+            throws Exception {
 
+        inserirAdministradorDiretamente(
+                "João",
+                "duplicado@email.com",
+                "Tecnologia"
+        );
+
+        Gestor gestor =
+                new Gestor(
+                        "Maria",
+                        "duplicado@email.com",
+                        "Operações"
+                );
+
+        assertThrows(
+                RegistroDuplicadoException.class,
+                () -> usuarioDAO.salvar(
+                        gestor
+                )
+        );
+
+        assertNull(gestor.getId());
+    }
 
 }
