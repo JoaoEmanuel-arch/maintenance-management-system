@@ -2,6 +2,7 @@ package com.joao.empresa.dao;
 
 import com.joao.empresa.database.ConnectionFactory;
 import com.joao.empresa.exceptions.IntegridadeReferencialException;
+import com.joao.empresa.exceptions.PersistenciaException;
 import com.joao.empresa.exceptions.RegistroDuplicadoException;
 import com.joao.empresa.model.Administrador;
 import com.joao.empresa.model.Gestor;
@@ -724,6 +725,17 @@ class UsuarioDAOTest {
                 IntegridadeReferencialException.class,
                 () -> usuarioDAO.deletar(
                         tecnicoId
+                )
+        );
+    }
+
+    @Test
+    void deletar_quandoUsuarioNaoExistir_deveLancarPersistenciaException() {
+
+        assertThrows(
+                PersistenciaException.class,
+                () -> usuarioDAO.deletar(
+                        999999
                 )
         );
     }
