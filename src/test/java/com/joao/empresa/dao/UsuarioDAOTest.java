@@ -889,5 +889,24 @@ class UsuarioDAOTest {
         return id;
     }
 
+    // devolve quantos usuários tem na tabela usuário
+    private int contarUsuarios()
+            throws Exception {
+
+        try (Connection conn = ConnectionFactory.getConnection();
+
+                Statement stmt = conn.createStatement();
+
+                ResultSet rs =
+                        stmt.executeQuery(
+                                "SELECT COUNT(*) FROM usuario"
+                        )
+        ) {
+
+            assertTrue(rs.next());
+
+            return rs.getInt(1);
+        }
+    }
 
 }
