@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -434,5 +435,55 @@ class UsuarioDAOTest {
 
         assertNull(resultado);
     }
+
+    @Test
+    void listar_quandoExistiremUsuarios_deveRetornarTodosComSeusSubtipos()
+            throws Exception {
+
+        inserirAdministradorDiretamente(
+                "Administrador",
+                "admin@email.com",
+                "Tecnologia"
+        );
+
+        inserirGestorDiretamente(
+                "Gestor",
+                "gestor@email.com",
+                "Operações"
+        );
+
+        inserirTecnicoDiretamente(
+                "Técnico",
+                "tecnico@email.com",
+                "Mecânica"
+        );
+
+        List<Usuario> usuarios =
+                usuarioDAO.listar();
+
+        assertEquals(
+                3,
+                usuarios.size()
+        );
+
+        assertAll(
+                () -> assertInstanceOf(
+                        Administrador.class,
+                        usuarios.get(0)
+                ),
+
+                () -> assertInstanceOf(
+                        Gestor.class,
+                        usuarios.get(1)
+                ),
+
+                () -> assertInstanceOf(
+                        Tecnico.class,
+                        usuarios.get(2)
+                )
+        );
+    }
+
+
 
 }
