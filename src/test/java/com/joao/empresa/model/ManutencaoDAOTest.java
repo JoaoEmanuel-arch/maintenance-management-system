@@ -674,6 +674,78 @@ public class ManutencaoDAOTest {
         );
     }
 
+    @Test
+    void listarPorTecnico_deveRetornarSomenteManutencoesDoTecnicoInformado()
+            throws Exception {
+
+        int empresaId =
+                inserirEmpresaDiretamente(
+                        "Empresa Teste",
+                        "77777777777777"
+                );
+
+        int equipamentoId =
+                inserirEquipamentoDiretamente(
+                        empresaId,
+                        "Laminadora",
+                        "PAT-008"
+                );
+
+        int tecnico1 =
+                inserirTecnicoDiretamente(
+                        "Carlos",
+                        "carlos@email.com",
+                        "Mecânica"
+                );
+
+        int tecnico2 =
+                inserirTecnicoDiretamente(
+                        "Pedro",
+                        "pedro@email.com",
+                        "Elétrica"
+                );
+
+        inserirManutencaoDiretamente(
+                equipamentoId,
+                tecnico1,
+                "CORRETIVA",
+                "Manutenção Carlos",
+                BigDecimal.ZERO,
+                "ANDAMENTO",
+                LocalDate.of(2026, 8, 20),
+                null
+        );
+
+        inserirManutencaoDiretamente(
+                equipamentoId,
+                tecnico2,
+                "PREVENTIVA",
+                "Manutenção Pedro",
+                BigDecimal.ZERO,
+                "ANDAMENTO",
+                LocalDate.of(2026, 8, 21),
+                null
+        );
+
+        List<Manutencao> resultado =
+                manutencaoDAO.listarPorTecnico(
+                        tecnico1
+                );
+
+        assertEquals(
+                1,
+                resultado.size()
+        );
+
+        assertEquals(
+                tecnico1,
+                resultado
+                        .get(0)
+                        .getTecnicoResponsavel()
+                        .getId()
+        );
+    }
+
 
 
 }
