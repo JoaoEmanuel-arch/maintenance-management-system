@@ -484,6 +484,16 @@ class UsuarioDAOTest {
         );
     }
 
+    @Test
+    void listar_quandoNaoExistiremUsuarios_deveRetornarListaVazia() {
+
+        List<Usuario> usuarios =
+                usuarioDAO.listar();
+
+        assertNotNull(usuarios);
+        assertTrue(usuarios.isEmpty());
+    }
+
 
 
 }
