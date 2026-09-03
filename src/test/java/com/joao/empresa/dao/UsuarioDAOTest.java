@@ -815,6 +815,43 @@ class UsuarioDAOTest {
         return id;
     }
 
+    private int inserirGestorDiretamente(
+            String nome,
+            String email,
+            String areaResponsavel
+    ) throws Exception {
+
+        int id = inserirUsuarioDiretamente(
+                nome,
+                email,
+                "GESTOR"
+        );
+
+        try (Connection conn = ConnectionFactory.getConnection();
+
+                PreparedStatement stmt =
+                        conn.prepareStatement(
+                                """
+                                INSERT INTO gestor
+                                    (
+                                        usuario_id,
+                                        area_responsavel
+                                    )
+                                VALUES
+                                    (?, ?)
+                                """
+                        )
+        ) {
+
+            stmt.setInt(1, id);
+            stmt.setString(2, areaResponsavel);
+
+            stmt.executeUpdate();
+        }
+
+        return id;
+    }
+
 
 
 
