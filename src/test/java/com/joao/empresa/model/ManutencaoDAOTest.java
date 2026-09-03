@@ -1035,4 +1035,64 @@ public class ManutencaoDAOTest {
         );
     }
 
+    @Test
+    void atualizar_quandoNovoEquipamentoNaoExistir_deveLancarIntegridadeReferencialException()
+            throws Exception {
+
+        DadosRelacionamento dados =
+                criarRelacionamentosPadrao(
+                        "11111111111112",
+                        "PAT-013",
+                        "tecnico@email.com"
+                );
+
+        int manutencaoId =
+                inserirManutencaoDiretamente(
+                        dados.equipamentoId(),
+                        dados.tecnicoId(),
+                        "CORRETIVA",
+                        "Original",
+                        BigDecimal.ZERO,
+                        "ANDAMENTO",
+                        LocalDate.of(2026, 8, 20),
+                        null
+                );
+
+        Equipamento equipamentoInexistente =
+                new Equipamento(
+                        999999,
+                        "Inexistente",
+                        "PAT-X",
+                        LocalDate.of(2020, 1, 1)
+                );
+
+        Tecnico tecnico =
+                new Tecnico(
+                        dados.tecnicoId(),
+                        "Técnico Teste",
+                        "tecnico@email.com",
+                        "Mecânica"
+                );
+
+        Manutencao alterada =
+                new Manutencao(
+                        manutencaoId,
+                        Manutencao.TipoManutencao.CORRETIVA,
+                        "Alterada",
+                        BigDecimal.ZERO,
+                        LocalDate.of(2026, 8, 20),
+                        null,
+                        Manutencao.Status.ANDAMENTO,
+                        equipamentoInexistente,
+                        tecnico
+                );
+
+        assertThrows(
+                IntegridadeReferencialException.class,
+                () -> manutencaoDAO.atualizar(
+                        alterada
+                )
+        );
+    }
+
 }
