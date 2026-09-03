@@ -806,6 +806,14 @@ public class ManutencaoDAOTest {
         );
     }
 
+    @Test
+    void listarPorStatus_quandoStatusForNulo_deveLancarExcecao() {
 
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> manutencaoDAO
+                        .listarPorStatus(null)
+        );
+    }
 
 }
