@@ -5,6 +5,7 @@ import com.joao.empresa.exceptions.RegistroDuplicadoException;
 import com.joao.empresa.model.Administrador;
 import com.joao.empresa.model.Gestor;
 import com.joao.empresa.model.Tecnico;
+import com.joao.empresa.model.Usuario;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -261,5 +262,38 @@ class UsuarioDAOTest {
 
         assertNull(gestor.getId());
     }
+
+    @Test
+    void salvar_quandoTipoNaoForSuportado_deveExecutarRollback()
+            throws Exception {
+
+        // esse usuario aqui não é adm, nem gestor e nem tecnico
+        // o usuario foi inserido, mas nos dados específicos não suporta
+        Usuario usuarioNaoSuportado =
+                new Usuario(
+                        "Usuário estranho",
+                        "estranho@email.com",
+                        Usuario.TipoUsuario.ADMINISTRADOR
+                ) {
+                    @Override
+                    public void atualizarEspecifico(
+                            Usuario alterado
+                    ) {
+                    }
+                };
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> usuarioDAO.salvar(
+                        usuarioNaoSuportado
+                )
+        );
+
+        assertNull(usuarioNaoSuportado.getId());
+
+        assertEquals(0, contarUsuarios());
+    }
+
+
 
 }
