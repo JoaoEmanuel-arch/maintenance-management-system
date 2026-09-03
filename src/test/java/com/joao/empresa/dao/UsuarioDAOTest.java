@@ -539,6 +539,51 @@ class UsuarioDAOTest {
         );
     }
 
+    @Test
+    void atualizar_quandoForGestor_deveAtualizarDadosComunsEEspecificos()
+            throws Exception {
+
+        int id =
+                inserirGestorDiretamente(
+                        "Nome antigo",
+                        "gestor-antigo@email.com",
+                        "Financeiro"
+                );
+
+        Gestor alterado =
+                new Gestor(
+                        id,
+                        "Nome atualizado",
+                        "gestor-novo@email.com",
+                        "Operações"
+                );
+
+        usuarioDAO.atualizar(
+                alterado
+        );
+
+        Gestor resultado =
+                (Gestor)
+                        usuarioDAO.buscarPorId(id);
+
+        assertAll(
+                () -> assertEquals(
+                        "Nome atualizado",
+                        resultado.getNome()
+                ),
+
+                () -> assertEquals(
+                        "gestor-novo@email.com",
+                        resultado.getEmail()
+                ),
+
+                () -> assertEquals(
+                        "Operações",
+                        resultado.getAreaResponsavel()
+                )
+        );
+    }
+
 
 
 }
