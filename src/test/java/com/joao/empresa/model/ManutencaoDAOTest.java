@@ -593,6 +593,15 @@ public class ManutencaoDAOTest {
         );
     }
 
+    @Test
+    void listar_quandoNaoExistiremManutencoes_deveRetornarListaVazia() {
+
+        List<Manutencao> resultado = manutencaoDAO.listar();
+
+        assertNotNull(resultado);
+        assertTrue(resultado.isEmpty());
+    }
+
 
 
 }
