@@ -1095,4 +1095,39 @@ public class ManutencaoDAOTest {
         );
     }
 
+    @Test
+    void deletar_quandoManutencaoExistir_deveRemoverRegistro()
+            throws Exception {
+
+        DadosRelacionamento dados =
+                criarRelacionamentosPadrao(
+                        "12121212121212",
+                        "PAT-014",
+                        "tecnico@email.com"
+                );
+
+        int manutencaoId =
+                inserirManutencaoDiretamente(
+                        dados.equipamentoId(),
+                        dados.tecnicoId(),
+                        "CORRETIVA",
+                        "Será removida",
+                        BigDecimal.ZERO,
+                        "ANDAMENTO",
+                        LocalDate.of(2026, 8, 20),
+                        null
+                );
+
+        manutencaoDAO.deletar(manutencaoId);
+
+        assertEquals(
+                0,
+                contarManutencaoPorId(
+                        manutencaoId
+                )
+        );
+    }
+
+
+
 }
