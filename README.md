@@ -1,200 +1,300 @@
-# 🔧 Maintenance Management System
+🔧 Maintenance Management System
 
-Sistema de gerenciamento de manutenções desenvolvido em **Java 17**, utilizando **JDBC puro e MySQL** para persistência de dados.
+Sistema de gerenciamento de manutenções desenvolvido em Java 17, com persistência em MySQL via JDBC puro, arquitetura em camadas, regras de negócio, tratamento de exceções, transações e testes automatizados.
 
-O projeto faz parte do processo de aprofundamento em **desenvolvimento Back-End Java**, com foco em compreender os fundamentos que frameworks como Spring abstraem: acesso ao banco de dados, transações, mapeamento entre objetos e tabelas, tratamento de exceções, regras de negócio e organização em camadas.
+A aplicação permite administrar empresas, equipamentos, usuários e manutenções por meio de uma interface de console. Esta primeira versão foi construída sem Spring e sem ORM de forma intencional, com o objetivo de compreender os mecanismos que frameworks como Spring Boot e Hibernate abstraem.
 
-> **Status atual:** versão JDBC em fase final de estabilização e atualização da suíte de testes.
+Status: V1 JDBC funcional, com aplicação de console e suíte automatizada cobrindo domínio, serviços e persistência. A próxima evolução planejada é a migração para Spring Boot e API REST.
 
----
+🎯 Objetivo do projeto
 
-## 📌 Sobre o projeto
+Mais do que implementar um CRUD, o objetivo deste projeto é praticar fundamentos importantes de desenvolvimento Back-End Java em um sistema com regras de negócio e persistência real.
 
-O sistema representa o domínio de manutenção de equipamentos pertencentes a empresas.
+Durante o desenvolvimento foram trabalhados conceitos como:
 
-A aplicação permite gerenciar:
+modelagem de domínio e orientação a objetos;
 
-* empresas;
-* equipamentos vinculados às empresas;
-* usuários com diferentes papéis;
-* técnicos responsáveis pelas manutenções;
-* manutenções preventivas e corretivas;
-* histórico e estados das manutenções.
+arquitetura em camadas;
 
-Os tipos de usuário atualmente modelados são:
+padrão DAO;
 
-* `Administrador`, com departamento;
-* `Gestor`, com área responsável;
-* `Tecnico`, com especialidade.
+JDBC e SQL parametrizado;
 
-As manutenções podem assumir os estados:
+mapeamento manual entre banco e objetos Java;
 
-* `ANDAMENTO`;
-* `CONCLUIDA`;
-* `CANCELADA`.
+relacionamentos e integridade referencial;
 
-A proposta desta primeira versão é implementar a persistência **sem ORM ou framework**, permitindo compreender manualmente o fluxo completo entre aplicação Java e banco de dados antes da futura evolução para Spring Boot.
+transações com commit e rollback;
 
----
+tradução de exceções entre camadas;
 
-## ✅ Funcionalidades implementadas
+prevenção de operações incompatíveis com o estado das entidades;
 
-### Empresas
+identificação e redução de consultas N+1;
 
-* cadastro;
-* busca por ID;
-* listagem;
-* atualização;
-* exclusão;
-* status de empresa ativada ou desativada;
-* vínculo com equipamentos;
-* proteção contra exclusão de empresas que ainda possuem registros associados;
-* validação de unicidade de CNPJ pelo banco de dados.
+injeção de dependências por construtor;
 
-### Equipamentos
+composição manual das dependências na classe Main;
 
-* cadastro vinculado a uma empresa;
-* busca por ID;
-* listagem;
-* atualização;
-* exclusão;
-* código patrimonial único;
-* validação da empresa responsável;
-* bloqueio da exclusão quando existem manutenções associadas.
+testes unitários com JUnit 5 e Mockito;
 
-### Usuários
+testes de integração dos DAOs com MySQL;
 
-* cadastro;
-* busca por ID;
-* listagem;
-* atualização;
-* exclusão;
-* herança e polimorfismo entre os diferentes tipos de usuário;
-* persistência dos dados gerais e específicos em tabelas relacionadas;
-* transações JDBC para operações que envolvem múltiplas tabelas;
-* proteção contra alteração indevida do tipo do usuário;
-* unicidade de e-mail.
+análise de cobertura com JaCoCo.
 
-### Manutenções
+✨ Funcionalidades
 
-* cadastro de manutenção preventiva ou corretiva;
-* associação com equipamento e técnico responsável;
-* busca por ID;
-* listagem geral;
-* listagem por status;
-* busca por equipamento;
-* busca por técnico;
-* atualização enquanto a manutenção está em andamento;
-* conclusão com registro de data final e custo;
-* cancelamento;
-* tratamento de `data_fim` opcional;
-* bloqueio de alterações incompatíveis com o estado atual;
-* bloqueio da exclusão de manutenção em andamento.
+Empresas
 
----
+cadastrar, buscar, listar, atualizar e excluir empresas;
 
-## 🏗️ Arquitetura
+controlar status ATIVADA e DESATIVADA;
 
-O projeto utiliza uma organização em camadas:
+garantir unicidade de CNPJ;
 
-```text
+impedir exclusões que violem relacionamentos existentes.
+
+Equipamentos
+
+cadastrar equipamentos vinculados a uma empresa;
+
+buscar, listar, atualizar e excluir equipamentos;
+
+garantir unicidade do código patrimonial;
+
+validar a empresa responsável;
+
+impedir exclusão quando houver manutenção associada incompatível com a operação.
+
+Usuários
+
+O domínio utiliza herança e polimorfismo para representar três tipos de usuário:
+
+Administrador — possui departamento;
+
+Gestor — possui área responsável;
+
+Tecnico — possui especialidade e pode ser responsável por manutenções.
+
+Operações disponíveis:
+
+cadastro;
+
+busca por ID;
+
+listagem;
+
+atualização;
+
+exclusão;
+
+persistência dos dados comuns e específicos em tabelas relacionadas;
+
+transações JDBC nas operações que envolvem mais de uma tabela;
+
+proteção contra alteração indevida do tipo de usuário;
+
+unicidade de e-mail.
+
+Manutenções
+
+cadastro de manutenção PREVENTIVA ou CORRETIVA;
+
+associação com equipamento e técnico responsável;
+
+listagem geral e por status;
+
+busca por ID;
+
+atualização enquanto estiver em andamento;
+
+finalização com data final e custo;
+
+cancelamento;
+
+exclusão de manutenções já finalizadas ou canceladas;
+
+tratamento de data_fim opcional;
+
+bloqueio de operações incompatíveis com o estado atual.
+
+Estados possíveis:
+
+ANDAMENTO → CONCLUIDA
+     └────→ CANCELADA
+
+🖥️ Aplicação de console
+
+A V1 possui uma interface de linha de comando organizada em menus específicos para cada módulo.
+
+========================================================================
+        SISTEMA DE GERENCIAMENTO DE MANUTENÇÕES - V1 JDBC
+========================================================================
+
+MENU PRINCIPAL
+1 - Usuários
+2 - Empresas
+3 - Equipamentos
+4 - Manutenções
+0 - Sair
+
+A classe Main funciona como composition root da aplicação: nela são criados os DAOs, Services, componentes de entrada e menus, e as dependências são conectadas por construtor.
+
+Main
+ ├── DAOs
+ │    ├── UsuarioDAO
+ │    ├── EmpresaDAO
+ │    ├── EquipamentoDAO
+ │    └── ManutencaoDAO
+ │
+ ├── Services
+ │    ├── GestaoUsuario
+ │    ├── GestaoEmpresa
+ │    ├── GestaoEquipamento
+ │    └── GestaoManutencao
+ │
+ └── ConsoleApplication
+      ├── UsuarioMenu
+      ├── EmpresaMenu
+      ├── EquipamentoMenu
+      └── ManutencaoMenu
+
+Isso mantém as classes desacopladas de implementações criadas internamente e facilita principalmente a substituição das dependências por mocks durante os testes.
+
+🏗️ Arquitetura
+
 src/main/java/com/joao/empresa
-├── model        # Entidades, comportamento e regras do domínio
-├── services     # Casos de uso e regras da aplicação
-├── dao          # Persistência e consultas SQL utilizando JDBC
-├── database     # Conexão e tratamento de erros do banco
-└── exceptions   # Exceções de persistência e de negócio
-```
+├── app
+│   ├── ConsoleApplication.java
+│   └── console
+│       ├── ConsoleInput.java
+│       ├── UsuarioMenu.java
+│       ├── EmpresaMenu.java
+│       ├── EquipamentoMenu.java
+│       └── ManutencaoMenu.java
+├── dao
+│   ├── UsuarioDAO.java
+│   ├── EmpresaDAO.java
+│   ├── EquipamentoDAO.java
+│   └── ManutencaoDAO.java
+├── database
+│   ├── ConnectionFactory.java
+│   └── TradutorSQLException.java
+├── exceptions
+├── model
+├── services
+└── Main.java
 
-O fluxo principal da aplicação é:
+Fluxo simplificado:
 
-```text
-Entidades
-    ↑
-Services
-    ↓
-DAOs
-    ↓
-JDBC
-    ↓
-MySQL
-```
+Console / Main
+      ↓
+   Services
+      ↓
+     DAOs
+      ↓
+     JDBC
+      ↓
+    MySQL
 
-Cada camada possui uma responsabilidade específica:
+Responsabilidades
 
-* **Entidades:** protegem o estado dos objetos e as invariantes do domínio;
-* **Services:** coordenam operações e interpretam regras de negócio;
-* **DAOs:** isolam consultas SQL e detalhes da persistência;
-* **Banco de dados:** garante integridade por meio de constraints e relacionamentos.
+Camada
 
-A versão atual ainda não possui `Controller`, endpoints HTTP ou interface gráfica.
+Responsabilidade
 
----
+model
 
-## 🧠 Conceitos aplicados
+Entidades, estado e invariantes do domínio
 
-O projeto foi utilizado para praticar e aplicar conceitos importantes de desenvolvimento Back-End e arquitetura de software:
+services
 
-### Java e Orientação a Objetos
+Casos de uso e coordenação das regras da aplicação
 
-* encapsulamento;
-* abstração;
-* herança;
-* polimorfismo;
-* classes abstratas;
-* enums;
-* coleções;
-* `equals()` e `hashCode()`;
-* identidade de entidades;
-* validações e invariantes de domínio.
+dao
 
-### Arquitetura
+SQL, persistência e reconstrução dos objetos
 
-* arquitetura em camadas;
-* Separation of Concerns;
-* baixo acoplamento;
-* alta coesão;
-* padrão DAO;
-* Fail Fast;
-* regras de negócio dentro do domínio;
-* separação entre regra de negócio e infraestrutura.
+database
 
-### JDBC e persistência
+Conexões e tradução de erros do JDBC
 
-* `Connection`;
-* `PreparedStatement`;
-* `ResultSet`;
-* consultas parametrizadas;
-* `INSERT`, `SELECT`, `UPDATE` e `DELETE`;
-* `JOIN`;
-* mapeamento manual entre tabelas e objetos;
-* relacionamentos por chaves estrangeiras;
-* `AUTO_INCREMENT`;
-* `RETURN_GENERATED_KEYS`;
-* tratamento de valores `NULL`;
-* transações;
-* `commit`;
-* `rollback`;
-* atomicidade;
-* integridade referencial.
+app
 
-### Performance
+Interação com o usuário e fluxo da aplicação de console
 
-Durante a evolução do projeto também foram identificados e corrigidos cenários de **N+1 queries**, nos quais uma listagem executava uma consulta inicial e depois novas consultas para cada registro encontrado.
+exceptions
 
-Parte dessas operações passou a utilizar `JOIN`, reduzindo o número de acessos ao banco e reforçando a importância de analisar não apenas se uma consulta funciona, mas também **quantas consultas estão sendo executadas**.
+Exceções específicas de persistência e negócio
 
----
+🗄️ Modelo de dados
 
-## ⚠️ Tratamento de exceções
+O banco utiliza MySQL/InnoDB e relacionamentos protegidos por chaves estrangeiras.
 
-O tratamento de erros foi estruturado considerando o nível de abstração de cada camada.
+Empresa
+   └── Equipamento
+          └── Manutencao
+                 └── Tecnico
 
-Erros técnicos do JDBC são tratados na camada de persistência e traduzidos para exceções próprias da aplicação.
+Usuario
+   ├── Administrador
+   ├── Gestor
+   └── Tecnico
 
-Exemplo:
+Principais restrições de integridade:
 
-```text
+PRIMARY KEY;
+
+FOREIGN KEY;
+
+UNIQUE;
+
+NOT NULL;
+
+ON DELETE RESTRICT;
+
+ON DELETE CASCADE;
+
+ON UPDATE CASCADE.
+
+Campos protegidos por unicidade incluem:
+
+e-mail do usuário;
+
+CNPJ da empresa;
+
+código patrimonial do equipamento.
+
+O schema principal está em:
+
+src/main/resources/schema.sql
+
+🔄 Transações JDBC
+
+Algumas operações precisam modificar mais de uma tabela. O cadastro de um usuário, por exemplo, envolve a tabela geral usuario e uma tabela específica conforme seu tipo.
+
+INSERT usuario
+      ↓
+INSERT administrador / gestor / tecnico
+      ↓
+COMMIT
+
+Se qualquer etapa falhar:
+
+INSERT usuario
+      ↓
+falha na segunda operação
+      ↓
+ROLLBACK
+
+Dessa forma, a operação é tratada como uma única unidade e o banco não fica em um estado parcialmente atualizado.
+
+⚠️ Tratamento e tradução de exceções
+
+Erros técnicos de banco não são propagados diretamente até as camadas superiores. A aplicação traduz exceções conforme o nível de abstração.
+
+Exemplo de duplicidade de CNPJ:
+
 MySQL
   ↓
 SQLException
@@ -203,18 +303,12 @@ TradutorSQLException
   ↓
 RegistroDuplicadoException
   ↓
-Service
+GestaoEmpresa
   ↓
 EmpresaJaCadastradaException
-```
 
-A ideia central é que:
+Entre as exceções próprias do projeto estão:
 
-> **O erro evolui conforme atravessa as camadas da aplicação, sendo traduzido para a linguagem e o nível de abstração de cada camada.**
-
-Entre as exceções utilizadas estão:
-
-```text
 PersistenciaException
 RegistroDuplicadoException
 IntegridadeReferencialException
@@ -229,245 +323,264 @@ EmpresaJaCadastradaException
 EquipamentoJaCadastradoException
 
 EntidadeEmUsoException
-```
 
-Também são utilizadas exceções padrão do Java quando representam melhor o problema:
+Também são utilizadas exceções padrão quando representam melhor o problema:
 
-* `IllegalArgumentException` → entrada ou argumento inválido;
-* `IllegalStateException` → operação incompatível com o estado atual da entidade.
+IllegalArgumentException para argumentos inválidos;
 
-O banco permanece como última linha de defesa por meio de constraints como:
+IllegalStateException para operações incompatíveis com o estado atual da entidade.
 
-```text
-PRIMARY KEY
-FOREIGN KEY
-UNIQUE
-NOT NULL
-ON DELETE RESTRICT
-ON DELETE CASCADE
-```
+⚡ Persistência e performance
 
----
+A camada DAO utiliza diretamente recursos do JDBC, incluindo:
 
-## 🔄 Transações
+Connection;
 
-Operações que alteram múltiplas tabelas utilizam transações JDBC.
+PreparedStatement;
 
-Um exemplo é o cadastro de usuários, que pode envolver:
+ResultSet;
 
-```text
-INSERT usuario
-        ↓
-INSERT tecnico / gestor / administrador
-        ↓
-COMMIT
-```
+RETURN_GENERATED_KEYS;
 
-Caso alguma etapa falhe:
+JOIN;
 
-```text
-INSERT usuario
-        ↓
-falha ao inserir dados específicos
-        ↓
-ROLLBACK
-```
+parâmetros SQL;
 
-Isso garante **atomicidade**, evitando que uma operação fique parcialmente persistida no banco.
+tratamento explícito de NULL;
 
----
+controle manual de transações.
 
-## 🗄️ Banco de dados
+Durante a evolução do projeto também foram identificados cenários de N+1 queries. Algumas consultas foram reorganizadas utilizando JOIN, reduzindo acessos desnecessários ao banco e tornando explícita a preocupação com o custo das operações de persistência.
 
-O projeto utiliza **MySQL** e possui um `schema.sql` responsável pela definição da estrutura do banco.
+🧪 Testes automatizados
 
-Entre as principais relações estão:
+O projeto possui atualmente 178 métodos de teste distribuídos entre domínio, Services e DAOs.
 
-```text
-Empresa
-   └── Equipamentos
+Testes de domínio
 
-Usuario
-   ├── Administrador
-   ├── Gestor
-   └── Tecnico
-          └── Manutenções
+Cobrem, entre outros pontos:
 
-Equipamento
-   └── Manutenções
-```
+validações de entidades;
 
-Restrições de unicidade são utilizadas para proteger campos como:
+equals() e hashCode();
 
-* e-mail de usuário;
-* CNPJ de empresa;
-* código patrimonial de equipamento.
+atualização de dados;
 
----
+associações entre objetos;
 
-## 🛠️ Tecnologias utilizadas
+regras e transições de estado de manutenção.
 
-| Tecnologia        | Uso no projeto                          |
-| ----------------- | --------------------------------------- |
-| Java 17           | Linguagem principal                     |
-| Maven             | Build e gerenciamento de dependências   |
-| JDBC              | Comunicação manual com o banco          |
-| MySQL             | Banco de dados relacional               |
-| MySQL Connector/J | Driver JDBC                             |
-| JUnit 5           | Testes automatizados                    |
-| Mockito           | Mocks e isolamento de dependências      |
-| JaCoCo            | Relatórios de cobertura                 |
-| Git               | Controle de versão                      |
-| GitHub            | Versionamento e documentação do projeto |
+Testes de Services
 
----
+Utilizam JUnit 5 + Mockito para isolar a camada de aplicação dos DAOs e validar:
 
-## 🧪 Testes
+cenários de sucesso;
 
-O projeto utiliza **JUnit 5**, **Mockito** e builders para construção dos objetos utilizados nos cenários de teste.
+entidades inexistentes;
 
-A suíte de testes foi criada durante versões anteriores da aplicação e atualmente está sendo **reestruturada para refletir o domínio e a arquitetura atualizados**.
+duplicidades;
 
-A nova suíte deverá cobrir:
+argumentos inválidos;
 
-* entidades e invariantes do domínio;
-* transições de estado;
-* regras das Services;
-* cenários de sucesso;
-* entidades não encontradas;
-* duplicidades;
-* argumentos inválidos;
-* estados inválidos;
-* entidades em uso;
-* tradução de exceções;
-* DAOs e operações JDBC;
-* geração de IDs;
-* valores opcionais;
-* integridade referencial;
-* transações, `commit` e `rollback`.
+estados inválidos;
 
-A meta é permitir que a versão JDBC seja considerada estabilizada somente após toda a suíte executar corretamente com:
+tradução de exceções;
 
-```bash
+interações esperadas com as dependências.
+
+Testes dos DAOs
+
+São testes de integração com um banco MySQL separado:
+
+manutencao_test_db
+
+O schema utilizado pelos testes está em:
+
+src/test/resources/schema-test.sql
+
+Para executar a suíte completa:
+
 mvn test
-```
 
----
+Para gerar também o relatório do JaCoCo:
 
-## 🚧 Status atual
+mvn verify
 
-A camada JDBC passou por uma etapa de estabilização envolvendo:
+O relatório é gerado em:
 
-* correção do gerenciamento de IDs;
-* melhoria de `equals()` e `hashCode()`;
-* fortalecimento das invariantes do domínio;
-* correção do tratamento de valores opcionais;
-* melhoria do mapeamento entre banco e objetos Java;
-* redução de consultas N+1;
-* utilização de transações;
-* implementação adequada de `commit` e `rollback`;
-* padronização do tratamento de exceções;
-* tradução de erros entre as camadas;
-* proteção da integridade dos relacionamentos;
-* revisão das operações de atualização e exclusão.
+target/site/jacoco/index.html
 
-A principal etapa em andamento é a **reestruturação da suíte de testes automatizados**.
+Os testes dos DAOs precisam de uma instância local do MySQL e do banco manutencao_test_db criado previamente. Na configuração atual, esses testes utilizam root / root como credenciais locais.
 
----
+🛠️ Tecnologias
 
-## 📈 Próximas etapas
+Tecnologia
 
-### Finalização da versão JDBC
+Uso
 
-* [ ] atualizar builders de teste;
-* [ ] reconstruir os testes das entidades;
-* [ ] reconstruir os testes das Services;
-* [ ] criar/revisar testes de integração dos DAOs;
-* [ ] testar fluxos transacionais;
-* [ ] revisar cobertura com JaCoCo;
-* [ ] garantir execução completa com `mvn test`;
-* [ ] revisar documentação de execução;
-* [ ] preparar a release da versão JDBC.
+Java 17
 
-### Evolução futura
+Linguagem principal
 
-Após a conclusão e estabilização da versão JDBC, o projeto será utilizado como base para uma nova implementação utilizando:
+Maven
 
-* Spring Boot;
-* Spring Web;
-* Spring Data JPA;
-* Hibernate;
-* DTOs;
-* Bean Validation;
-* `@Transactional`;
-* tratamento global de exceções;
-* Flyway;
-* Spring Security;
-* autenticação e autorização;
-* API REST;
-* documentação da API;
-* Docker;
-* testes unitários e de integração.
+Build e dependências
 
----
+JDBC
 
-## 🎯 Objetivo de aprendizado
+Persistência sem ORM
 
-O objetivo do projeto não é apenas construir um CRUD, mas compreender os fundamentos utilizados no desenvolvimento de aplicações Back-End Java.
+MySQL
 
-A implementação manual com JDBC permite compreender na prática:
+Banco de dados relacional
 
-* como uma aplicação estabelece conexões com o banco;
-* como SQL é executado pelo Java;
-* como parâmetros são enviados de forma segura;
-* como registros são convertidos em objetos;
-* como objetos são persistidos novamente;
-* como IDs são gerados e recuperados;
-* como relacionamentos são representados;
-* como funcionam transações;
-* como `commit` e `rollback` protegem a consistência;
-* como identificar problemas de performance como N+1;
-* como o banco protege a integridade dos dados;
-* onde devem ficar as regras de negócio;
-* como erros técnicos são traduzidos entre camadas;
-* como organizar uma aplicação reduzindo acoplamento entre domínio e infraestrutura.
+MySQL Connector/J
 
-A futura migração para Spring terá como objetivo abstrair parte desse código manual sem perder a compreensão dos mecanismos existentes por trás do framework.
+Driver JDBC
 
----
+JUnit 5
 
-## 🗺️ Roadmap
+Testes automatizados
 
-```text
-Java + JDBC
-    ↓
-Estabilização da persistência ✅
-    ↓
-Regras e invariantes do domínio ✅
-    ↓
-Tratamento de exceções ✅
-    ↓
-Testes automatizados 🚧
-    ↓
-Release JDBC
-    ↓
-Spring Boot
-    ↓
-Spring Data JPA
-    ↓
-API REST
-    ↓
-Spring Security
-```
+Mockito
 
----
+Mocks e isolamento de dependências
 
-## 👨‍💻 Autor
+JaCoCo
 
-**João Emanuel Pereira do Nascimento**
+Cobertura de testes
 
-Estudante de Ciência da Computação com foco em desenvolvimento **Back-End Java**.
+Git
 
-📧 [pnjoaoemanuel@gmail.com](mailto:pnjoaoemanuel@gmail.com)
-💼 [LinkedIn](https://www.linkedin.com/in/jo%C3%A3o-emanuel-5b268b22b)
-🐙 [GitHub](https://github.com/joaoemanuel-dev)
+Controle de versão
+
+GitHub
+
+Hospedagem e documentação do projeto
+
+▶️ Como executar
+
+Pré-requisitos
+
+Java 17 ou superior;
+
+Maven;
+
+MySQL 8.x;
+
+Git, caso queira clonar o repositório.
+
+1. Criar o banco
+
+Execute o arquivo:
+
+src/main/resources/schema.sql
+
+Ele cria automaticamente o banco:
+
+manutencao_db
+
+2. Configurar a conexão
+
+Por padrão, a aplicação utiliza:
+
+URL:      jdbc:mysql://localhost:3306/manutencao_db
+Usuário:  root
+Senha:    root
+
+Esses valores podem ser sobrescritos por propriedades da JVM:
+
+-Ddb.url=jdbc:mysql://localhost:3306/manutencao_db
+-Ddb.user=seu_usuario
+-Ddb.password=sua_senha
+
+No IntelliJ IDEA, essas propriedades podem ser adicionadas em Run/Debug Configurations → VM options.
+
+3. Compilar
+
+mvn clean compile
+
+4. Executar
+
+Pela IDE, execute:
+
+com.joao.empresa.Main
+
+Ou via Maven:
+
+mvn compile exec:java -Dexec.mainClass="com.joao.empresa.Main"
+
+📂 Estrutura dos testes
+
+src/test
+├── java/com/joao/empresa
+│   ├── builders
+│   ├── dao
+│   ├── model
+│   └── services
+└── resources
+    └── schema-test.sql
+
+Os builders presentes em src/test auxiliam na criação de objetos de teste, reduzindo repetição e deixando os cenários mais legíveis.
+
+📈 Roadmap
+
+Java 17 + JDBC                    ✅
+Modelagem do domínio              ✅
+Banco relacional                  ✅
+DAOs e mapeamento manual          ✅
+Services e regras de negócio      ✅
+Transações JDBC                   ✅
+Tradução de exceções              ✅
+Testes automatizados              ✅
+Aplicação de console              ✅
+        ↓
+Spring Boot                       ⏳
+API REST                          ⏳
+Spring Data JPA / Hibernate       ⏳
+DTOs e Bean Validation            ⏳
+Flyway                            ⏳
+Tratamento global de exceções     ⏳
+Spring Security                   ⏳
+Docker                            ⏳
+
+A próxima versão deverá reaproveitar o conhecimento adquirido nesta implementação para substituir gradualmente a infraestrutura manual por abstrações do ecossistema Spring, sem perder a compreensão do que acontece por baixo do framework.
+
+💡 Principais aprendizados
+
+A construção manual desta versão permitiu compreender na prática:
+
+como o Java abre e gerencia conexões com o banco;
+
+como SQL é enviado com parâmetros seguros;
+
+como registros são transformados em objetos;
+
+como IDs gerados pelo banco retornam para as entidades;
+
+como representar relacionamentos sem ORM;
+
+como proteger consistência com transações;
+
+como commit e rollback funcionam;
+
+como constraints complementam as regras da aplicação;
+
+como erros técnicos podem ser traduzidos entre camadas;
+
+como separar domínio, aplicação, persistência e interface;
+
+como injeção por construtor facilita testes e reduz acoplamento;
+
+como identificar consultas desnecessárias e problemas como N+1;
+
+por que frameworks como Spring Boot, Spring Data JPA e Hibernate são úteis — e quais problemas eles abstraem.
+
+👨‍💻 Autor
+
+João Emanuel Pereira do Nascimento
+Estudante de Ciência da Computação com foco em desenvolvimento Back-End Java.
+
+📧 pnjoaoemanuel@gmail.com
+💼 LinkedIn
+🐙 GitHub
