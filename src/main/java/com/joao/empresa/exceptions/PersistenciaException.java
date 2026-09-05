@@ -2,11 +2,14 @@ package com.joao.empresa.exceptions;
 
 public class PersistenciaException extends RuntimeException {
 
-    public PersistenciaException(String mensagem) {
-        super(mensagem);
+    public PersistenciaException(String message) {
+        super(message);
     }
 
-    public PersistenciaException(String mensagem, Throwable causa) {
-        super(mensagem, causa);
+    public PersistenciaException(
+            String message,
+            Throwable cause
+    ) {
+        super(message, cause);
     }
 }

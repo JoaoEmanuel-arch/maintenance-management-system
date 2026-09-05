@@ -13,10 +13,6 @@ public class GestaoManutencao {
 
     private final ManutencaoDAO manutencaoDAO;
 
-    public GestaoManutencao() {
-        this(new ManutencaoDAO());
-    }
-
     public GestaoManutencao(ManutencaoDAO manutencaoDAO) {
         this.manutencaoDAO = manutencaoDAO;
     }
@@ -151,9 +147,9 @@ public class GestaoManutencao {
 
     // pra finalizar passa o custo e a data final
     public void finalizarManutencao(int id, BigDecimal custo) { // encerra ativa e joga pra finalizadas
-        Manutencao manutencao = buscarPorId(id); // vai ser reconstruído o objeto
+        Manutencao manutencao = buscarPorId(id);
 
-        manutencao.finalizar(custo, LocalDate.now()); // atualizo os atributos do objeto e jogo pro banco de dados
+        manutencao.finalizar(custo, LocalDate.now());
 
         manutencaoDAO.atualizar(manutencao); // DAO é pra mexer com banco de dados
     }

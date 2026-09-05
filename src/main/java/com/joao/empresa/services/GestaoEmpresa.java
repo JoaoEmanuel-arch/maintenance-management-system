@@ -7,14 +7,7 @@ import java.util.List;
 
 public class GestaoEmpresa {
 
-    // o teste não conseguia falar: "GestaoEmpresa, finja que o DAO encontrou essa empresa"
-    // porque a própria classe criava o DAO -> Injeção de dependência por construtor
-    // Serve muito pra fazer um DAO falso nos testes (mockar)
     private final EmpresaDAO empresaDAO;
-
-    public GestaoEmpresa() {
-        this(new EmpresaDAO());
-    }
 
     public GestaoEmpresa(EmpresaDAO empresaDAO) {
         this.empresaDAO = empresaDAO;

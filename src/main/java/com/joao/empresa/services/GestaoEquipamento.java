@@ -11,14 +11,10 @@ public class GestaoEquipamento {
     private final EquipamentoDAO equipamentoDAO;
     private final ManutencaoDAO manutencaoDAO;
 
-    public GestaoEquipamento() {
-        this(
-                new EquipamentoDAO(),
-                new ManutencaoDAO()
-        );
-    }
-
-    public GestaoEquipamento(EquipamentoDAO equipamentoDAO, ManutencaoDAO manutencaoDAO) {
+    public GestaoEquipamento(
+            EquipamentoDAO equipamentoDAO,
+            ManutencaoDAO manutencaoDAO
+    ) {
         this.equipamentoDAO = equipamentoDAO;
         this.manutencaoDAO = manutencaoDAO;
     }
@@ -58,8 +54,7 @@ public class GestaoEquipamento {
                 throw new EmpresaNaoEncontradaException(
                         "Empresa com ID "
                                 + idEmpresaDona
-                                + " não encontrada.",
-                        e
+                                + " não encontrada."
                 );
         }
 
