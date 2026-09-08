@@ -36,6 +36,12 @@ public class GestaoUsuario {
 
     public void cadastrarUsuario(Usuario usuario) {
 
+        if (usuario == null) {
+            throw new IllegalArgumentException(
+                    "O usuário a ser cadastrado não pode ser nulo."
+            );
+        }
+
         // antes terminava em erro técnico, agora se o DAO lançar exceção eu trato aqui
         try {
 
